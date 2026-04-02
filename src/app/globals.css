@@ -1,0 +1,185 @@
+@import "tw-animate-css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --canvas: 244 247 248;
+    --page: 248 250 251;
+    --page-glow: 220 243 235;
+    --page-glow-strong: 203 236 225;
+    --background: 255 255 255;
+    --foreground: 27 43 75;
+    --ink: 27 43 75;
+    --ink-soft: 94 108 132;
+    --card: 255 255 255;
+    --card-foreground: 27 43 75;
+    --popover: 255 255 255;
+    --popover-foreground: 27 43 75;
+    --surface: 255 255 255;
+    --surface-elevated: 255 255 255;
+    --surface-soft: 242 246 247;
+    --surface-brand: 232 247 242;
+    --surface-brand-strong: 214 241 233;
+    --surface-warning: 255 247 237;
+    --surface-danger: 254 242 242;
+    --brand: 13 148 136;
+    --brand-strong: 15 110 86;
+    --brand-soft: 225 245 238;
+    --brand-foreground: 255 255 255;
+    --success: 22 128 61;
+    --success-soft: 234 250 241;
+    --success-foreground: 21 128 61;
+    --warning: 180 83 9;
+    --warning-soft: 254 243 226;
+    --warning-foreground: 146 64 14;
+    --danger: 185 28 28;
+    --danger-soft: 254 242 242;
+    --danger-foreground: 185 28 28;
+    --line-soft: 223 231 236;
+    --line-strong: 201 214 221;
+    --primary: 13 148 136;
+    --primary-foreground: 255 255 255;
+    --secondary: 225 245 238;
+    --secondary-foreground: 27 43 75;
+    --muted: 241 245 249;
+    --muted-foreground: 100 116 139;
+    --accent: 238 237 254;
+    --accent-foreground: 83 74 183;
+    --destructive: 185 28 28;
+    --destructive-foreground: 255 255 255;
+    --border: 223 231 236;
+    --input: 223 231 236;
+    --ring: 13 148 136;
+    --radius: 1rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply min-h-full scroll-smooth;
+  }
+
+  body {
+    @apply min-h-full bg-canvas font-sans text-foreground antialiased;
+  }
+
+  ::selection {
+    background: rgb(var(--brand-soft) / 0.9);
+    color: rgb(var(--ink));
+  }
+}
+
+@layer components {
+  .app-shell {
+    position: relative;
+  }
+
+  .app-panel {
+    @apply rounded-[2rem] border backdrop-blur-sm;
+    border-color: rgb(var(--line-soft) / 0.95);
+    background: rgb(var(--surface-elevated) / 0.94);
+    box-shadow: 0 24px 80px rgba(15, 23, 42, 0.08);
+  }
+
+  .app-panel-soft {
+    @apply rounded-[2rem] border;
+    border-color: rgb(var(--line-soft) / 0.8);
+    background: rgb(var(--surface) / 0.84);
+    box-shadow: 0 16px 48px rgba(148, 163, 184, 0.14);
+  }
+
+  .app-panel-brand {
+    @apply rounded-[1.75rem] border;
+    border-color: rgb(var(--brand) / 0.1);
+    background: linear-gradient(
+      135deg,
+      rgb(var(--surface-brand-strong)) 0%,
+      rgb(var(--surface-brand)) 100%
+    );
+  }
+
+  .app-chip {
+    @apply inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold;
+    border-color: rgb(var(--brand) / 0.16);
+    background: rgb(var(--surface-brand));
+    color: rgb(var(--brand-strong));
+  }
+
+  .app-icon-chip {
+    @apply inline-flex h-12 w-12 items-center justify-center rounded-2xl;
+    background: linear-gradient(
+      145deg,
+      rgb(var(--brand)) 0%,
+      rgb(var(--brand-strong)) 100%
+    );
+    color: rgb(var(--brand-foreground));
+    box-shadow: 0 18px 42px rgba(13, 148, 136, 0.24);
+  }
+
+  .app-kicker {
+    @apply text-xs font-semibold uppercase tracking-[0.24em];
+    color: rgb(var(--brand));
+  }
+
+  .app-title {
+    @apply font-display tracking-tight;
+    color: rgb(var(--ink));
+  }
+
+  .app-copy {
+    @apply text-sm leading-6;
+    color: rgb(var(--ink-soft));
+  }
+
+  .app-note {
+    @apply rounded-[1.5rem] border p-4 text-sm leading-6;
+    border-color: rgb(var(--line-soft));
+    background: rgb(var(--surface-soft));
+    color: rgb(var(--ink-soft));
+  }
+
+  .app-note-brand {
+    @apply rounded-[1.5rem] border p-4 text-sm leading-6;
+    border-color: rgb(var(--brand) / 0.12);
+    background: rgb(var(--surface-brand));
+    color: rgb(var(--ink-soft));
+  }
+
+  .app-note-warning {
+    @apply rounded-[1.5rem] border p-4 text-sm leading-6;
+    border-color: rgb(var(--warning) / 0.12);
+    background: rgb(var(--surface-warning));
+    color: rgb(var(--warning-foreground));
+  }
+
+  .app-alert-danger {
+    @apply rounded-2xl px-4 py-3 text-sm;
+    background: rgb(var(--danger-soft));
+    color: rgb(var(--danger-foreground));
+  }
+
+  .app-alert-success {
+    @apply rounded-2xl px-4 py-3 text-sm;
+    background: rgb(var(--success-soft));
+    color: rgb(var(--success-foreground));
+  }
+
+  .app-link-subtle {
+    @apply flex h-11 items-center justify-center rounded-full px-4 text-center text-sm transition;
+    color: rgb(var(--ink-soft));
+  }
+
+  .app-link-subtle:hover {
+    color: rgb(var(--brand));
+  }
+
+  .app-link-subtle:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgb(var(--brand) / 0.24);
+  }
+}
