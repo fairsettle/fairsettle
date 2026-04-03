@@ -109,14 +109,26 @@ async function createAndSendInvitation({
       .from('invitations')
       .update({
         resend_email_id: resendEmailId,
+        delivery_status: 'queued',
+        delivery_error: null,
       })
       .eq('id', invitation.id)
   } catch (error) {
-    await supabase.from('invitations').delete().eq('id', invitation.id)
+    const errorMessage = error instanceof Error ? error.message : 'Unable to send invitation'
+
+    await supabase
+      .from('invitations')
+      .update({
+        delivery_status: 'failed',
+        delivery_error: errorMessage,
+        delivery_last_event_at: new Date().toISOString(),
+        delivery_last_event_type: 'email.failed',
+      })
+      .eq('id', invitation.id)
 
     return {
       response: NextResponse.json(
-        { error: error instanceof Error ? error.message : 'Unable to send invitation' },
+        { error: errorMessage, invitation_id: invitation.id },
         { status: 500 },
       ),
     }
@@ -235,6 +247,7 @@ export async function POST(req: Request) {
     .eq('case_id', parsed.data.case_id)
     .eq('recipient_contact', recipientContact)
     .in('status', ['sent', 'opened'])
+    .neq('delivery_status', 'failed')
     .gt('expires_at', new Date().toISOString())
     .maybeSingle()
 

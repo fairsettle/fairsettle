@@ -35,6 +35,10 @@
     "signInLink": "هل لديك حساب بالفعل؟ تسجيل الدخول →",
     "showPassword": "عرض",
     "hidePassword": "إخفاء",
+    "confirmEmailTitle": "تحقق من بريدك الإلكتروني",
+    "confirmEmailBody": "لقد أرسلنا رابط تأكيد إلى {email}. أكّد حسابك للمتابعة بأمان داخل FairSettle.",
+    "confirmEmailHintTitle": "ما الذي سيحدث بعد ذلك",
+    "confirmEmailHintBody": "افتح رسالة التأكيد من FairSettle واضغط على الزر، وسيتم إعادتك تلقائيًا إلى الخطوة الصحيحة التالية.",
     "childrenOption1": "1",
     "childrenOption2": "2",
     "childrenOption3": "3",
@@ -249,7 +253,8 @@
     "deliveryDelayed": "يستغرق التسليم وقتًا أطول من المتوقع.",
     "deliveryBounced": "تم رفض هذا البريد الإلكتروني ويحتاج إلى متابعة.",
     "deliveryComplained": "قام المستلم بوضع علامة على هذه الرسالة كبريد مزعج.",
-    "deliveryFailed": "فشل هذا البريد الإلكتروني قبل التسليم."
+    "deliveryFailed": "فشل هذا البريد الإلكتروني قبل التسليم.",
+    "deliveryFailedVisible": "تم إنشاء الدعوة، لكن تعذر تسليم البريد الإلكتروني. تحقق من حالة الدعوة أدناه وأعد الإرسال بعد معالجة مشكلة العنوان أو مزود الخدمة."
   },
   "inviteStatus": {
     "sent": "أُرسلت",

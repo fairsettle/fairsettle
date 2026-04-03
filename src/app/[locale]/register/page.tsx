@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { LockKeyhole, ShieldCheck } from "lucide-react";
+import { LockKeyhole, MailCheck, ShieldCheck } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,7 @@ export default function RegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [confirmationEmail, setConfirmationEmail] = useState("");
   const [formState, setFormState] = useState({
     full_name: "",
     email: "",
@@ -58,14 +59,25 @@ export default function RegisterPage() {
         body: JSON.stringify(formState),
       });
 
+      const payload = (await response.json().catch(() => null)) as {
+        error?: string;
+        requires_email_confirmation?: boolean;
+        user?: { email?: string | null };
+      } | null;
+
       if (!response.ok) {
-        const errorMessage = await readApiErrorMessage(response);
+        const errorMessage = payload?.error ?? (await readApiErrorMessage(response));
         const error = errorMessage?.toLowerCase() ?? "";
         setErrorMessage(
           error === "validation failed"
             ? t("errors.validation")
             : mapAuthErrorMessage(errorMessage, t),
         );
+        return;
+      }
+
+      if (payload?.requires_email_confirmation) {
+        setConfirmationEmail(payload.user?.email ?? formState.email);
         return;
       }
 
@@ -76,6 +88,44 @@ export default function RegisterPage() {
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  if (confirmationEmail) {
+    return (
+      <main className=" px-5 py-6">
+        <div className="mx-auto flex max-w-3xl flex-col gap-6">
+          <Card className="app-panel">
+            <CardContent className="space-y-5 p-6 sm:p-7 md:p-8">
+              <div className="app-chip h-12 w-12 justify-center rounded-2xl px-0">
+                <MailCheck className="size-5" />
+              </div>
+
+              <div className="space-y-2">
+                <h1 className="font-display text-4xl text-ink sm:text-5xl">
+                  {t("register.confirmEmailTitle")}
+                </h1>
+                <p className="max-w-2xl text-sm leading-6 text-ink-soft">
+                  {t("register.confirmEmailBody", { email: confirmationEmail })}
+                </p>
+              </div>
+
+              <div className="app-note-brand">
+                <p className="font-medium text-ink">
+                  {t("register.confirmEmailHintTitle")}
+                </p>
+                <p className="mt-2">{t("register.confirmEmailHintBody")}</p>
+              </div>
+
+              <div className="border-t border-line pt-5">
+                <Link className="app-link-subtle" href={getLocalizedPath(locale, "/login")}>
+                  {t("register.signInLink")}
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    );
   }
 
   return (

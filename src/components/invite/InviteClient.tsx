@@ -81,7 +81,7 @@ export function InviteClient({ caseId }: { caseId: string }) {
 
   const inviteCounts = useMemo(
     () => ({
-      sent: invitations.filter((item) => item.status === 'sent').length,
+      sent: invitations.filter((item) => item.status === 'sent' && item.delivery_status !== 'failed').length,
       opened: invitations.filter((item) => item.status === 'opened').length,
       accepted: invitations.filter((item) => item.status === 'accepted').length,
     }),
@@ -92,7 +92,9 @@ export function InviteClient({ caseId }: { caseId: string }) {
     setIsLoadingInvites(true)
 
     try {
-      const response = await fetch(`/api/invitations?case_id=${encodeURIComponent(caseId)}`)
+      const response = await fetch(`/api/invitations?case_id=${encodeURIComponent(caseId)}`, {
+        cache: 'no-store',
+      })
       const payload = (await response.json().catch(() => null)) as
         | { invitations?: InviteItem[]; error?: string }
         | null
@@ -151,11 +153,15 @@ export function InviteClient({ caseId }: { caseId: string }) {
         const apiError = payload?.error ?? (await readApiErrorMessage(response))
         const error = apiError?.toLowerCase() ?? ''
 
+        await loadInvitations()
+
         setErrorMessage(
           error.includes('you cannot invite yourself')
             ? t('invite.selfInvite')
             : error.includes('active invitation already exists')
               ? t('invite.duplicateActive')
+              : error.includes('unable to send invitation')
+                ? t('invite.deliveryFailedVisible')
               : resolveApiErrorMessage(apiError, t('errors.generic')),
         )
         return

@@ -64,9 +64,25 @@ export default function QuestionsPage({
         ]);
 
         if (!questionsResponse.ok) {
+          const questionErrorPayload = (await questionsResponse
+            .json()
+            .catch(() => null)) as {
+            error?: string;
+            redirect_to?: string | null;
+          } | null;
+
+          if (
+            questionsResponse.status === 409 &&
+            questionErrorPayload?.redirect_to
+          ) {
+            router.replace(getLocalizedPath(locale, questionErrorPayload.redirect_to));
+            return;
+          }
+
           throw new Error(
             resolveApiErrorMessage(
-              await readApiErrorMessage(questionsResponse),
+              questionErrorPayload?.error ??
+                (await readApiErrorMessage(questionsResponse)),
               t("questionsFlow.loadError"),
             ),
           );
@@ -130,7 +146,7 @@ export default function QuestionsPage({
     return () => {
       ignore = true;
     };
-  }, [caseId, t]);
+  }, [caseId, locale, router, t]);
 
   const isReviewing = currentIndex >= questions.length && questions.length > 0;
   const currentQuestion = questions[currentIndex];

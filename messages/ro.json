@@ -35,6 +35,10 @@
     "signInLink": "Ai deja un cont? Autentifică-te →",
     "showPassword": "Arată",
     "hidePassword": "Ascunde",
+    "confirmEmailTitle": "Verifică e-mailul",
+    "confirmEmailBody": "Am trimis un link de confirmare la {email}. Confirmă-ți contul pentru a continua în siguranță în FairSettle.",
+    "confirmEmailHintTitle": "Ce urmează",
+    "confirmEmailHintBody": "Deschide e-mailul de confirmare de la FairSettle, apasă butonul și vei fi dus automat la pasul următor corect.",
     "childrenOption1": "1",
     "childrenOption2": "2",
     "childrenOption3": "3",
@@ -249,7 +253,8 @@
     "deliveryDelayed": "Livrarea durează mai mult decât de obicei.",
     "deliveryBounced": "Acest email a fost respins și necesită atenție.",
     "deliveryComplained": "Destinatarul a marcat acest email ca spam.",
-    "deliveryFailed": "Acest email a eșuat înainte de livrare."
+    "deliveryFailed": "Acest email a eșuat înainte de livrare.",
+    "deliveryFailedVisible": "Invitația a fost creată, dar e-mailul nu a putut fi livrat. Verifică starea invitației de mai jos și retrimite după ce adresa sau problema furnizorului este rezolvată."
   },
   "inviteStatus": {
     "sent": "Trimisă",

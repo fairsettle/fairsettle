@@ -272,3 +272,41 @@ export async function getResponderSavedReviewItems(caseId: string, userId: strin
     )
   })
 }
+
+export async function getResponderReviewAccess(caseId: string, userId: string) {
+  const [{ data: timelineRows }, { data: acceptedInvitation }] = await Promise.all([
+    supabaseAdmin
+      .from('case_timeline')
+      .select('event_data, created_at')
+      .eq('case_id', caseId)
+      .eq('user_id', userId)
+      .in('event_type', ['responder_started', 'responder_completed'])
+      .order('created_at', { ascending: false })
+      .limit(10),
+    supabaseAdmin
+      .from('invitations')
+      .select('token')
+      .eq('case_id', caseId)
+      .eq('status', 'accepted')
+      .order('accepted_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ])
+
+  const hasCompletedReview = (timelineRows ?? []).some((row) => {
+    const eventData = row.event_data
+
+    return (
+      eventData &&
+      typeof eventData === 'object' &&
+      !Array.isArray(eventData) &&
+      Array.isArray(eventData.review_items) &&
+      eventData.review_items.length > 0
+    )
+  })
+
+  return {
+    hasCompletedReview,
+    invitationToken: acceptedInvitation?.token ?? null,
+  }
+}

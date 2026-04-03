@@ -35,6 +35,10 @@
     "signInLink": "Already have an account? Sign in →",
     "showPassword": "Show",
     "hidePassword": "Hide",
+    "confirmEmailTitle": "Check your email",
+    "confirmEmailBody": "We’ve sent a confirmation link to {email}. Confirm your account to continue into FairSettle securely.",
+    "confirmEmailHintTitle": "What happens next",
+    "confirmEmailHintBody": "Open the confirmation email from FairSettle, tap the button, and you’ll be brought back to the right next step automatically.",
     "childrenOption1": "1",
     "childrenOption2": "2",
     "childrenOption3": "3",
@@ -249,7 +253,8 @@
     "deliveryDelayed": "Delivery is taking longer than expected.",
     "deliveryBounced": "This email bounced and needs attention.",
     "deliveryComplained": "The recipient marked this email as spam.",
-    "deliveryFailed": "This email failed before delivery."
+    "deliveryFailed": "This email failed before delivery.",
+    "deliveryFailedVisible": "We created the invitation, but the email could not be delivered. Check the invite status below and use resend once the address or provider issue is resolved."
   },
   "inviteStatus": {
     "sent": "Sent",

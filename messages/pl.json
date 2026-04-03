@@ -35,6 +35,10 @@
     "signInLink": "Masz już konto? Zaloguj się →",
     "showPassword": "Pokaż",
     "hidePassword": "Ukryj",
+    "confirmEmailTitle": "Sprawdź swoją skrzynkę",
+    "confirmEmailBody": "Wysłaliśmy link potwierdzający na adres {email}. Potwierdź konto, aby bezpiecznie przejść dalej w FairSettle.",
+    "confirmEmailHintTitle": "Co dalej",
+    "confirmEmailHintBody": "Otwórz wiadomość potwierdzającą od FairSettle, kliknij przycisk, a wrócisz automatycznie do właściwego kolejnego kroku.",
     "childrenOption1": "1",
     "childrenOption2": "2",
     "childrenOption3": "3",
@@ -249,7 +253,8 @@
     "deliveryDelayed": "Dostarczenie trwa dłużej niż zwykle.",
     "deliveryBounced": "Ta wiadomość została odrzucona i wymaga uwagi.",
     "deliveryComplained": "Odbiorca oznaczył tę wiadomość jako spam.",
-    "deliveryFailed": "Nie udało się dostarczyć tej wiadomości."
+    "deliveryFailed": "Nie udało się dostarczyć tej wiadomości.",
+    "deliveryFailedVisible": "Zaproszenie zostało utworzone, ale wiadomości e-mail nie udało się dostarczyć. Sprawdź status poniżej i użyj ponownej wysyłki, gdy adres lub problem dostawcy zostanie naprawiony."
   },
   "inviteStatus": {
     "sent": "Wysłane",

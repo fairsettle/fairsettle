@@ -54,6 +54,7 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json({
+    requires_email_confirmation: !data.session,
     user: {
       id: data.user?.id,
       email: data.user?.email,
