@@ -444,5 +444,12 @@
     "invitationExpiredAt": "Invitație expirată",
     "invitationTimelineTitle": "Cronologia invitației",
     "invitationTimelineBody": "O înregistrare cu marcaje temporale a încercărilor de comunicare și expirării."
+  },
+  "notFound": {
+    "badge": "Pagina nu a fost găsită",
+    "title": "Nu am putut găsi această pagină.",
+    "description": "Este posibil ca linkul să fie vechi, pagina să fi fost mutată sau adresa să fie incorectă. Poți reveni la pagina principală și continua de acolo.",
+    "goHome": "Mergi la pagina principală",
+    "goBack": "Înapoi"
   }
 }

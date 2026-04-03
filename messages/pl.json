@@ -444,5 +444,12 @@
     "invitationExpiredAt": "Zaproszenie wygasło",
     "invitationTimelineTitle": "Oś czasu zaproszenia",
     "invitationTimelineBody": "Zapis z datami prób komunikacji i wygaśnięcia."
+  },
+  "notFound": {
+    "badge": "Nie znaleziono strony",
+    "title": "Nie mogliśmy znaleźć tej strony.",
+    "description": "Link może być nieaktualny, strona mogła zostać przeniesiona lub adres jest nieprawidłowy. Możesz wrócić na stronę główną i kontynuować stamtąd.",
+    "goHome": "Przejdź na stronę główną",
+    "goBack": "Wróć"
   }
 }
