@@ -26,6 +26,24 @@ interface DashboardCase {
   savings_to_date: number;
 }
 
+function getNextStepKey(status: DashboardCase["status"]) {
+  switch (status) {
+    case "draft":
+      return "dashboard.nextStepDraft";
+    case "invited":
+      return "dashboard.nextStepInvited";
+    case "active":
+      return "dashboard.nextStepActive";
+    case "comparison":
+      return "dashboard.nextStepComparison";
+    case "completed":
+      return "dashboard.nextStepCompleted";
+    case "expired":
+    default:
+      return "dashboard.nextStepExpired";
+  }
+}
+
 function getCaseHref(locale: string, caseItem: DashboardCase) {
   switch (caseItem.status) {
     case "invited":
@@ -168,7 +186,7 @@ export default function DashboardPage() {
                 className="group block"
                 href={getCaseHref(locale, caseItem)}
               >
-                <Card className="app-panel-soft border-line/80 transition duration-200 hover:-translate-y-0.5 hover:border-brand/18 hover:shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
+                <Card className="app-panel-soft app-interactive-card border-line/80">
                   <CardContent className="space-y-5 p-6">
                     <div className="flex items-start justify-between gap-4">
                       <div className="space-y-2">
@@ -185,7 +203,7 @@ export default function DashboardPage() {
                         >
                           {t(`caseStatus.${caseItem.status}`)}
                         </Badge>
-                        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-ink-soft transition group-hover:border-brand/20 group-hover:text-brand">
+                        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-ink-soft transition-all duration-200 group-hover:border-brand/20 group-hover:bg-brand-soft group-hover:text-brand">
                           <ArrowUpRight className="size-4" />
                         </span>
                       </div>
@@ -209,6 +227,15 @@ export default function DashboardPage() {
                           {currency.format(caseItem.savings_to_date)}
                         </p>
                       </div>
+                    </div>
+
+                    <div className="rounded-[1.35rem] border border-brand/10 bg-surface-brand/75 px-4 py-3 transition-colors duration-200 group-hover:bg-surface-brand">
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">
+                        {t("dashboard.nextStepLabel")}
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-ink">
+                        {t(getNextStepKey(caseItem.status))}
+                      </p>
                     </div>
                   </CardContent>
                 </Card>

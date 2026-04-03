@@ -5,20 +5,20 @@ import { Slot } from "@radix-ui/react-slot"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center rounded-full border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 items-center justify-center rounded-full border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all duration-200 ease-out outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
         default:
-          "bg-brand text-brand-foreground shadow-[0_18px_40px_rgba(13,148,136,0.2)] [a]:hover:bg-brand-strong hover:bg-brand-strong",
+          "bg-brand text-brand-foreground shadow-[0_18px_40px_rgba(13,148,136,0.2)] hover:-translate-y-0.5 hover:bg-brand-strong hover:shadow-[0_22px_48px_rgba(13,148,136,0.24)]",
         outline:
-          "border-line bg-surface text-ink hover:border-brand/20 hover:bg-surface-soft hover:text-ink aria-expanded:bg-surface-soft aria-expanded:text-ink",
+          "border-line bg-surface text-ink hover:-translate-y-0.5 hover:border-brand/20 hover:bg-surface-soft hover:text-ink hover:shadow-[0_14px_30px_rgba(15,23,42,0.06)] aria-expanded:bg-surface-soft aria-expanded:text-ink",
         secondary:
-          "bg-brand-soft text-brand-strong hover:bg-surface-brand-strong aria-expanded:bg-brand-soft aria-expanded:text-brand-strong",
+          "bg-brand-soft text-brand-strong hover:-translate-y-0.5 hover:bg-surface-brand-strong hover:shadow-[0_14px_32px_rgba(13,148,136,0.12)] aria-expanded:bg-brand-soft aria-expanded:text-brand-strong",
         ghost:
           "hover:bg-surface-soft hover:text-ink aria-expanded:bg-surface-soft aria-expanded:text-ink",
         destructive:
-          "bg-danger-soft text-danger hover:bg-danger-soft/80 focus-visible:border-danger/40 focus-visible:ring-danger/20",
+          "bg-danger-soft text-danger hover:-translate-y-0.5 hover:bg-danger-soft/80 hover:shadow-[0_14px_30px_rgba(185,28,28,0.12)] focus-visible:border-danger/40 focus-visible:ring-danger/20",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

@@ -80,21 +80,21 @@
   }
 
   .app-panel {
-    @apply rounded-[2rem] border backdrop-blur-sm;
+    @apply rounded-[2rem] border backdrop-blur-sm transition-[transform,box-shadow,border-color,background-color] duration-200 ease-out;
     border-color: rgb(var(--line-soft) / 0.95);
     background: rgb(var(--surface-elevated) / 0.94);
     box-shadow: 0 24px 80px rgba(15, 23, 42, 0.08);
   }
 
   .app-panel-soft {
-    @apply rounded-[2rem] border;
+    @apply rounded-[2rem] border transition-[transform,box-shadow,border-color,background-color] duration-200 ease-out;
     border-color: rgb(var(--line-soft) / 0.8);
     background: rgb(var(--surface) / 0.84);
     box-shadow: 0 16px 48px rgba(148, 163, 184, 0.14);
   }
 
   .app-panel-brand {
-    @apply rounded-[1.75rem] border;
+    @apply rounded-[1.75rem] border transition-[transform,box-shadow,border-color] duration-200 ease-out;
     border-color: rgb(var(--brand) / 0.1);
     background: linear-gradient(
       135deg,
@@ -104,14 +104,14 @@
   }
 
   .app-chip {
-    @apply inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold;
+    @apply inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors duration-200;
     border-color: rgb(var(--brand) / 0.16);
     background: rgb(var(--surface-brand));
     color: rgb(var(--brand-strong));
   }
 
   .app-icon-chip {
-    @apply inline-flex h-12 w-12 items-center justify-center rounded-2xl;
+    @apply inline-flex h-12 w-12 items-center justify-center rounded-2xl transition-transform duration-200 ease-out;
     background: linear-gradient(
       145deg,
       rgb(var(--brand)) 0%,
@@ -137,14 +137,14 @@
   }
 
   .app-note {
-    @apply rounded-[1.5rem] border p-4 text-sm leading-6;
+    @apply rounded-[1.5rem] border p-4 text-sm leading-6 transition-colors duration-200;
     border-color: rgb(var(--line-soft));
     background: rgb(var(--surface-soft));
     color: rgb(var(--ink-soft));
   }
 
   .app-note-brand {
-    @apply rounded-[1.5rem] border p-4 text-sm leading-6;
+    @apply rounded-[1.5rem] border p-4 text-sm leading-6 transition-colors duration-200;
     border-color: rgb(var(--brand) / 0.12);
     background: rgb(var(--surface-brand));
     color: rgb(var(--ink-soft));
@@ -170,16 +170,34 @@
   }
 
   .app-link-subtle {
-    @apply flex h-11 items-center justify-center rounded-full px-4 text-center text-sm transition;
+    @apply flex h-11 items-center justify-center rounded-full px-4 text-center text-sm transition-all duration-200;
     color: rgb(var(--ink-soft));
   }
 
   .app-link-subtle:hover {
+    background: rgb(var(--surface-soft) / 0.9);
     color: rgb(var(--brand));
   }
 
   .app-link-subtle:focus-visible {
     outline: none;
     box-shadow: 0 0 0 2px rgb(var(--brand) / 0.24);
+  }
+
+  .app-interactive-card {
+    @apply transition-[transform,box-shadow,border-color,background-color] duration-200 ease-out;
+  }
+
+  .app-interactive-card:hover {
+    transform: translateY(-2px);
+    border-color: rgb(var(--brand) / 0.16);
+    box-shadow: 0 22px 56px rgba(15, 23, 42, 0.1);
+  }
+
+  .app-interactive-card:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 3px rgb(var(--brand) / 0.16),
+      0 22px 56px rgba(15, 23, 42, 0.1);
   }
 }

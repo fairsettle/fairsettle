@@ -64,7 +64,14 @@
     "saved": "Saved",
     "created": "Created",
     "statusLabel": "Status",
-    "caseTypeLabel": "Case type"
+    "caseTypeLabel": "Case type",
+    "nextStepLabel": "Next step",
+    "nextStepDraft": "Continue answering your questions.",
+    "nextStepInvited": "Track the invitation or resend it if needed.",
+    "nextStepActive": "Finish the response journey for this case.",
+    "nextStepComparison": "Review side-by-side positions and suggested outcomes.",
+    "nextStepCompleted": "Reopen the comparison or download the case pack.",
+    "nextStepExpired": "Prepare the single-party export for this case."
   },
   "caseCreator": {
     "title": "New Case",

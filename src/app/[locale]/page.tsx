@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
@@ -6,8 +7,28 @@ import { ArrowRight, Scale, ShieldCheck, Wallet } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { createClient } from "@/lib/supabase/server";
+import {
+  buildPublicMetadata,
+  getLandingSeo,
+  getLandingStructuredData,
+} from "@/lib/seo";
 import { getLocalizedPath } from "@/lib/locale-path";
+import { createClient } from "@/lib/supabase/server";
+
+export async function generateMetadata({
+  params: { locale },
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const seo = getLandingSeo(locale);
+
+  return buildPublicMetadata({
+    locale,
+    path: "/",
+    title: seo.title,
+    description: seo.description,
+  });
+}
 
 export default async function LocaleIndexPage({
   params: { locale },
@@ -15,6 +36,7 @@ export default async function LocaleIndexPage({
   params: { locale: string };
 }) {
   const t = await getTranslations({ locale });
+  const structuredData = getLandingStructuredData(locale);
 
   try {
     const supabase = await createClient();
@@ -29,6 +51,12 @@ export default async function LocaleIndexPage({
 
   return (
     <main className="app-shell overflow-hidden px-5 pb-12 pt-5 text-ink sm:pt-6">
+      <script
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData),
+        }}
+        type="application/ld+json"
+      />
       <div className="relative mx-auto flex max-w-5xl flex-col gap-8 sm:gap-10">
         <section className="app-panel-brand overflow-hidden px-6 py-8 sm:px-8 sm:py-10 lg:px-10">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">

@@ -64,7 +64,14 @@
     "saved": "تم الحفظ",
     "created": "تم الإنشاء",
     "statusLabel": "الحالة",
-    "caseTypeLabel": "نوع القضية"
+    "caseTypeLabel": "نوع القضية",
+    "nextStepLabel": "الخطوة التالية",
+    "nextStepDraft": "تابع الإجابة على أسئلتك.",
+    "nextStepInvited": "تابع الدعوة أو أعد إرسالها عند الحاجة.",
+    "nextStepActive": "أكمل رحلة الرد الخاصة بهذه القضية.",
+    "nextStepComparison": "راجع المواقف جنبًا إلى جنب والحلول المقترحة.",
+    "nextStepCompleted": "أعد فتح المقارنة أو نزّل حزمة القضية.",
+    "nextStepExpired": "حضّر التصدير من طرف واحد لهذه القضية."
   },
   "caseCreator": {
     "title": "حالة جديدة",

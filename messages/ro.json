@@ -64,7 +64,14 @@
     "saved": "Salvat",
     "created": "Creat",
     "statusLabel": "Stare",
-    "caseTypeLabel": "Tip caz"
+    "caseTypeLabel": "Tip caz",
+    "nextStepLabel": "Pasul următor",
+    "nextStepDraft": "Continuă să răspunzi la întrebări.",
+    "nextStepInvited": "Urmărește invitația sau retrimite-o dacă este nevoie.",
+    "nextStepActive": "Finalizează parcursul de răspuns pentru acest caz.",
+    "nextStepComparison": "Revizuiește pozițiile comparate și soluțiile sugerate.",
+    "nextStepCompleted": "Redeschide comparația sau descarcă pachetul cazului.",
+    "nextStepExpired": "Pregătește exportul cu o singură parte pentru acest caz."
   },
   "caseCreator": {
     "title": "Caz Nou",

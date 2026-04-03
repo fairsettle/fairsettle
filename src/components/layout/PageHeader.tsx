@@ -57,7 +57,7 @@ export function PageHeader({
           </div>
         </div>
 
-        {actions ? <div className="flex shrink-0 flex-col gap-3 lg:items-end">{actions}</div> : null}
+        {actions ? <div className="flex shrink-0 flex-col gap-3 lg:items-end lg:self-center">{actions}</div> : null}
       </div>
     </div>
   )

@@ -64,7 +64,14 @@
     "saved": "Zapisano",
     "created": "Utworzono",
     "statusLabel": "Status",
-    "caseTypeLabel": "Rodzaj sprawy"
+    "caseTypeLabel": "Rodzaj sprawy",
+    "nextStepLabel": "Następny krok",
+    "nextStepDraft": "Kontynuuj odpowiadanie na pytania.",
+    "nextStepInvited": "Śledź zaproszenie lub wyślij je ponownie, jeśli trzeba.",
+    "nextStepActive": "Dokończ ścieżkę odpowiedzi dla tej sprawy.",
+    "nextStepComparison": "Przejrzyj stanowiska obu stron i sugerowane rozwiązania.",
+    "nextStepCompleted": "Wróć do porównania lub pobierz pakiet sprawy.",
+    "nextStepExpired": "Przygotuj jednostronny eksport dla tej sprawy."
   },
   "caseCreator": {
     "title": "Nowa sprawa",
