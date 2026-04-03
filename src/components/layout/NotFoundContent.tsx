@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import { ArrowLeft, Compass, Home } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -63,4 +65,3 @@ export function NotFoundContent({
     </main>
   )
 }
-
