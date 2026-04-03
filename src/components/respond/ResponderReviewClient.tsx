@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
+import { readApiErrorMessage, resolveApiErrorMessage } from '@/lib/client-errors'
 import { getLocalizedPath } from '@/lib/locale-path'
 
 type ReviewAction = 'agree' | 'disagree' | 'counter'
@@ -133,7 +134,12 @@ export function ResponderReviewClient({
       const payload = (await response.json().catch(() => null)) as { error?: string } | null
 
       if (!response.ok) {
-        setErrorMessage(payload?.error ?? t('errors.generic'))
+        setErrorMessage(
+          resolveApiErrorMessage(
+            payload?.error ?? (await readApiErrorMessage(response)),
+            t('errors.generic'),
+          ),
+        )
         return
       }
 

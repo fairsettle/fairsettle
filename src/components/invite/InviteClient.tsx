@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { readApiErrorMessage, resolveApiErrorMessage } from '@/lib/client-errors'
 import { cn } from '@/lib/utils'
 
 type InviteItem = {
@@ -97,7 +98,7 @@ export function InviteClient({ caseId }: { caseId: string }) {
         | null
 
       if (!response.ok) {
-        setErrorMessage(payload?.error ?? t('errors.generic'))
+        setErrorMessage(resolveApiErrorMessage(payload?.error, t('errors.generic')))
         setInvitations([])
         return
       }
@@ -147,14 +148,15 @@ export function InviteClient({ caseId }: { caseId: string }) {
       const payload = (await response.json().catch(() => null)) as { error?: string } | null
 
       if (!response.ok) {
-        const error = payload?.error?.toLowerCase() ?? ''
+        const apiError = payload?.error ?? (await readApiErrorMessage(response))
+        const error = apiError?.toLowerCase() ?? ''
 
         setErrorMessage(
           error.includes('you cannot invite yourself')
             ? t('invite.selfInvite')
             : error.includes('active invitation already exists')
               ? t('invite.duplicateActive')
-              : payload?.error ?? t('errors.generic'),
+              : resolveApiErrorMessage(apiError, t('errors.generic')),
         )
         return
       }

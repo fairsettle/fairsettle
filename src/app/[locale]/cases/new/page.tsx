@@ -9,6 +9,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { SavingsBar } from '@/components/savings/SavingsBar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { readApiErrorMessage, resolveApiErrorMessage } from '@/lib/client-errors'
 import { getLocalizedPath } from '@/lib/locale-path'
 import { cn } from '@/lib/utils'
 
@@ -79,14 +80,24 @@ export default function NewCasePage() {
         body: JSON.stringify({ case_type: caseType }),
       })
 
-      const data = await response.json()
+      const data = (await response.json().catch(() => null)) as {
+        case?: { id?: string }
+        error?: string
+      } | null
 
-      if (!response.ok || !data.case?.id) {
-        setErrorMessage(t('caseCreator.createError'))
+      const nextCaseId = data?.case?.id
+
+      if (!response.ok || !nextCaseId) {
+        setErrorMessage(
+          resolveApiErrorMessage(
+            data?.error ?? (response.ok ? null : await readApiErrorMessage(response)),
+            t('caseCreator.createError'),
+          ),
+        )
         return
       }
 
-      router.push(getLocalizedPath(locale, `/cases/${data.case.id}/questions`))
+      router.push(getLocalizedPath(locale, `/cases/${nextCaseId}/questions`))
     } catch {
       setErrorMessage(t('caseCreator.createError'))
     } finally {

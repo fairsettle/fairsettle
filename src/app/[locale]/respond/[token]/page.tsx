@@ -235,7 +235,6 @@ export default async function RespondPage({
     <main className=" px-5 py-6">
       <div className="mx-auto max-w-5xl space-y-6">
         <PageHeader
-          actions={<NeutralityBanner />}
           brandLabel={t("nav.brand")}
           eyebrow={t("responder.invitedEyebrow")}
           icon={ShieldCheck}

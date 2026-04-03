@@ -10,6 +10,10 @@ import { SavingsBar } from "@/components/savings/SavingsBar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  readApiErrorMessage,
+  resolveApiErrorMessage,
+} from "@/lib/client-errors";
 
 interface CasePayload {
   case: {
@@ -90,7 +94,12 @@ export default function ExportPage({
         });
 
         if (!response.ok) {
-          throw new Error("case_failed");
+          throw new Error(
+            resolveApiErrorMessage(
+              await readApiErrorMessage(response),
+              t("export.loadError"),
+            ),
+          );
         }
 
         const payload = (await response.json()) as CasePayload;
@@ -100,9 +109,13 @@ export default function ExportPage({
           setViewerRole(payload.case.viewer_role);
           setErrorMessage("");
         }
-      } catch {
+      } catch (error) {
         if (!ignore) {
-          setErrorMessage(t("export.loadError"));
+          setErrorMessage(
+            error instanceof Error && error.message
+              ? error.message
+              : t("export.loadError"),
+          );
         }
       } finally {
         if (!ignore) {
@@ -196,7 +209,9 @@ export default function ExportPage({
       }
 
       if (!response.ok || !payload.url) {
-        throw new Error(payload.error || "checkout_failed");
+        throw new Error(
+          resolveApiErrorMessage(payload.error, t("errors.generic")),
+        );
       }
 
       window.location.href = payload.url;
@@ -221,7 +236,9 @@ export default function ExportPage({
       const payload = (await response.json()) as DownloadPayload;
 
       if (!response.ok || !payload.download_url) {
-        throw new Error(payload.error || "download_failed");
+        throw new Error(
+          resolveApiErrorMessage(payload.error, t("errors.generic")),
+        );
       }
 
       setDownloadUrl(payload.download_url);

@@ -318,7 +318,10 @@
     "magicLinkFailed": "Nie mogliśmy wysłać magicznego linku. Proszę spróbuj ponownie.",
     "validation": "Proszę sprawdź podświetlone pola i spróbuj ponownie.",
     "rateLimit": "Zbyt wiele prób w tej chwili. Proszę odczekaj chwilę i spróbuj ponownie.",
-    "invalidCredentials": "Te dane nie pasują do żadnego konta. Proszę spróbuj ponownie."
+    "invalidCredentials": "Te dane nie pasują do żadnego konta. Proszę spróbuj ponownie.",
+    "emailNotConfirmed": "Potwierdź swój adres e-mail przed zalogowaniem.",
+    "accountExists": "Konto z tym adresem e-mail już istnieje. Spróbuj się zalogować.",
+    "passwordTooShort": "Hasło musi mieć co najmniej 8 znaków."
   },
   "email": {
     "invitation": {

@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { mapAuthErrorMessage, readApiErrorMessage } from "@/lib/client-errors";
 import {
   Select,
   SelectContent,
@@ -56,18 +57,14 @@ export default function RegisterPage() {
         },
         body: JSON.stringify(formState),
       });
-      const payload = (await response.json().catch(() => null)) as {
-        error?: string;
-      } | null;
 
       if (!response.ok) {
-        const error = payload?.error?.toLowerCase() ?? "";
+        const errorMessage = await readApiErrorMessage(response);
+        const error = errorMessage?.toLowerCase() ?? "";
         setErrorMessage(
           error === "validation failed"
             ? t("errors.validation")
-            : error.includes("rate limit")
-              ? t("errors.rateLimit")
-              : t("errors.generic"),
+            : mapAuthErrorMessage(errorMessage, t),
         );
         return;
       }

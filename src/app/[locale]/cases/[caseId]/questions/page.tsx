@@ -13,6 +13,10 @@ import { SavingsBar } from "@/components/savings/SavingsBar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
+  readApiErrorMessage,
+  resolveApiErrorMessage,
+} from "@/lib/client-errors";
+import {
   formatAnswerValue,
   getLocalizedMessage,
   hasAnswer,
@@ -59,8 +63,22 @@ export default function QuestionsPage({
           fetch(`/api/cases/${caseId}/responses`, { cache: "no-store" }),
         ]);
 
-        if (!questionsResponse.ok || !responsesResponse.ok) {
-          throw new Error("request_failed");
+        if (!questionsResponse.ok) {
+          throw new Error(
+            resolveApiErrorMessage(
+              await readApiErrorMessage(questionsResponse),
+              t("questionsFlow.loadError"),
+            ),
+          );
+        }
+
+        if (!responsesResponse.ok) {
+          throw new Error(
+            resolveApiErrorMessage(
+              await readApiErrorMessage(responsesResponse),
+              t("questionsFlow.loadError"),
+            ),
+          );
         }
 
         const questionsPayload =
@@ -92,9 +110,13 @@ export default function QuestionsPage({
           setTotalSections(questionsPayload.total_sections);
           setCurrentIndex(nextIndex);
         }
-      } catch {
+      } catch (error) {
         if (!ignore) {
-          setErrorMessage(t("questionsFlow.loadError"));
+          setErrorMessage(
+            error instanceof Error && error.message
+              ? error.message
+              : t("questionsFlow.loadError"),
+          );
         }
       } finally {
         if (!ignore) {
@@ -154,12 +176,21 @@ export default function QuestionsPage({
       });
 
       if (!response.ok) {
-        throw new Error("save_failed");
+        throw new Error(
+          resolveApiErrorMessage(
+            await readApiErrorMessage(response),
+            t("questionsFlow.saveError"),
+          ),
+        );
       }
 
       return true;
-    } catch {
-      setErrorMessage(t("questionsFlow.saveError"));
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error && error.message
+          ? error.message
+          : t("questionsFlow.saveError"),
+      );
       return false;
     } finally {
       setIsSaving(false);
@@ -191,7 +222,12 @@ export default function QuestionsPage({
       });
 
       if (!response.ok) {
-        throw new Error("submit_failed");
+        throw new Error(
+          resolveApiErrorMessage(
+            await readApiErrorMessage(response),
+            t("questionsFlow.submitError"),
+          ),
+        );
       }
 
       const payload = (await response.json()) as { status?: string };
@@ -201,8 +237,12 @@ export default function QuestionsPage({
           : `/cases/${caseId}/invite`;
 
       router.push(getLocalizedPath(locale, nextPath));
-    } catch {
-      setErrorMessage(t("questionsFlow.submitError"));
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error && error.message
+          ? error.message
+          : t("questionsFlow.submitError"),
+      );
     } finally {
       setIsSaving(false);
     }

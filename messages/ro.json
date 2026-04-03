@@ -318,7 +318,10 @@
     "magicLinkFailed": "Nu am putut trimite linkul magic. Vă rugăm să încercați din nou.",
     "validation": "Vă rugăm să verificați câmpurile evidențiate și să încercați din nou.",
     "rateLimit": "Prea multe încercări în acest moment. Vă rugăm să așteptați un moment și să încercați din nou.",
-    "invalidCredentials": "Detaliile introduse nu corespund unui cont. Vă rugăm să încercați din nou."
+    "invalidCredentials": "Detaliile introduse nu corespund unui cont. Vă rugăm să încercați din nou.",
+    "emailNotConfirmed": "Vă rugăm să vă confirmați adresa de email înainte de autentificare.",
+    "accountExists": "Există deja un cont pentru această adresă de email. Încercați să vă autentificați.",
+    "passwordTooShort": "Parola trebuie să aibă cel puțin 8 caractere."
   },
   "email": {
     "invitation": {

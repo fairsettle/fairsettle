@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { mapAuthErrorMessage, readApiErrorMessage } from "@/lib/client-errors";
 import { getLocalizedPath } from "@/lib/locale-path";
 import { createClient } from "@/lib/supabase/client";
 
@@ -43,16 +44,10 @@ export default function LoginPage() {
         },
         body: JSON.stringify(formState),
       });
-      const payload = (await response.json().catch(() => null)) as {
-        error?: string;
-      } | null;
 
       if (!response.ok) {
-        const error = payload?.error?.toLowerCase() ?? "";
         setErrorMessage(
-          error.includes("invalid login credentials")
-            ? t("errors.invalidCredentials")
-            : t("errors.generic"),
+          mapAuthErrorMessage(await readApiErrorMessage(response), t),
         );
         return;
       }
@@ -79,7 +74,7 @@ export default function LoginPage() {
       });
 
       if (error) {
-        setErrorMessage(t("errors.magicLinkFailed"));
+        setErrorMessage(mapAuthErrorMessage(error.message, t));
         return;
       }
 

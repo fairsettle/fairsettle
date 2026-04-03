@@ -318,7 +318,10 @@
     "magicLinkFailed": "We couldn’t send the magic link. Please try again.",
     "validation": "Please check the highlighted fields and try again.",
     "rateLimit": "Too many attempts just now. Please wait a moment and try again.",
-    "invalidCredentials": "Those details didn’t match an account. Please try again."
+    "invalidCredentials": "Those details didn’t match an account. Please try again.",
+    "emailNotConfirmed": "Please confirm your email address before signing in.",
+    "accountExists": "An account already exists for this email address. Try signing in instead.",
+    "passwordTooShort": "Your password must be at least 8 characters long."
   },
   "email": {
     "invitation": {
