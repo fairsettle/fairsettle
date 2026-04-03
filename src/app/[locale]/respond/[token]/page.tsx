@@ -99,7 +99,7 @@ export default async function RespondPage({
 
     return (
       <main className=" px-5 py-6">
-        <div className="mx-auto max-w-6xl space-y-6">
+        <div className="mx-auto max-w-5xl space-y-6">
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
             <Card className="app-panel">
               <CardContent className="space-y-5 p-6">

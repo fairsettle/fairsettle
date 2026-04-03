@@ -4,7 +4,15 @@ function normalizeOrigin(origin: string) {
   return origin.replace(/\/+$/, '')
 }
 
-export function getAppOrigin() {
+export function getRequestOrigin(req: Request) {
+  return normalizeOrigin(new URL(req.url).origin)
+}
+
+export function getAppOrigin(preferredOrigin?: string) {
+  if (preferredOrigin) {
+    return normalizeOrigin(preferredOrigin)
+  }
+
   const origin = process.env.NEXT_PUBLIC_APP_URL
 
   if (!origin) {
@@ -14,8 +22,8 @@ export function getAppOrigin() {
   return normalizeOrigin(origin)
 }
 
-export function buildAppUrl(path: string, locale?: string) {
+export function buildAppUrl(path: string, locale?: string, preferredOrigin?: string) {
   const localizedPath = locale ? getLocalizedPath(locale, path) : path
 
-  return `${getAppOrigin()}${localizedPath.startsWith('/') ? localizedPath : `/${localizedPath}`}`
+  return `${getAppOrigin(preferredOrigin)}${localizedPath.startsWith('/') ? localizedPath : `/${localizedPath}`}`
 }

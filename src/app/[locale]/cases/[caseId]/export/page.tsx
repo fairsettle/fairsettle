@@ -14,6 +14,7 @@ import { Card, CardContent } from "@/components/ui/card";
 interface CasePayload {
   case: {
     id: string;
+    viewer_role: "initiator" | "responder";
     status:
       | "draft"
       | "invited"
@@ -56,6 +57,9 @@ export default function ExportPage({
   const [caseStatus, setCaseStatus] = useState<
     CasePayload["case"]["status"] | null
   >(null);
+  const [viewerRole, setViewerRole] = useState<
+    CasePayload["case"]["viewer_role"] | null
+  >(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCheckingOut, setIsCheckingOut] = useState<
     "standard" | "resolution" | null
@@ -70,6 +74,7 @@ export default function ExportPage({
   const isSuccess = searchParams.get("success") === "true";
   const isCancelled = searchParams.get("cancelled") === "true";
   const isSingleParty = caseStatus === "expired";
+  const canPurchaseExport = viewerRole === "initiator";
   const currentStage = useMemo(
     () => (downloadUrl || isSuccess ? 5 : 4),
     [downloadUrl, isSuccess],
@@ -92,6 +97,8 @@ export default function ExportPage({
 
         if (!ignore) {
           setCaseStatus(payload.case.status);
+          setViewerRole(payload.case.viewer_role);
+          setErrorMessage("");
         }
       } catch {
         if (!ignore) {
@@ -157,6 +164,11 @@ export default function ExportPage({
   }, [caseId, isSuccess]);
 
   async function handleCheckout(tier: "standard" | "resolution") {
+    if (!canPurchaseExport) {
+      setErrorMessage(t("export.initiatorOnlyBody"));
+      return;
+    }
+
     setErrorMessage("");
     setIsCheckingOut(tier);
 
@@ -324,6 +336,17 @@ export default function ExportPage({
                   ? t("export.preparingDownload")
                   : t("export.singlePartyCta")}
               </Button>
+            </CardContent>
+          </Card>
+        ) : !canPurchaseExport ? (
+          <Card className="app-panel">
+            <CardContent className="space-y-3 p-6">
+              <h2 className="font-display text-3xl text-ink">
+                {t("export.initiatorOnlyTitle")}
+              </h2>
+              <p className="text-sm leading-6 text-ink-soft">
+                {t("export.initiatorOnlyBody")}
+              </p>
             </CardContent>
           </Card>
         ) : (

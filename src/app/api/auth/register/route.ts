@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
-import { buildAppUrl } from '@/lib/app-url'
+import { buildAppUrl, getRequestOrigin } from '@/lib/app-url'
 import { createClient } from '@/lib/supabase/server'
 
 const registerSchema = z.object({
@@ -14,6 +14,7 @@ const registerSchema = z.object({
 })
 
 export async function POST(req: Request) {
+  const requestOrigin = getRequestOrigin(req)
   const body = await req.json()
   const parsed = registerSchema.safeParse(body)
 
@@ -44,7 +45,7 @@ export async function POST(req: Request) {
         children_count,
         privacy_consent,
       },
-      emailRedirectTo: buildAppUrl('/api/auth/callback'),
+      emailRedirectTo: buildAppUrl('/api/auth/callback', undefined, requestOrigin),
     },
   })
 

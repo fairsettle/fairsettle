@@ -2,7 +2,7 @@ import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
-import { buildAppUrl, getAppOrigin } from '@/lib/app-url'
+import { buildAppUrl, getAppOrigin, getRequestOrigin } from '@/lib/app-url'
 import { stripe } from '@/lib/stripe/server'
 import { createClient } from '@/lib/supabase/server'
 
@@ -16,8 +16,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Stripe is not configured' }, { status: 500 })
   }
 
+  const requestOrigin = getRequestOrigin(req)
+
   try {
-    getAppOrigin()
+    getAppOrigin(requestOrigin)
   } catch {
     return NextResponse.json({ error: 'App URL is not configured' }, { status: 500 })
   }
@@ -53,7 +55,10 @@ export async function POST(req: Request) {
   }
 
   if (caseResult.data.initiator_id !== user.id) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    return NextResponse.json(
+      { error: 'Only the initiator can purchase exports' },
+      { status: 403 },
+    )
   }
 
   if (caseResult.data.status === 'expired') {
@@ -77,8 +82,8 @@ export async function POST(req: Request) {
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${buildAppUrl(`/cases/${parsed.data.case_id}/export`, locale)}?success=true`,
-      cancel_url: `${buildAppUrl(`/cases/${parsed.data.case_id}/export`, locale)}?cancelled=true`,
+      success_url: `${buildAppUrl(`/cases/${parsed.data.case_id}/export`, locale, requestOrigin)}?success=true`,
+      cancel_url: `${buildAppUrl(`/cases/${parsed.data.case_id}/export`, locale, requestOrigin)}?cancelled=true`,
       metadata: {
         caseId: parsed.data.case_id,
         tier: parsed.data.tier,

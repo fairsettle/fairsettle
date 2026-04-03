@@ -102,7 +102,7 @@ export default function ResolutionPage({
 
   return (
     <main className=" px-5 py-6">
-      <div className="mx-auto max-w-6xl space-y-6">
+      <div className="mx-auto max-w-5xl space-y-6">
         <PageHeader
           brandLabel={t("nav.brand")}
           eyebrow={t("resolution.eyebrow")}

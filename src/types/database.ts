@@ -86,6 +86,11 @@ export interface Database {
           recipient_contact: string
           token: string
           status: 'sent' | 'opened' | 'accepted' | 'expired'
+          resend_email_id: string | null
+          delivery_status: 'queued' | 'delivered' | 'delivery_delayed' | 'bounced' | 'complained' | 'failed'
+          delivery_last_event_at: string | null
+          delivery_last_event_type: string | null
+          delivery_error: string | null
           sent_at: string
           opened_at: string | null
           accepted_at: string | null
@@ -102,6 +107,11 @@ export interface Database {
           recipient_contact: string
           token?: string
           status?: 'sent' | 'opened' | 'accepted' | 'expired'
+          resend_email_id?: string | null
+          delivery_status?: 'queued' | 'delivered' | 'delivery_delayed' | 'bounced' | 'complained' | 'failed'
+          delivery_last_event_at?: string | null
+          delivery_last_event_type?: string | null
+          delivery_error?: string | null
           sent_at?: string
           opened_at?: string | null
           accepted_at?: string | null
@@ -118,6 +128,11 @@ export interface Database {
           recipient_contact?: string
           token?: string
           status?: 'sent' | 'opened' | 'accepted' | 'expired'
+          resend_email_id?: string | null
+          delivery_status?: 'queued' | 'delivered' | 'delivery_delayed' | 'bounced' | 'complained' | 'failed'
+          delivery_last_event_at?: string | null
+          delivery_last_event_type?: string | null
+          delivery_error?: string | null
           sent_at?: string
           opened_at?: string | null
           accepted_at?: string | null

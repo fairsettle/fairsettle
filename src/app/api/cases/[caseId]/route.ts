@@ -11,13 +11,18 @@ export async function GET(
   _req: Request,
   { params }: { params: { caseId: string } },
 ) {
-  const { caseItem, response } = await getAuthorizedCase(params.caseId)
+  const { caseItem, user, response } = await getAuthorizedCase(params.caseId)
 
   if (response || !caseItem) {
     return response
   }
 
-  return NextResponse.json({ case: caseItem })
+  return NextResponse.json({
+    case: {
+      ...caseItem,
+      viewer_role: caseItem.initiator_id === user?.id ? 'initiator' : 'responder',
+    },
+  })
 }
 
 export async function PATCH(

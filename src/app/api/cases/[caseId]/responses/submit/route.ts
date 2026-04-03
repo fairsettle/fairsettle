@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
 
 import { getAuthorizedCase } from '@/lib/cases/auth'
+import { getRequestOrigin } from '@/lib/app-url'
 import { sendResponderCompletedEmail } from '@/lib/email/resend'
 import { logEvent } from '@/lib/timeline'
 
 export async function POST(
-  _req: Request,
+  req: Request,
   { params }: { params: { caseId: string } },
 ) {
   const { supabase, user, caseItem, response } = await getAuthorizedCase(params.caseId)
@@ -22,7 +23,7 @@ export async function POST(
 
   const { data: userResponses, error: responsesError } = await supabase
     .from('responses')
-    .select('id')
+    .select('id, submitted_at')
     .eq('case_id', params.caseId)
     .eq('user_id', user.id)
 
@@ -34,12 +35,23 @@ export async function POST(
     return NextResponse.json({ error: 'No responses found for submission' }, { status: 400 })
   }
 
+  const alreadySubmitted = userResponses.every((item) => item.submitted_at !== null)
+
+  if (alreadySubmitted) {
+    return NextResponse.json({
+      success: true,
+      status: caseItem.status,
+      alreadySubmitted: true,
+    })
+  }
+
   const submittedAt = new Date().toISOString()
   const { error: submitError } = await supabase
     .from('responses')
     .update({ submitted_at: submittedAt })
     .eq('case_id', params.caseId)
     .eq('user_id', user.id)
+    .is('submitted_at', null)
 
   if (submitError) {
     return NextResponse.json({ error: submitError.message }, { status: 400 })
@@ -87,6 +99,7 @@ export async function POST(
         initiatorProfile.email,
         params.caseId,
         initiatorProfile.preferred_language || 'en',
+        getRequestOrigin(req),
       ).catch(() => null)
     }
 

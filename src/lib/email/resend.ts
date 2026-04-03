@@ -4,6 +4,7 @@ import { buildAppUrl } from '@/lib/app-url'
 import { getMessage, loadMessages } from '@/lib/messages'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
+export { resend }
 
 export type EmailTemplate =
   | 'invitation'
@@ -19,6 +20,17 @@ function buildUnsubscribeUrl() {
   const fromEmail = process.env.RESEND_FROM_EMAIL ?? 'noreply@fairsettle.co.uk'
 
   return `mailto:${fromEmail}?subject=FairSettle%20unsubscribe`
+}
+
+function getSender() {
+  const fromEmail = process.env.RESEND_FROM_EMAIL
+  const fromName = process.env.RESEND_FROM_NAME ?? 'FairSettle'
+
+  if (!fromEmail) {
+    throw new Error('RESEND_FROM_EMAIL is not configured')
+  }
+
+  return `${fromName} <${fromEmail}>`
 }
 
 function buildEmailHtml({
@@ -39,16 +51,23 @@ function buildEmailHtml({
   unsubscribeUrl: string
 }) {
   return `
-    <div style="background:#f8fafc;padding:32px 16px;font-family:Arial,sans-serif;color:#0f172a;">
-      <div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:24px;padding:32px;border:1px solid #e2e8f0;">
-        <div style="display:inline-block;background:#14b8a6;color:#ffffff;border-radius:16px;padding:12px 14px;font-weight:700;">F</div>
-        <h1 style="font-size:28px;line-height:1.1;margin:20px 0 12px;">${title}</h1>
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
+      ${title} — FairSettle
+    </div>
+    <div style="background:#f4f8f7;padding:32px 16px;font-family:Arial,sans-serif;color:#0f172a;">
+      <div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:24px;padding:32px;border:1px solid #deebe7;box-shadow:0 18px 48px rgba(15,23,42,0.06);">
+        <div style="margin-bottom:20px;">
+          <div style="font-size:32px;line-height:1;font-weight:700;letter-spacing:-0.03em;color:#0f766e;">FairSettle</div>
+          <div style="margin-top:8px;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:#7b8aa0;">fairsettle.co.uk</div>
+        </div>
+        <h1 style="font-size:28px;line-height:1.1;margin:0 0 12px;color:#1b2b4b;">${title}</h1>
         <p style="font-size:16px;line-height:1.7;color:#475569;margin:0 0 24px;">${body}</p>
-        <a href="${ctaUrl}" style="display:inline-block;background:#14b8a6;color:#ffffff;text-decoration:none;padding:14px 20px;border-radius:999px;font-weight:700;">
+        <a href="${ctaUrl}" style="display:inline-block;background:#0f9488;color:#ffffff;text-decoration:none;padding:14px 20px;border-radius:999px;font-weight:700;">
           ${ctaLabel}
         </a>
         <div style="margin-top:28px;padding-top:20px;border-top:1px solid #e2e8f0;">
           <p style="margin:0 0 10px;font-size:13px;line-height:1.7;color:#64748b;">${footer}</p>
+          <p style="margin:0 0 12px;font-size:13px;line-height:1.7;color:#64748b;">FairSettle, fairsettle.co.uk</p>
           <a href="${unsubscribeUrl}" style="font-size:13px;color:#0f766e;text-decoration:underline;">
             ${unsubscribeLabel}
           </a>
@@ -83,7 +102,8 @@ export async function sendEmail(
   template: EmailTemplate,
   data: Record<string, string>,
   locale: string = 'en',
-): Promise<void> {
+  tags?: Record<string, string>,
+): Promise<string> {
   const messages = await loadMessages(locale)
   const unsubscribeUrl = buildUnsubscribeUrl()
 
@@ -159,10 +179,16 @@ export async function sendEmail(
   const footer = getMessage(messages, 'email.footer.notice')
   const unsubscribeLabel = getMessage(messages, 'email.footer.unsubscribe')
 
-  await resend.emails.send({
-    from: `${process.env.RESEND_FROM_NAME} <${process.env.RESEND_FROM_EMAIL}>`,
+  const result = await resend.emails.send({
+    from: getSender(),
     to,
     subject: selected.subject,
+    tags: tags
+      ? Object.entries(tags).map(([name, value]) => ({
+          name,
+          value,
+        }))
+      : undefined,
     html: buildEmailHtml({
       title: selected.title,
       body: selected.body,
@@ -182,6 +208,16 @@ export async function sendEmail(
       unsubscribeUrl,
     }),
   })
+
+  if (result.error) {
+    throw new Error(result.error.message ?? 'Unable to send email')
+  }
+
+  if (!result.data?.id) {
+    throw new Error('Resend did not return an email id')
+  }
+
+  return result.data.id
 }
 
 export async function sendInvitationEmail(
@@ -189,14 +225,26 @@ export async function sendInvitationEmail(
   invitationToken: string,
   _initiatorName: string,
   locale: string = 'en',
-): Promise<void> {
-  await sendEmail(
+  options?: {
+    origin?: string
+    invitationId?: string
+    caseId?: string
+  },
+): Promise<string> {
+  return await sendEmail(
     recipientEmail,
     'invitation',
     {
-      inviteUrl: buildAppUrl(locale, `/respond/${invitationToken}`),
+      inviteUrl: buildAppUrl(`/respond/${invitationToken}`, locale, options?.origin),
     },
     locale,
+    options?.invitationId
+      ? {
+          invitation_id: options.invitationId,
+          ...(options.caseId ? { case_id: options.caseId } : {}),
+          email_template: 'invitation',
+        }
+      : undefined,
   )
 }
 
@@ -214,7 +262,7 @@ export async function sendReminderEmail(
     recipientEmail,
     template,
     {
-      inviteUrl: buildAppUrl(locale, `/respond/${invitationToken}`),
+      inviteUrl: buildAppUrl(`/respond/${invitationToken}`, locale),
       daysRemaining: String(daysRemaining),
     },
     locale,
@@ -225,12 +273,13 @@ export async function sendResponderAcceptedEmail(
   initiatorEmail: string,
   caseId: string,
   locale: string = 'en',
+  origin?: string,
 ): Promise<void> {
   await sendEmail(
     initiatorEmail,
     'responder_accepted',
     {
-      caseUrl: buildAppUrl(locale, `/cases/${caseId}/questions`),
+      caseUrl: buildAppUrl(`/cases/${caseId}/questions`, locale, origin),
     },
     locale,
   )
@@ -240,12 +289,13 @@ export async function sendResponderCompletedEmail(
   initiatorEmail: string,
   caseId: string,
   locale: string = 'en',
+  origin?: string,
 ): Promise<void> {
   await sendEmail(
     initiatorEmail,
     'responder_completed',
     {
-      caseUrl: buildAppUrl(locale, `/cases/${caseId}/comparison`),
+      caseUrl: buildAppUrl(`/cases/${caseId}/comparison`, locale, origin),
     },
     locale,
   )
@@ -261,7 +311,7 @@ export async function sendExportReadyEmail(
     userEmail,
     'export_ready',
     {
-      caseUrl: buildAppUrl(locale, `/cases/${caseId}/export`),
+      caseUrl: buildAppUrl(`/cases/${caseId}/export`, locale),
       tier,
     },
     locale,
@@ -277,7 +327,7 @@ export async function sendSinglePartyExportReadyEmail(
     initiatorEmail,
     'single_party_export',
     {
-      caseUrl: buildAppUrl(locale, `/cases/${caseId}/export`),
+      caseUrl: buildAppUrl(`/cases/${caseId}/export`, locale),
     },
     locale,
   )

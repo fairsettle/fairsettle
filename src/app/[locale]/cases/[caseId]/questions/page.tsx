@@ -211,7 +211,7 @@ export default function QuestionsPage({
   if (isLoading) {
     return (
       <main className=" px-5 py-6">
-        <div className="mx-auto max-w-4xl">
+        <div className="mx-auto max-w-5xl">
           <PageHeader
             brandLabel={t("nav.brand")}
             icon={ListChecks}
@@ -306,7 +306,7 @@ export default function QuestionsPage({
                 {t("questions.back")}
               </Button>
               <Button
-                className="h-12 flex-1 text-base"
+                className="!h-12 min-h-12 flex-1 text-base"
                 disabled={isSaving}
                 size="lg"
                 type="button"
