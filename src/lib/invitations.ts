@@ -274,7 +274,7 @@ export async function getResponderSavedReviewItems(caseId: string, userId: strin
 }
 
 export async function getResponderReviewAccess(caseId: string, userId: string) {
-  const [{ data: timelineRows }, { data: acceptedInvitation }] = await Promise.all([
+  const [{ data: timelineRows }, { data: acceptedInvitation }, reviewItems] = await Promise.all([
     supabaseAdmin
       .from('case_timeline')
       .select('event_data, created_at')
@@ -291,6 +291,7 @@ export async function getResponderReviewAccess(caseId: string, userId: string) {
       .order('accepted_at', { ascending: false })
       .limit(1)
       .maybeSingle(),
+    getResponderReviewItems(caseId),
   ])
 
   const hasCompletedReview = (timelineRows ?? []).some((row) => {
@@ -306,7 +307,7 @@ export async function getResponderReviewAccess(caseId: string, userId: string) {
   })
 
   return {
-    hasCompletedReview,
+    hasCompletedReview: hasCompletedReview || reviewItems.length === 0,
     invitationToken: acceptedInvitation?.token ?? null,
   }
 }
