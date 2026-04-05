@@ -93,8 +93,8 @@ export default function RegisterPage() {
   if (confirmationEmail) {
     return (
       <main className=" px-5 py-6">
-        <div className="mx-auto flex max-w-3xl flex-col gap-6">
-          <Card className="app-panel">
+        <div className="mx-auto flex max-w-6xl flex-col gap-6">
+          <Card className="app-panel mx-auto w-full max-w-3xl">
             <CardContent className="space-y-5 p-6 sm:p-7 md:p-8">
               <div className="app-chip h-12 w-12 justify-center rounded-2xl px-0">
                 <MailCheck className="size-5" />
@@ -130,7 +130,7 @@ export default function RegisterPage() {
 
   return (
     <main className=" px-5 py-6">
-      <div className="mx-auto flex max-w-5xl flex-col gap-6">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6">
         <Card className="app-panel">
           <CardContent className="space-y-6 p-6 sm:p-7 md:p-8">
             <div className="space-y-3">

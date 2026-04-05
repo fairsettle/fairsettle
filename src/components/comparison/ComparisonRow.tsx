@@ -38,7 +38,7 @@ export function ComparisonRow({
   const t = useTranslations()
 
   return (
-    <div className="app-panel p-5 shadow-[0_18px_50px_rgba(15,23,42,0.04)]">
+    <div className="app-panel p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-ink-soft/70">{section}</p>

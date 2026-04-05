@@ -19,7 +19,7 @@ export function CaseTimeline({
   const t = useTranslations()
 
   return (
-    <Card className="app-panel shadow-[0_18px_50px_rgba(15,23,42,0.04)]">
+    <Card className="app-panel">
       <CardContent className="space-y-4 p-6">
         <div className="space-y-2">
           <h2 className="font-display text-3xl text-ink">{t('timeline.title')}</h2>

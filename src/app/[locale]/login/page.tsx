@@ -86,7 +86,7 @@ export default function LoginPage() {
 
   return (
     <main className="px-5 py-6">
-      <div className="mx-auto flex max-w-5xl flex-col gap-6">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6">
         <Card className="app-panel">
           <CardContent className="space-y-6 p-6 sm:p-7 md:p-8">
             <div className="space-y-3">
@@ -170,9 +170,12 @@ export default function LoginPage() {
             </form>
 
             <div className="flex flex-col gap-3 border-t border-line pt-5 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-ink-soft">
+              <Link
+                className="app-link-subtle justify-start px-0 text-sm"
+                href={getLocalizedPath(locale, "/forgot-password")}
+              >
                 {t("login.forgotPassword")}
-              </p>
+              </Link>
               <Link
                 className="app-link-subtle"
                 href={`${getLocalizedPath(locale, "/register")}${searchParams.get("redirect") ? `?redirect=${encodeURIComponent(searchParams.get("redirect")!)}` : ""}`}

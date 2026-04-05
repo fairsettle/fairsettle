@@ -110,13 +110,13 @@ export default function ComparisonPage({
         />
 
         {isLoading ? (
-          <Card className="app-panel shadow-[0_18px_50px_rgba(15,23,42,0.04)]">
+          <Card className="app-panel">
             <CardContent className="p-6 text-sm text-ink-soft">
               {t("comparison.loading")}
             </CardContent>
           </Card>
         ) : errorMessage || !comparison ? (
-          <Card className="app-panel shadow-[0_18px_50px_rgba(15,23,42,0.04)]">
+          <Card className="app-panel">
             <CardContent className="space-y-4 p-6">
               <p className="text-sm text-danger">
                 {errorMessage || t("comparison.loadError")}
@@ -133,7 +133,7 @@ export default function ComparisonPage({
           </Card>
         ) : (
           <>
-            <Card className="app-panel border-brand/15 shadow-[0_18px_50px_rgba(15,23,42,0.04)]">
+            <Card className="app-panel border-brand/15">
               <CardContent className="space-y-2 p-6">
                 <p className="app-kicker">{t("comparison.nextStepLabel")}</p>
                 <p className="text-sm leading-6 text-ink-soft">

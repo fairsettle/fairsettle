@@ -296,7 +296,7 @@ export function InviteClient({ caseId }: { caseId: string }) {
                 return (
                   <div
                     key={invitation.id}
-                    className="rounded-[1.5rem] border border-line/80 bg-surface/90 p-4 shadow-[0_10px_28px_rgba(15,23,42,0.04)]"
+                    className="app-panel-soft p-4"
                   >
                     <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                       <div className="space-y-1">

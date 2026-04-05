@@ -102,7 +102,7 @@ export default function ResolutionPage({
 
   return (
     <main className=" px-5 py-6">
-      <div className="mx-auto max-w-5xl space-y-6">
+      <div className="mx-auto max-w-6xl space-y-6">
         <PageHeader
           brandLabel={t("nav.brand")}
           eyebrow={t("resolution.eyebrow")}
@@ -112,7 +112,7 @@ export default function ResolutionPage({
           title={t("resolution.title")}
         />
 
-        <Card className="app-panel shadow-[0_18px_50px_rgba(15,23,42,0.04)]">
+        <Card className="app-panel">
           <CardContent className="p-6">
             <Button asChild className="h-12" size="lg" variant="outline">
               <Link
@@ -125,7 +125,7 @@ export default function ResolutionPage({
           </CardContent>
         </Card>
 
-        <Card className="app-panel border-brand/15 shadow-[0_18px_50px_rgba(15,23,42,0.04)]">
+        <Card className="app-panel border-brand/15">
           <CardContent className="space-y-2 p-6">
             <p className="app-kicker">{t("resolution.nextStepLabel")}</p>
             <p className="text-sm leading-6 text-ink-soft">
@@ -135,19 +135,19 @@ export default function ResolutionPage({
         </Card>
 
         {isLoading ? (
-          <Card className="app-panel shadow-[0_18px_50px_rgba(15,23,42,0.04)]">
+          <Card className="app-panel">
             <CardContent className="p-6 text-sm text-ink-soft">
               {t("resolution.loading")}
             </CardContent>
           </Card>
         ) : errorMessage ? (
-          <Card className="app-panel shadow-[0_18px_50px_rgba(15,23,42,0.04)]">
+          <Card className="app-panel">
             <CardContent className="p-6 text-sm text-danger">
               {errorMessage}
             </CardContent>
           </Card>
         ) : suggestions.length === 0 ? (
-          <Card className="app-panel shadow-[0_18px_50px_rgba(15,23,42,0.04)]">
+          <Card className="app-panel">
             <CardContent className="p-6 text-sm text-ink-soft">
               {t("resolution.empty")}
             </CardContent>

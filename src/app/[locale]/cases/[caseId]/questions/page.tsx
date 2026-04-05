@@ -267,7 +267,7 @@ export default function QuestionsPage({
   if (isLoading) {
     return (
       <main className=" px-5 py-6">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-6xl">
           <PageHeader
             brandLabel={t("nav.brand")}
             icon={ListChecks}
@@ -284,7 +284,7 @@ export default function QuestionsPage({
   if (errorMessage && questions.length === 0) {
     return (
       <main className=" px-5 py-6">
-        <div className="mx-auto max-w-4xl space-y-6">
+        <div className="mx-auto max-w-6xl space-y-6">
           <PageHeader
             brandLabel={t("nav.brand")}
             icon={ListChecks}
@@ -301,7 +301,7 @@ export default function QuestionsPage({
   if (isReviewing) {
     return (
       <main className=" px-5 py-6">
-        <div className="mx-auto max-w-5xl space-y-6">
+        <div className="mx-auto max-w-6xl space-y-6">
           <PageHeader
             brandLabel={t("nav.brand")}
             icon={ListChecks}
@@ -389,7 +389,7 @@ export default function QuestionsPage({
 
   return (
     <main className=" px-5 py-6">
-      <div className="mx-auto max-w-5xl space-y-6">
+      <div className="mx-auto max-w-6xl space-y-6">
         <PageHeader
           brandLabel={t("nav.brand")}
           icon={ListChecks}

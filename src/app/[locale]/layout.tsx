@@ -3,6 +3,7 @@ import { getMessages, getTranslations } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { DocumentLocale } from '@/components/layout/DocumentLocale'
 import { SiteHeader } from '@/components/layout/SiteHeader'
+import { createClient } from '@/lib/supabase/server'
 
 const locales = ['en', 'pl', 'ro', 'ar'] as const
 
@@ -22,6 +23,15 @@ export default async function LocaleLayout({
   const messages = await getMessages({ locale })
   const t = await getTranslations({ locale })
   const dir = locale === 'ar' ? 'rtl' : 'ltr'
+  let isAuthenticated = false
+
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    isAuthenticated = Boolean(user)
+  } catch {}
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
@@ -31,7 +41,12 @@ export default async function LocaleLayout({
         dir={dir}
         className="min-h-screen bg-[radial-gradient(circle_at_top,rgb(var(--page-glow-strong)_/_0.62)_0%,rgb(var(--page)_/_0.9)_24%,rgb(var(--canvas))_72%)]"
       >
-        <SiteHeader brandLabel={t('nav.brand')} locale={locale} />
+        <SiteHeader
+          brandLabel={t('nav.brand')}
+          isAuthenticated={isAuthenticated}
+          locale={locale}
+          loginLabel={t('login.title')}
+        />
         {children}
       </div>
     </NextIntlClientProvider>

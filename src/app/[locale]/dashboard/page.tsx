@@ -182,7 +182,7 @@ export default function DashboardPage() {
 
   return (
     <main className=" px-5 py-6">
-      <div className="mx-auto max-w-5xl space-y-6">
+      <div className="mx-auto max-w-6xl space-y-6">
         <PageHeader
           actions={
             <>
@@ -238,7 +238,7 @@ export default function DashboardPage() {
                     {pendingInvitations.map((invitation) => (
                       <div
                         key={invitation.id}
-                        className="rounded-[1.5rem] border border-line/80 bg-surface/95 p-5 shadow-[0_10px_28px_rgba(15,23,42,0.04)]"
+                        className="app-panel-soft p-5"
                       >
                         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                           <div className="space-y-2">
@@ -298,7 +298,7 @@ export default function DashboardPage() {
                           </div>
                         </div>
 
-                        <div className="mt-4 rounded-[1.25rem] border border-brand/10 bg-surface-brand/75 px-4 py-3">
+                        <div className="app-note-brand mt-4 px-4 py-3">
                           <p className="text-sm font-medium text-ink">
                             {t("dashboard.pendingInvitesHint")}
                           </p>
@@ -382,7 +382,7 @@ export default function DashboardPage() {
                       </div>
                     </div>
 
-                    <div className="rounded-[1.35rem] border border-brand/10 bg-surface-brand/75 px-4 py-3 transition-colors duration-200 group-hover:bg-surface-brand">
+                    <div className="app-note-brand px-4 py-3 transition-colors duration-200 group-hover:bg-surface-brand">
                       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">
                         {t("dashboard.nextStepLabel")}
                       </p>

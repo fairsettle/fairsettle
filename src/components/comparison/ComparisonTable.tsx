@@ -17,7 +17,7 @@ export function ComparisonTable({
 
   return (
     <div className="space-y-4">
-      <Card className="app-panel shadow-[0_18px_50px_rgba(15,23,42,0.04)]">
+      <Card className="app-panel">
         <CardContent className="grid gap-3 p-5 text-sm font-semibold text-ink-soft sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <p>{t('comparison.yourPosition')}</p>
           <p>{t('comparison.theirPosition')}</p>

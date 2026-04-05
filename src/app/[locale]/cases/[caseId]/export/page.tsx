@@ -258,7 +258,7 @@ export default function ExportPage({
   if (isLoading) {
     return (
       <main className=" px-5 py-6">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-6xl">
           <PageHeader
             brandLabel={t("nav.brand")}
             icon={FileText}
@@ -274,7 +274,7 @@ export default function ExportPage({
 
   return (
     <main className=" px-5 py-6">
-      <div className="mx-auto max-w-5xl space-y-6">
+      <div className="mx-auto max-w-6xl space-y-6">
         <PageHeader
           brandLabel={t("nav.brand")}
           eyebrow={t("export.eyebrow")}
@@ -476,7 +476,7 @@ export default function ExportPage({
           <p className="app-alert-danger">{errorMessage}</p>
         ) : null}
 
-        <p className="app-note bg-surface px-5 py-4 shadow-[0_18px_50px_rgba(15,23,42,0.04)]">
+        <p className="app-note bg-surface px-5 py-4">
           {t("export.footerNote")}
         </p>
       </div>

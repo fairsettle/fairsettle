@@ -3,10 +3,11 @@ import { NotFoundContent } from '@/components/layout/NotFoundContent'
 import { getLocalizedPath } from '@/lib/locale-path'
 
 export default async function LocaleNotFound({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string }
+  params?: { locale?: string }
 }) {
+  const locale = params?.locale ?? 'en'
   const t = await getTranslations({ locale, namespace: 'notFound' })
 
   return (
@@ -20,4 +21,3 @@ export default async function LocaleNotFound({
     />
   )
 }
-

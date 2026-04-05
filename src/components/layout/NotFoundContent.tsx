@@ -23,8 +23,8 @@ export function NotFoundContent({
 }: NotFoundContentProps) {
   return (
     <main className="app-shell px-5 py-8 sm:py-10">
-      <div className="mx-auto flex max-w-3xl flex-col gap-6">
-        <section className="app-panel-brand overflow-hidden px-6 py-10 text-center sm:px-8 sm:py-12">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6">
+        <section className="app-panel-brand mx-auto w-full max-w-3xl overflow-hidden px-6 py-10 text-center sm:px-8 sm:py-12">
           <div className="mx-auto flex max-w-2xl flex-col items-center gap-5">
             <div className="app-chip h-14 w-14 justify-center rounded-2xl px-0 shadow-sm">
               <Compass className="size-6" />
