@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
 import { getAuthorizedCase } from '@/lib/cases/auth'
+import { getDisputeTypesForCase } from '@/lib/questions'
 
 const responseSchema = z.object({
   question_id: z.string().uuid(),
@@ -11,8 +12,8 @@ const responseSchema = z.object({
 })
 
 async function getAuthorizedContext(caseId: string) {
-  const { supabase, user, response } = await getAuthorizedCase(caseId)
-  return { supabase, user, response }
+  const { supabase, user, caseItem, response } = await getAuthorizedCase(caseId)
+  return { supabase, user, caseItem, response }
 }
 
 export async function GET(
@@ -46,10 +47,10 @@ export async function POST(
   req: Request,
   { params }: { params: { caseId: string } },
 ) {
-  const { supabase, user, response } = await getAuthorizedContext(params.caseId)
+  const { supabase, user, caseItem, response } = await getAuthorizedContext(params.caseId)
 
-  if (response) {
-    return response
+  if (response || !caseItem) {
+    return response ?? NextResponse.json({ error: 'Case not found' }, { status: 404 })
   }
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -63,6 +64,23 @@ export async function POST(
       { error: 'Validation failed', details: parsed.error.issues },
       { status: 400 },
     )
+  }
+
+  const disputeTypes = getDisputeTypesForCase(caseItem.case_type)
+  const { data: question, error: questionError } = await supabase
+    .from('questions')
+    .select('id')
+    .eq('id', parsed.data.question_id)
+    .in('dispute_type', disputeTypes)
+    .eq('is_active', true)
+    .maybeSingle()
+
+  if (questionError) {
+    return NextResponse.json({ error: questionError.message }, { status: 400 })
+  }
+
+  if (!question) {
+    return NextResponse.json({ error: 'Question is not valid for this case' }, { status: 400 })
   }
 
   const { data: existingResponse } = await supabase

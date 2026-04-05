@@ -29,10 +29,14 @@ export async function PATCH(
   req: Request,
   { params }: { params: { caseId: string } },
 ) {
-  const { supabase, caseItem, response } = await getAuthorizedCase(params.caseId)
+  const { supabase, caseItem, user, response } = await getAuthorizedCase(params.caseId)
 
-  if (response || !caseItem) {
+  if (response || !caseItem || !user) {
     return response
+  }
+
+  if (caseItem.initiator_id !== user.id) {
+    return NextResponse.json({ error: 'Only the initiator can update case status' }, { status: 403 })
   }
 
   const body = await req.json()

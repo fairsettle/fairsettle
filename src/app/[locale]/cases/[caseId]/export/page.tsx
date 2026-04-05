@@ -286,6 +286,21 @@ export default function ExportPage({
 
         <SavingsBar stage={currentStage} tier={downloadTier} />
 
+        {!isLoading && caseStatus ? (
+          <Card className="app-panel border-brand/15">
+            <CardContent className="space-y-2 p-6">
+              <p className="app-kicker">{t("export.nextStepLabel")}</p>
+              <p className="text-sm leading-6 text-ink-soft">
+                {isSingleParty
+                  ? t("export.nextStepSingleParty")
+                  : canPurchaseExport
+                    ? t("export.nextStepInitiator")
+                    : t("export.nextStepResponder")}
+              </p>
+            </CardContent>
+          </Card>
+        ) : null}
+
         {isSuccess ? (
           <Card className="app-panel">
             <CardContent className="space-y-4 p-6">

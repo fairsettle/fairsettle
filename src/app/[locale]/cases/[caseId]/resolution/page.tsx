@@ -125,6 +125,15 @@ export default function ResolutionPage({
           </CardContent>
         </Card>
 
+        <Card className="app-panel border-brand/15 shadow-[0_18px_50px_rgba(15,23,42,0.04)]">
+          <CardContent className="space-y-2 p-6">
+            <p className="app-kicker">{t("resolution.nextStepLabel")}</p>
+            <p className="text-sm leading-6 text-ink-soft">
+              {t("resolution.nextStepBody")}
+            </p>
+          </CardContent>
+        </Card>
+
         {isLoading ? (
           <Card className="app-panel shadow-[0_18px_50px_rgba(15,23,42,0.04)]">
             <CardContent className="p-6 text-sm text-ink-soft">

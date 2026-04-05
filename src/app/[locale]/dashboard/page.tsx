@@ -7,7 +7,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getLocalizedPath } from "@/lib/locale-path";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 interface DashboardCase {
   id: string;
   case_type: "child" | "financial" | "asset" | "combined";
+  viewer_role: "initiator" | "responder";
   status:
     | "draft"
     | "invited"
@@ -38,14 +39,19 @@ interface PendingInvitation {
   initiator_name: string | null;
 }
 
-function getNextStepKey(status: DashboardCase["status"]) {
+function getNextStepKey(
+  status: DashboardCase["status"],
+  viewerRole: DashboardCase["viewer_role"],
+) {
   switch (status) {
     case "draft":
       return "dashboard.nextStepDraft";
     case "invited":
       return "dashboard.nextStepInvited";
     case "active":
-      return "dashboard.nextStepActive";
+      return viewerRole === "initiator"
+        ? "dashboard.nextStepActiveInitiator"
+        : "dashboard.nextStepActiveResponder";
     case "comparison":
       return "dashboard.nextStepComparison";
     case "completed":
@@ -60,15 +66,38 @@ function getCaseHref(locale: string, caseItem: DashboardCase) {
   switch (caseItem.status) {
     case "invited":
       return getLocalizedPath(locale, `/cases/${caseItem.id}/invite`);
+    case "active":
+      return caseItem.viewer_role === "initiator"
+        ? getLocalizedPath(locale, `/cases/${caseItem.id}/invite`)
+        : getLocalizedPath(locale, `/cases/${caseItem.id}/questions`);
     case "comparison":
     case "completed":
       return getLocalizedPath(locale, `/cases/${caseItem.id}/comparison`);
     case "expired":
       return getLocalizedPath(locale, `/cases/${caseItem.id}/export`);
     case "draft":
-    case "active":
     default:
       return getLocalizedPath(locale, `/cases/${caseItem.id}/questions`);
+  }
+}
+
+function getCaseActionKey(caseItem: DashboardCase) {
+  switch (caseItem.status) {
+    case "draft":
+      return "dashboard.actionDraft";
+    case "invited":
+      return "dashboard.actionInvited";
+    case "active":
+      return caseItem.viewer_role === "initiator"
+        ? "dashboard.actionActiveInitiator"
+        : "dashboard.actionActiveResponder";
+    case "comparison":
+      return "dashboard.actionComparison";
+    case "completed":
+      return "dashboard.actionCompleted";
+    case "expired":
+    default:
+      return "dashboard.actionExpired";
   }
 }
 
@@ -358,8 +387,23 @@ export default function DashboardPage() {
                         {t("dashboard.nextStepLabel")}
                       </p>
                       <p className="mt-1 text-sm font-medium text-ink">
-                        {t(getNextStepKey(caseItem.status))}
+                        {t(getNextStepKey(caseItem.status, caseItem.viewer_role))}
                       </p>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3 border-t border-line/80 pt-4">
+                      <p className="text-sm text-ink-soft">
+                        {t("dashboard.openCaseHint")}
+                      </p>
+                      <span
+                        className={cn(
+                          buttonVariants({ variant: "outline", size: "lg" }),
+                          "h-11 px-5",
+                        )}
+                      >
+                        {t(getCaseActionKey(caseItem))}
+                        <ArrowUpRight className="ml-2 size-4" />
+                      </span>
                     </div>
                   </CardContent>
                 </Card>

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
-import { getInvitationByToken } from '@/lib/invitations'
+import { getInvitationByToken, getResponderReviewItems } from '@/lib/invitations'
 import { createClient } from '@/lib/supabase/server'
 import { logEvent } from '@/lib/timeline'
 
@@ -42,6 +42,25 @@ export async function POST(
 
   if (!invitation || !caseItem || caseItem.responder_id !== user.id) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  const expectedReviewItems = await getResponderReviewItems(caseItem.id)
+
+  if (expectedReviewItems.length === 0) {
+    return NextResponse.json({ error: 'No review items available for this invitation' }, { status: 409 })
+  }
+
+  const expectedQuestionIds = new Set(expectedReviewItems.map((item) => item.question_id))
+  const submittedQuestionIds = new Set(parsed.data.items.map((item) => item.question_id))
+
+  const hasUnexpectedItems = parsed.data.items.some(
+    (item) =>
+      !expectedQuestionIds.has(item.question_id) ||
+      (item.action === 'counter' && !item.counter_text?.trim()),
+  )
+
+  if (hasUnexpectedItems || submittedQuestionIds.size !== expectedQuestionIds.size) {
+    return NextResponse.json({ error: 'Review submission does not match the invitation items' }, { status: 400 })
   }
 
   await logEvent(caseItem.id, 'responder_completed', user.id, {

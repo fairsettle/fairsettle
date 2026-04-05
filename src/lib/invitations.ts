@@ -220,26 +220,25 @@ export async function getResponderReviewItems(caseId: string) {
 }
 
 export async function getResponderSavedReviewItems(caseId: string, userId: string) {
-  const [completedTimelineRowsResult, startedTimelineRowsResult] = await Promise.all([
-    supabaseAdmin
-      .from('case_timeline')
-      .select('event_data, created_at')
-      .eq('case_id', caseId)
-      .eq('user_id', userId)
-      .eq('event_type', 'responder_completed')
-      .order('created_at', { ascending: false })
-      .limit(1),
-    supabaseAdmin
-      .from('case_timeline')
-      .select('event_data, created_at')
-      .eq('case_id', caseId)
-      .eq('user_id', userId)
-      .eq('event_type', 'responder_started')
-      .order('created_at', { ascending: false })
-      .limit(1),
-  ])
+  const { data: timelineRows } = await supabaseAdmin
+    .from('case_timeline')
+    .select('event_data, created_at')
+    .eq('case_id', caseId)
+    .eq('user_id', userId)
+    .in('event_type', ['responder_started', 'responder_completed'])
+    .order('created_at', { ascending: false })
+    .limit(10)
 
-  const latestRow = completedTimelineRowsResult.data?.[0] ?? startedTimelineRowsResult.data?.[0]
+  const latestRow = (timelineRows ?? []).find((row) => {
+    const eventData = row.event_data
+
+    return (
+      eventData &&
+      typeof eventData === 'object' &&
+      !Array.isArray(eventData) &&
+      Array.isArray(eventData.review_items)
+    )
+  })
 
   if (
     !latestRow ||

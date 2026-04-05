@@ -117,12 +117,30 @@ export default function ComparisonPage({
           </Card>
         ) : errorMessage || !comparison ? (
           <Card className="app-panel shadow-[0_18px_50px_rgba(15,23,42,0.04)]">
-            <CardContent className="p-6 text-sm text-danger">
-              {errorMessage || t("comparison.loadError")}
+            <CardContent className="space-y-4 p-6">
+              <p className="text-sm text-danger">
+                {errorMessage || t("comparison.loadError")}
+              </p>
+              <p className="text-sm leading-6 text-ink-soft">
+                {t("comparison.notReadyHint")}
+              </p>
+              <Button asChild className="h-12 px-6" size="lg" variant="outline">
+                <Link href={getLocalizedPath(locale, "/dashboard")}>
+                  {t("comparison.backToDashboard")}
+                </Link>
+              </Button>
             </CardContent>
           </Card>
         ) : (
           <>
+            <Card className="app-panel border-brand/15 shadow-[0_18px_50px_rgba(15,23,42,0.04)]">
+              <CardContent className="space-y-2 p-6">
+                <p className="app-kicker">{t("comparison.nextStepLabel")}</p>
+                <p className="text-sm leading-6 text-ink-soft">
+                  {t("comparison.nextStepBody")}
+                </p>
+              </CardContent>
+            </Card>
             <AgreementSummary
               agreedCount={comparison.summary.agreed_count}
               gapCount={comparison.summary.gap_count}

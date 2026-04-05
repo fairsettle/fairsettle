@@ -32,6 +32,7 @@ export async function GET() {
 
   const cases = (data ?? []).map((caseItem) => ({
     ...caseItem,
+    viewer_role: caseItem.initiator_id === user.id ? 'initiator' : 'responder',
     savings_to_date: calculateSavings(getSavingsStageFromCaseStatus(caseItem.status)).saved,
   }))
 
