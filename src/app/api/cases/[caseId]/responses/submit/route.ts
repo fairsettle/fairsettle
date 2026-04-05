@@ -3,7 +3,44 @@ import { NextResponse } from 'next/server'
 import { getAuthorizedCase } from '@/lib/cases/auth'
 import { getRequestOrigin } from '@/lib/app-url'
 import { sendResponderCompletedEmail } from '@/lib/email/resend'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 import { logEvent } from '@/lib/timeline'
+
+async function resolveNextStatus(caseId: string, initiatorId: string, responderId: string | null) {
+  const [initiatorSubmittedResult, responderSubmittedResult] = await Promise.all([
+    supabaseAdmin
+      .from('responses')
+      .select('id', { count: 'exact', head: true })
+      .eq('case_id', caseId)
+      .eq('user_id', initiatorId)
+      .not('submitted_at', 'is', null),
+    responderId
+      ? supabaseAdmin
+          .from('responses')
+          .select('id', { count: 'exact', head: true })
+          .eq('case_id', caseId)
+          .eq('user_id', responderId)
+          .not('submitted_at', 'is', null)
+      : Promise.resolve({ count: 0, error: null }),
+  ])
+
+  const initiatorSubmitted = Boolean(initiatorSubmittedResult.count)
+  const responderSubmitted = Boolean(responderSubmittedResult.count)
+
+  if (initiatorSubmitted && responderSubmitted) {
+    return 'comparison' as const
+  }
+
+  if (initiatorSubmitted && responderId) {
+    return 'active' as const
+  }
+
+  if (initiatorSubmitted) {
+    return 'invited' as const
+  }
+
+  return 'draft' as const
+}
 
 export async function POST(
   req: Request,
@@ -38,9 +75,30 @@ export async function POST(
   const alreadySubmitted = userResponses.every((item) => item.submitted_at !== null)
 
   if (alreadySubmitted) {
+    const resolvedStatus = await resolveNextStatus(
+      params.caseId,
+      caseItem.initiator_id,
+      caseItem.responder_id,
+    )
+
+    if (resolvedStatus !== caseItem.status) {
+      const { error: statusRepairError } = await supabaseAdmin
+        .from('cases')
+        .update({ status: resolvedStatus })
+        .eq('id', params.caseId)
+
+      if (statusRepairError) {
+        return NextResponse.json({ error: statusRepairError.message }, { status: 400 })
+      }
+
+      if (resolvedStatus === 'comparison') {
+        await logEvent(params.caseId, 'comparison_generated', user.id)
+      }
+    }
+
     return NextResponse.json({
       success: true,
-      status: caseItem.status,
+      status: resolvedStatus,
       alreadySubmitted: true,
     })
   }
@@ -57,22 +115,11 @@ export async function POST(
     return NextResponse.json({ error: submitError.message }, { status: 400 })
   }
 
-  let nextStatus = caseItem.status
-
-  if (caseItem.initiator_id === user.id) {
-    nextStatus = 'invited'
-  } else {
-    const { data: initiatorResponse } = await supabase
-      .from('responses')
-      .select('id')
-      .eq('case_id', params.caseId)
-      .eq('user_id', caseItem.initiator_id)
-      .not('submitted_at', 'is', null)
-      .limit(1)
-      .maybeSingle()
-
-    nextStatus = initiatorResponse ? 'comparison' : 'active'
-  }
+  const nextStatus = await resolveNextStatus(
+    params.caseId,
+    caseItem.initiator_id,
+    caseItem.responder_id,
+  )
 
   const { error: caseUpdateError } = await supabase
     .from('cases')
