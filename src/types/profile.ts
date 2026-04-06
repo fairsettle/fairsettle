@@ -1,4 +1,4 @@
-import type { SupportedLocale } from "@/lib/questions";
+import type { SupportedLocale } from "@/lib/locale-path";
 
 export type ParentRole = "" | "mum" | "dad";
 

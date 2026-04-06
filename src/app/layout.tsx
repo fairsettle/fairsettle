@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { DM_Sans, Fraunces } from 'next/font/google'
+import { DEFAULT_LOCALE, isSupportedLocale } from '@/lib/locale-path'
 import { SEO_SITE_NAME, SEO_SITE_ORIGIN } from '@/lib/seo'
 import './globals.css'
 
@@ -63,7 +64,7 @@ export default function RootLayout({
   children: React.ReactNode
   params?: { locale?: string }
 }) {
-  const locale = params?.locale && ['en', 'pl', 'ro', 'ar'].includes(params.locale) ? params.locale : 'en'
+  const locale = params?.locale && isSupportedLocale(params.locale) ? params.locale : DEFAULT_LOCALE
   const dir = locale === 'ar' ? 'rtl' : 'ltr'
 
   return (

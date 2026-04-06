@@ -160,7 +160,11 @@ export function SiteHeader({
               <Link href={getLocalizedPath(locale, '/login')}>{loginLabel}</Link>
             </Button>
           ) : null}
-          <LanguageSwitcher className="w-auto shrink-0" locale={locale} />
+          <LanguageSwitcher
+            className="w-auto shrink-0"
+            locale={locale}
+            persistPreference={isAuthenticated}
+          />
         </div>
       </div>
     </header>

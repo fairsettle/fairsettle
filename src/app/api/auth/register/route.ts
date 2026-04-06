@@ -8,13 +8,14 @@ import {
   normalizeChildInputs,
   parentRoleSchema,
 } from '@/lib/family-profile'
+import { SUPPORTED_LOCALES } from '@/lib/locale-path'
 import { createClient } from '@/lib/supabase/server'
 
 const registerSchema = z.object({
   full_name: z.string().min(2).max(100),
   email: z.string().email(),
   password: z.string().min(8),
-  preferred_language: z.enum(['en', 'pl', 'ro', 'ar']).default('en'),
+  preferred_language: z.enum(SUPPORTED_LOCALES).default('en'),
   children_count: z.number().int().min(0).max(20),
   parent_role: parentRoleSchema,
   children: childProfileInputsSchema,

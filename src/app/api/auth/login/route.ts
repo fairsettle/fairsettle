@@ -1,4 +1,7 @@
+import { NextResponse } from 'next/server'
+
 import { apiError, mapAuthErrorCode } from '@/lib/api-errors'
+import { coerceSupportedLocale } from '@/lib/locale-path'
 import { createClient } from '@/lib/supabase/server'
 
 export async function POST(req: Request) {
@@ -10,5 +13,29 @@ export async function POST(req: Request) {
     return apiError(req, mapAuthErrorCode(error.message), 401)
   }
 
-  return Response.json({ user: { id: data.user.id, email: data.user.email } })
+  const profileResult = await supabase
+    .from('profiles')
+    .select('preferred_language')
+    .eq('id', data.user.id)
+    .maybeSingle()
+
+  const preferredLanguage = coerceSupportedLocale(
+    profileResult.data?.preferred_language ||
+      (typeof data.user.user_metadata?.preferred_language === 'string'
+        ? data.user.user_metadata.preferred_language
+        : null),
+  )
+
+  const response = NextResponse.json({
+    user: { id: data.user.id, email: data.user.email },
+    preferred_language: preferredLanguage,
+  })
+
+  response.cookies.set('NEXT_LOCALE', preferredLanguage, {
+    path: '/',
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 365,
+  })
+
+  return response
 }

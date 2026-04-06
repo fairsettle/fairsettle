@@ -266,7 +266,7 @@ export default async function RespondPage({
             </CardContent>
           </Card>
         </div>
-      </main>
+    </main>
     );
   }
 

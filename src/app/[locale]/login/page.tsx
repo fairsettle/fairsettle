@@ -11,8 +11,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { fetchApi } from "@/lib/api-client";
-import { mapAuthErrorMessage, readApiErrorMessage } from "@/lib/client-errors";
-import { getLocalizedPath } from "@/lib/locale-path";
+import { mapAuthErrorMessage } from "@/lib/client-errors";
+import { getLocalizedPath, localizeHref, type SupportedLocale } from "@/lib/locale-path";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
@@ -30,7 +30,7 @@ export default function LoginPage() {
 
   const redirectTarget = searchParams.get("redirect")?.startsWith("/")
     ? searchParams.get("redirect")!
-    : getLocalizedPath(locale, "/dashboard");
+    : "/dashboard";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -46,14 +46,31 @@ export default function LoginPage() {
         body: JSON.stringify(formState),
       });
 
+      const payload = (await response.json().catch(() => null)) as
+        | {
+            preferred_language?: SupportedLocale;
+            user?: { id: string; email?: string | null };
+            error?:
+              | string
+              | {
+                  message?: string;
+                };
+          }
+        | null;
+
       if (!response.ok) {
+        const apiErrorMessage =
+          typeof payload?.error === "string"
+            ? payload.error
+            : payload?.error?.message;
+
         setErrorMessage(
-          mapAuthErrorMessage(await readApiErrorMessage(response), t),
+          mapAuthErrorMessage(apiErrorMessage, t),
         );
         return;
       }
 
-      router.push(redirectTarget);
+      router.push(localizeHref(payload?.preferred_language ?? locale, redirectTarget));
       router.refresh();
     } catch {
       setErrorMessage(t("errors.generic"));

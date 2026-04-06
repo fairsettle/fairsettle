@@ -8,11 +8,12 @@ import {
   normalizeChildInputs,
   parentRoleSchema,
 } from '@/lib/family-profile'
+import { SUPPORTED_LOCALES } from '@/lib/locale-path'
 import { createClient } from '@/lib/supabase/server'
 
 const profileSchema = z.object({
   full_name: z.string().min(2).max(100).optional(),
-  preferred_language: z.enum(['en', 'pl', 'ro', 'ar']).optional(),
+  preferred_language: z.enum(SUPPORTED_LOCALES).optional(),
   children_count: z.number().int().min(0).max(20).optional(),
   parent_role: parentRoleSchema.optional(),
   children: childProfileInputsSchema.optional(),
@@ -100,6 +101,25 @@ export async function PATCH(req: Request) {
 
   if (error) {
     return apiError(req, 'SAVE_FAILED', 400)
+  }
+
+  if (Object.keys(profilePayload).length > 0) {
+    await supabase.auth.updateUser({
+      data: {
+        ...(profilePayload.full_name !== undefined
+          ? { full_name: profilePayload.full_name }
+          : {}),
+        ...(profilePayload.preferred_language !== undefined
+          ? { preferred_language: profilePayload.preferred_language }
+          : {}),
+        ...(profilePayload.children_count !== undefined
+          ? { children_count: profilePayload.children_count }
+          : {}),
+        ...(profilePayload.parent_role !== undefined
+          ? { parent_role: profilePayload.parent_role }
+          : {}),
+      },
+    })
   }
 
   if (children !== undefined) {

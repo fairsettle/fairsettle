@@ -6,6 +6,7 @@ import {
   MessageSquareHeart,
   ShieldCheck,
   Sparkles,
+  Scale,
   Wallet,
 } from "lucide-react";
 
@@ -36,6 +37,16 @@ export function getLandingProblemCards(t: Translate): Array<{
       icon: ShieldCheck,
       title: t("landing.problemAccessTitle"),
       body: t("landing.problemAccessBody"),
+    },
+    {
+      icon: Scale,
+      title: t("responder.neutralityTitle"),
+      body: t("responder.neutralityBody"),
+    },
+    {
+      icon: FileText,
+      title: t("gdpr.dataSafe"),
+      body: t("gdpr.gdprNotice"),
     },
   ];
 }

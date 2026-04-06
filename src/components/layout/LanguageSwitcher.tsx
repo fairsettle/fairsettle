@@ -2,9 +2,10 @@
 
 import { Languages } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useTransition } from 'react'
+import { useState, useTransition } from 'react'
 
 import { usePathname, useRouter } from '@/i18n/navigation'
+import { fetchApi } from '@/lib/api-client'
 import { supportedLocales } from '@/lib/locale-path'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
@@ -14,29 +15,51 @@ const localeFlags: Record<(typeof supportedLocales)[number], string> = {
   pl: '🇵🇱',
   ro: '🇷🇴',
   ar: '🇸🇦',
+  es: '🇪🇸',
+  fr: '🇫🇷',
+  de: '🇩🇪',
 }
 
 export function LanguageSwitcher({
   locale,
+  persistPreference = false,
   className,
 }: {
   locale: string
+  persistPreference?: boolean
   className?: string
 }) {
   const router = useRouter()
   const pathname = usePathname()
   const t = useTranslations()
   const [isPending, startTransition] = useTransition()
+  const [isSaving, setIsSaving] = useState(false)
   const path = pathname || '/'
 
   return (
     <div className={cn('w-full sm:w-auto', className)}>
       <Select
-        disabled={isPending}
+        disabled={isPending || isSaving}
         value={locale}
-        onValueChange={(nextLocale) => {
+        onValueChange={async (nextLocale) => {
           if (nextLocale === locale) {
             return
+          }
+
+          setIsSaving(true)
+
+          try {
+            if (persistPreference) {
+              await fetchApi('/api/profile', locale, {
+                method: 'PATCH',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ preferred_language: nextLocale }),
+              }).catch(() => null)
+            }
+          } finally {
+            setIsSaving(false)
           }
 
           startTransition(() => {

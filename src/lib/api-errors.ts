@@ -2,10 +2,14 @@ import 'server-only'
 
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
+import {
+  DEFAULT_LOCALE,
+  SUPPORTED_LOCALES,
+  isSupportedLocale,
+  type SupportedLocale,
+} from '@/lib/locale-path'
 
-const SUPPORTED_LOCALES = ['en', 'pl', 'ro', 'ar'] as const
-
-export type ApiLocale = (typeof SUPPORTED_LOCALES)[number]
+export type ApiLocale = SupportedLocale
 
 export type ApiErrorCode =
   | 'UNAUTHORIZED'
@@ -59,8 +63,7 @@ export type ApiErrorCode =
 
 type ApiErrorDictionary = Record<ApiErrorCode, string>
 
-const MESSAGES: Record<ApiLocale, ApiErrorDictionary> = {
-  en: {
+const EN_MESSAGES: ApiErrorDictionary = {
     UNAUTHORIZED: 'Please sign in to continue.',
     FORBIDDEN: 'You do not have access to this.',
     VALIDATION_FAILED: 'Please check the information you entered and try again.',
@@ -110,7 +113,10 @@ const MESSAGES: Record<ApiLocale, ApiErrorDictionary> = {
     CASE_DELETE_FAILED: 'We could not delete the case.',
     QUESTION_FLOW_LOAD_FAILED: 'We could not load the question flow.',
     INTERNAL_ERROR: 'Something went wrong. Please try again.',
-  },
+  }
+
+const MESSAGES: Record<ApiLocale, ApiErrorDictionary> = {
+  en: EN_MESSAGES,
   pl: {
     UNAUTHORIZED: 'Zaloguj się, aby kontynuować.',
     FORBIDDEN: 'Nie masz dostępu do tego miejsca.',
@@ -265,10 +271,9 @@ const MESSAGES: Record<ApiLocale, ApiErrorDictionary> = {
     QUESTION_FLOW_LOAD_FAILED: 'تعذر تحميل مسار الأسئلة.',
     INTERNAL_ERROR: 'حدث خطأ ما. يرجى المحاولة مرة أخرى.',
   },
-}
-
-function isSupportedLocale(value: string | null | undefined): value is ApiLocale {
-  return Boolean(value && SUPPORTED_LOCALES.includes(value as ApiLocale))
+  es: EN_MESSAGES,
+  fr: EN_MESSAGES,
+  de: EN_MESSAGES,
 }
 
 function parseAcceptLanguage(header: string | null): ApiLocale | null {
@@ -346,7 +351,7 @@ export async function resolveApiLocale(
     return cookieLocale
   }
 
-  return parseAcceptLanguage(req?.headers.get('accept-language') ?? null) ?? 'en'
+  return parseAcceptLanguage(req?.headers.get('accept-language') ?? null) ?? DEFAULT_LOCALE
 }
 
 export async function apiError(

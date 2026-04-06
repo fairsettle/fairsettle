@@ -2,12 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import {
-  ArrowRight,
-  ShieldCheck,
-  Wallet,
-  Waypoints,
-} from "lucide-react";
+import { ArrowRight, ShieldCheck, Wallet, Waypoints } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -191,7 +186,7 @@ export default async function LocaleIndexPage({
             </p>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {problemCards.map(({ icon: Icon, title, body }) => (
               <article
                 key={title}
@@ -336,6 +331,37 @@ export default async function LocaleIndexPage({
             </div>
           </div>
         </section>
+
+        <footer className="overflow-hidden rounded-[2rem] border border-line/70 bg-[linear-gradient(180deg,rgba(13,148,136,0.12),rgba(13,148,136,0.04))]">
+          <div className="px-6 py-6 sm:px-8">
+            <div className="flex flex-col gap-4 text-sm text-ink-soft sm:flex-row sm:items-center sm:justify-between">
+              <div className="space-y-1">
+                <p>{t("landing.footerBuilt")}</p>
+                <p>{t("landing.footerDisclaimer")}</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                <Link
+                  className="font-medium text-ink transition-colors hover:text-brand"
+                  href={getLocalizedPath(locale, "/privacy")}
+                >
+                  {t("landing.footerPrivacy")}
+                </Link>
+                <Link
+                  className="font-medium text-ink transition-colors hover:text-brand"
+                  href={getLocalizedPath(locale, "/terms")}
+                >
+                  {t("landing.footerTerms")}
+                </Link>
+                <Link
+                  className="font-medium text-ink transition-colors hover:text-brand"
+                  href="mailto:help@fairsettle.co.uk"
+                >
+                  {t("landing.contactEmail")}
+                </Link>
+              </div>
+            </div>
+          </div>
+        </footer>
       </div>
     </main>
   );

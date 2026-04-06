@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { LockKeyhole, MailCheck, ShieldCheck } from "lucide-react";
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 
 import { FamilyProfileFields } from "@/components/profile/FamilyProfileFields";
 import { Button } from "@/components/ui/button";
@@ -12,12 +12,25 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { fetchApi } from "@/lib/api-client";
 import { mapAuthErrorMessage, readApiErrorMessage } from "@/lib/client-errors";
-import { getLocalizedPath } from "@/lib/locale-path";
+import {
+  getLocalizedPath,
+  localizeHref,
+  supportedLocales,
+  type SupportedLocale,
+} from "@/lib/locale-path";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const locale = useLocale();
   const t = useTranslations();
@@ -29,7 +42,7 @@ export default function RegisterPage() {
     full_name: "",
     email: "",
     password: "",
-    preferred_language: locale as "en" | "pl" | "ro" | "ar",
+    preferred_language: locale as SupportedLocale,
     children_count: 1,
     parent_role: "" as "" | "mum" | "dad",
     children: [{ first_name: "", date_of_birth: "" }],
@@ -48,6 +61,17 @@ export default function RegisterPage() {
     ? searchParams.get("redirect")!
     : getLocalizedPath(locale, "/dashboard");
 
+  useEffect(() => {
+    setFormState((current) =>
+      current.preferred_language === locale
+        ? current
+        : {
+            ...current,
+            preferred_language: locale as SupportedLocale,
+          },
+    );
+  }, [locale]);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setErrorMessage("");
@@ -63,13 +87,20 @@ export default function RegisterPage() {
       });
 
       const payload = (await response.json().catch(() => null)) as {
-        error?: string;
+        error?:
+          | string
+          | {
+              message?: string;
+            };
         requires_email_confirmation?: boolean;
         user?: { email?: string | null };
       } | null;
 
       if (!response.ok) {
-        const errorMessage = payload?.error ?? (await readApiErrorMessage(response));
+        const errorMessage =
+          typeof payload?.error === "string"
+            ? payload.error
+            : payload?.error?.message ?? (await readApiErrorMessage(response));
         const error = errorMessage?.toLowerCase() ?? "";
         setErrorMessage(
           error === "validation failed"
@@ -97,7 +128,7 @@ export default function RegisterPage() {
     return (
       <main className=" px-5 py-6">
         <div className="mx-auto flex max-w-6xl flex-col gap-6">
-          <Card className="app-panel mx-auto w-full max-w-3xl">
+          <Card className="app-panel mx-auto w-full">
             <CardContent className="space-y-5 p-6 sm:p-7 md:p-8">
               <div className="app-chip h-12 w-12 justify-center rounded-2xl px-0">
                 <MailCheck className="size-5" />
@@ -120,7 +151,10 @@ export default function RegisterPage() {
               </div>
 
               <div className="border-t border-line pt-5">
-                <Link className="app-link-subtle" href={getLocalizedPath(locale, "/login")}>
+                <Link
+                  className="app-link-subtle"
+                  href={getLocalizedPath(locale, "/login")}
+                >
                   {t("register.signInLink")}
                 </Link>
               </div>
@@ -192,28 +226,39 @@ export default function RegisterPage() {
 
                 <div className="space-y-2">
                   <Label>{t("register.preferredLanguage")}</Label>
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    {(["en", "pl", "ro", "ar"] as const).map((language) => (
-                      <Button
-                        key={language}
-                        className="h-11 rounded-2xl"
-                        onClick={() =>
-                          setFormState((current) => ({
-                            ...current,
-                            preferred_language: language,
-                          }))
-                        }
-                        type="button"
-                        variant={
-                          formState.preferred_language === language
-                            ? "default"
-                            : "outline"
-                        }
-                      >
-                        {t(`languages.${language}`)}
-                      </Button>
-                    ))}
-                  </div>
+                  <Select
+                    value={formState.preferred_language}
+                    onValueChange={(value) => {
+                      const nextLocale = value as SupportedLocale;
+
+                      setFormState((current) => ({
+                        ...current,
+                        preferred_language: nextLocale,
+                      }));
+
+                      if (nextLocale !== locale) {
+                        const query = searchParams.toString();
+                        const nextHref = `${pathname || "/register"}${
+                          query ? `?${query}` : ""
+                        }`;
+
+                        router.replace(localizeHref(nextLocale, nextHref));
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue
+                        placeholder={t("register.preferredLanguage")}
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {supportedLocales.map((language) => (
+                        <SelectItem key={language} value={language}>
+                          {t(`languages.${language}`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2 md:col-span-2">

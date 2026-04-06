@@ -10,7 +10,10 @@
     "en": "English",
     "pl": "Polski",
     "ro": "Română",
-    "ar": "العربية"
+    "ar": "العربية",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch"
   },
   "landing": {
     "eyebrow": "Pre-court dispute resolution",
@@ -91,7 +94,11 @@
     "contactTitle": "Need help before you start?",
     "contactBody": "If you have questions about the platform, the process, or whether FairSettle fits your situation, email our team and we’ll point you in the right direction.",
     "contactEmail": "help@fairsettle.co.uk",
-    "contactCta": "Start your case free"
+    "contactCta": "Start your case free",
+    "footerBuilt": "© 2026 FairSettle. Built in Ireland, for families across the UK & Ireland.",
+    "footerDisclaimer": "FairSettle does not provide legal advice.",
+    "footerPrivacy": "Privacy Policy",
+    "footerTerms": "Terms of Service"
   },
   "register": {
     "title": "Create Account",
@@ -726,5 +733,20 @@
     "continue": "Save and continue",
     "loadError": "We couldn't load your profile. Please try again.",
     "saveError": "We couldn't save your profile. Please try again."
+  },
+  "legal": {
+    "privacyTitle": "Privacy Policy",
+    "privacyIntro": "We only collect and process the information needed to help you create, manage, and export your FairSettle case securely.",
+    "privacyDataTitle": "How we use your information",
+    "privacyDataBody": "Your account details, case answers, invitations, and generated exports are used to run the service, maintain an audit trail, and deliver the case documentation you request.",
+    "privacySharingTitle": "How we share it",
+    "privacySharingBody": "We do not sell your data. Information is only shared with the invited participant inside the case flow, and with service providers that help us operate FairSettle securely.",
+    "termsTitle": "Terms of Service",
+    "termsIntro": "FairSettle provides a structured digital process to help separating parents organise their positions before engaging solicitors, mediators, or the court.",
+    "termsUseTitle": "Using the platform",
+    "termsUseBody": "You must provide accurate information, use the service lawfully, and only invite the other parent to a case you are genuinely involved in.",
+    "termsLegalTitle": "Important legal note",
+    "termsLegalBody": "FairSettle is not a law firm and does not provide legal advice. Any export created through the platform should be reviewed with a qualified professional if legal guidance is required.",
+    "backHome": "Back to home"
   }
 }

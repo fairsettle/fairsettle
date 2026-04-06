@@ -3,12 +3,11 @@ import { getMessages, getTranslations } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { DocumentLocale } from '@/components/layout/DocumentLocale'
 import { SiteHeader } from '@/components/layout/SiteHeader'
+import { supportedLocales, isSupportedLocale } from '@/lib/locale-path'
 import { createClient } from '@/lib/supabase/server'
 
-const locales = ['en', 'pl', 'ro', 'ar'] as const
-
 export function generateStaticParams() {
-  return locales.map((locale) => ({ locale }))
+  return supportedLocales.map((locale) => ({ locale }))
 }
 
 export default async function LocaleLayout({
@@ -18,7 +17,7 @@ export default async function LocaleLayout({
   children: React.ReactNode
   params: { locale: string }
 }) {
-  if (!locales.includes(locale as (typeof locales)[number])) notFound()
+  if (!isSupportedLocale(locale)) notFound()
 
   const messages = await getMessages({ locale })
   const t = await getTranslations({ locale })
@@ -32,10 +31,21 @@ export default async function LocaleLayout({
       data: { user },
     } = await supabase.auth.getUser()
     isAuthenticated = Boolean(user)
-    userLabel =
-      (typeof user?.user_metadata?.full_name === 'string' && user.user_metadata.full_name) ||
-      user?.email ||
-      null
+
+    if (user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name, email')
+        .eq('id', user.id)
+        .maybeSingle()
+
+      userLabel =
+        profile?.full_name ||
+        profile?.email ||
+        (typeof user.user_metadata?.full_name === 'string' && user.user_metadata.full_name) ||
+        user.email ||
+        null
+    }
   } catch {}
 
   return (

@@ -7,8 +7,7 @@ import {
   makeItemKey,
   type ChildRow,
 } from "@/lib/family-profile";
-
-export type SupportedLocale = "en" | "pl" | "ro" | "ar";
+import type { SupportedLocale } from "@/lib/locale-path";
 export type CaseType =
   Database["public"]["Tables"]["cases"]["Row"]["case_type"];
 export type CasePhase = "child" | "financial" | "asset";
