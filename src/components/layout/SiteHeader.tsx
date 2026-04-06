@@ -90,19 +90,23 @@ export function SiteHeader({
 
   return (
     <header className="sticky top-0 z-50 px-5 pt-4 sm:pt-5">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 rounded-full border border-white/40 bg-[rgb(var(--background)_/_0.56)] px-4 py-3 shadow-[0_18px_48px_rgba(15,23,42,0.05)] backdrop-blur-xl transition-[box-shadow,background-color,border-color] duration-200 sm:px-5">
-        <BrandLockup href={getLocalizedPath(locale, '/')} label={brandLabel} />
-        <div className="flex items-center gap-2 sm:gap-3">
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-2 rounded-full border border-white/40 bg-[rgb(var(--background)_/_0.56)] px-3 py-3 shadow-[0_18px_48px_rgba(15,23,42,0.05)] backdrop-blur-xl transition-[box-shadow,background-color,border-color] duration-200 sm:gap-4 sm:px-5">
+        <BrandLockup
+          className="min-w-0 shrink"
+          href={getLocalizedPath(locale, '/')}
+          label={brandLabel}
+        />
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           {isAuthenticated ? (
             <div className="relative shrink-0" ref={menuRef}>
               <button
                 aria-expanded={isMenuOpen}
                 aria-haspopup="menu"
-                className="flex h-12 items-center gap-3 rounded-full border border-line bg-surface px-2.5 py-2 text-left text-ink shadow-[0_12px_30px_rgba(15,23,42,0.05)] transition duration-200 hover:-translate-y-0.5 hover:border-brand/20 hover:bg-surface-soft hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)]"
+                className="flex h-10 items-center gap-2 rounded-full border border-line bg-surface px-2 py-2 text-left text-ink shadow-[0_12px_30px_rgba(15,23,42,0.05)] transition duration-200 hover:-translate-y-0.5 hover:border-brand/20 hover:bg-surface-soft hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] sm:h-12 sm:gap-3 sm:px-2.5"
                 type="button"
                 onClick={() => setIsMenuOpen((current) => !current)}
               >
-                <span className="inline-flex size-8 items-center justify-center rounded-full bg-brand-soft text-[0.7rem] font-semibold tracking-[0.18em] text-brand-strong">
+                <span className="inline-flex size-7 items-center justify-center rounded-full bg-brand-soft text-[0.68rem] font-semibold tracking-[0.16em] text-brand-strong sm:size-8 sm:text-[0.7rem] sm:tracking-[0.18em]">
                   {initials}
                 </span>
                 <span className="hidden max-w-36 truncate text-sm font-medium sm:block">
@@ -117,7 +121,7 @@ export function SiteHeader({
                 <div className="absolute right-0 top-[calc(100%+0.75rem)] z-50 w-72 rounded-[1.5rem] border border-line bg-popover p-2.5 shadow-[0_22px_60px_rgba(15,23,42,0.12)]">
                   <div className="rounded-[1.1rem] bg-surface-soft px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <span className="inline-flex size-10 items-center justify-center rounded-full bg-brand-soft text-brand-strong">
+                      <span className="inline-flex items-center justify-center text-brand-strong">
                         <UserCircle2 className="size-5" />
                       </span>
                       <div className="min-w-0">
@@ -156,7 +160,7 @@ export function SiteHeader({
               <Link href={getLocalizedPath(locale, '/login')}>{loginLabel}</Link>
             </Button>
           ) : null}
-          <LanguageSwitcher className="shrink-0" locale={locale} />
+          <LanguageSwitcher className="w-auto shrink-0" locale={locale} />
         </div>
       </div>
     </header>

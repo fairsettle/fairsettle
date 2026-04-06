@@ -15,18 +15,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fetchApi } from "@/lib/api-client";
-import { readApiErrorMessage, resolveApiErrorMessage } from "@/lib/client-errors";
+import {
+  readApiErrorMessage,
+  resolveApiErrorMessage,
+} from "@/lib/client-errors";
 import { getLocalizedPath } from "@/lib/locale-path";
 import type { SafeComparisonPayload } from "@/lib/comparison";
-
-interface TimelinePayload {
-  events: Array<{
-    event_type: string;
-    event_data: Record<string, unknown>;
-    created_at: string;
-    display_time: string;
-  }>;
-}
+import type { TimelinePayload } from "@/types/timeline";
 
 export default function ComparisonPage({
   params: { caseId },
@@ -57,7 +52,8 @@ export default function ComparisonPage({
 
         if (!comparisonResponse.ok) {
           throw new Error(
-            comparisonResponse.status === 403 || comparisonResponse.status === 409
+            comparisonResponse.status === 403 ||
+              comparisonResponse.status === 409
               ? "comparison_not_ready"
               : resolveApiErrorMessage(
                   await readApiErrorMessage(comparisonResponse),
@@ -66,9 +62,13 @@ export default function ComparisonPage({
           );
         }
 
-        const timelineResponse = await fetchApi(`/api/cases/${caseId}/timeline`, locale, {
-          cache: "no-store",
-        });
+        const timelineResponse = await fetchApi(
+          `/api/cases/${caseId}/timeline`,
+          locale,
+          {
+            cache: "no-store",
+          },
+        );
 
         if (!timelineResponse.ok) {
           throw new Error(
@@ -118,7 +118,6 @@ export default function ComparisonPage({
         <PageHeader
           brandLabel={t("nav.brand")}
           eyebrow={t("comparison.eyebrow")}
-          icon={Scale}
           locale={locale}
           subtitle={t("comparison.subtitle")}
           title={t("comparison.title")}
@@ -151,14 +150,17 @@ export default function ComparisonPage({
               <CardContent className="space-y-3 p-6">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <p className="app-kicker">{t("comparison.nextStepLabel")}</p>
+                    <p className="app-kicker">
+                      {t("comparison.nextStepLabel")}
+                    </p>
                     <p className="mt-2 text-sm leading-6 text-ink-soft">
                       {t("comparison.nextStepBody")}
                     </p>
                   </div>
                   <div className="app-note-brand min-w-[12rem] px-4 py-3 text-sm">
                     <p className="font-semibold text-ink">
-                      {comparison.summary.reviewed_count}/{comparison.summary.total_compared}
+                      {comparison.summary.reviewed_count}/
+                      {comparison.summary.total_compared}
                     </p>
                     <p className="mt-1 text-ink-soft">
                       {t("comparison.progressLabel")}
@@ -172,7 +174,10 @@ export default function ComparisonPage({
               gapCount={comparison.summary.gap_count}
             />
             <Tabs className="gap-4" defaultValue="to_review">
-              <TabsList className="grid h-auto grid-cols-3 gap-2 p-2" variant="line">
+              <TabsList
+                className="grid h-auto grid-cols-3 gap-2 p-2"
+                variant="line"
+              >
                 <TabsTrigger className="h-12" value="to_review">
                   {t("comparison.toReviewTab", {
                     count: comparison.summary.to_review_count,
@@ -181,7 +186,8 @@ export default function ComparisonPage({
                 <TabsTrigger className="h-12" value="agreed">
                   {t("comparison.agreedTab", {
                     count:
-                      comparison.summary.agreed_count + comparison.summary.locked_count,
+                      comparison.summary.agreed_count +
+                      comparison.summary.locked_count,
                   })}
                 </TabsTrigger>
                 <TabsTrigger className="h-12" value="disputed">

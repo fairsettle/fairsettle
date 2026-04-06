@@ -4,10 +4,15 @@ import { z } from 'zod'
 import { apiError } from '@/lib/api-errors'
 import { getRequestOrigin } from '@/lib/app-url'
 import { getAuthorizedCase } from '@/lib/cases/auth'
-import { answersMatch } from '@/lib/comparison'
 import { sendResolutionModifiedEmail } from '@/lib/email/resend'
 import { makeItemKey } from '@/lib/family-profile'
 import { resolveItem, type AnswerValue as EngineAnswerValue } from '@/lib/resolution/engine'
+import {
+  buildResolutionNextState,
+  coerceModifiedValue,
+  getCurrentResolutionProposal,
+  getResolutionActorFieldPrefix,
+} from '@/lib/resolution/decision'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { logEvent } from '@/lib/timeline'
 import type { Database, Json } from '@/types/database'
@@ -16,7 +21,7 @@ const resolutionDecisionSchema = z
   .object({
     action: z.enum(['accept', 'modify', 'reject']),
     child_id: z.string().uuid().nullable().optional(),
-    modified_value: z.any().optional(),
+    modified_value: z.unknown().optional(),
   })
   .superRefine((value, ctx) => {
     if (value.action === 'modify' && (value.modified_value === undefined || value.modified_value === null)) {
@@ -27,84 +32,6 @@ const resolutionDecisionSchema = z
       })
     }
   })
-
-type QuestionRow = Database['public']['Tables']['questions']['Row']
-type StateRow = Database['public']['Tables']['case_item_states']['Row']
-type ResponseRow = Database['public']['Tables']['responses']['Row']
-
-function coerceModifiedValue(question: QuestionRow, rawValue: unknown): EngineAnswerValue {
-  if (question.question_type === 'multi_choice') {
-    const values = Array.isArray(rawValue)
-      ? rawValue.filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
-      : typeof rawValue === 'string'
-        ? rawValue.split(',').map((value) => value.trim()).filter(Boolean)
-        : []
-
-    if (values.length === 0) {
-      throw new Error('Please choose at least one option')
-    }
-
-    return { values }
-  }
-
-  if (question.question_type === 'number') {
-    const parsed = typeof rawValue === 'number' ? rawValue : Number(rawValue)
-
-    if (!Number.isFinite(parsed)) {
-      throw new Error('Please enter a valid number')
-    }
-
-    return { value: parsed }
-  }
-
-  if (typeof rawValue !== 'string' || rawValue.trim().length === 0) {
-    throw new Error('Please provide a value')
-  }
-
-  return { value: rawValue.trim() }
-}
-
-async function getCurrentProposal({
-  caseId,
-  itemKey,
-  fallback,
-}: {
-  caseId: string
-  itemKey: string
-  fallback: EngineAnswerValue | null
-}) {
-  const { data: latestEvent, error } = await supabaseAdmin
-    .from('case_item_events')
-    .select('proposed_value')
-    .eq('case_id', caseId)
-    .eq('item_key', itemKey)
-    .in('action', ['accept', 'modify'])
-    .not('proposed_value', 'is', null)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
-
-  if (error) {
-    throw new Error(error.message)
-  }
-
-  if (
-    latestEvent?.proposed_value &&
-    typeof latestEvent.proposed_value === 'object' &&
-    !Array.isArray(latestEvent.proposed_value)
-  ) {
-    return latestEvent.proposed_value as EngineAnswerValue
-  }
-
-  return fallback
-}
-
-function getActorFieldPrefix(
-  caseItem: Database['public']['Tables']['cases']['Row'],
-  userId: string,
-) {
-  return caseItem.initiator_id === userId ? 'initiator' : 'responder'
-}
 
 export async function PATCH(
   req: Request,
@@ -205,16 +132,13 @@ export async function PATCH(
     guidance_text: question.guidance_text as Record<string, string> | null,
   })
 
-  const actorPrefix = getActorFieldPrefix(caseItem, user.id)
+  const actorPrefix = getResolutionActorFieldPrefix(caseItem, user.id)
   const otherPrefix = actorPrefix === 'initiator' ? 'responder' : 'initiator'
-  const actorStatusKey = `${actorPrefix}_status` as const
-  const actorValueKey = `${actorPrefix}_value` as const
-  const otherStatusKey = `${otherPrefix}_status` as const
 
   let proposedValue: Json | null = null
 
   if (parsed.data.action === 'accept') {
-    proposedValue = (await getCurrentProposal({
+    proposedValue = (await getCurrentResolutionProposal({
       caseId: params.caseId,
       itemKey,
       fallback: engineResult.suggestion,
@@ -231,51 +155,13 @@ export async function PATCH(
     }
   }
 
-  const nextState: Database['public']['Tables']['case_item_states']['Update'] = {
-    [actorStatusKey]:
-      parsed.data.action === 'accept'
-        ? 'accepted'
-        : parsed.data.action === 'modify'
-          ? 'modified'
-          : 'rejected',
-    [actorValueKey]: parsed.data.action === 'reject' ? null : proposedValue,
-    locked_at: null,
-    unresolved_at: null,
-  }
-
-  if (parsed.data.action === 'modify') {
-    nextState.round_count = Math.min((state.round_count ?? 0) + 1, 3)
-  }
-
-  const otherStatus = state[otherStatusKey]
-  const actorStatus = nextState[actorStatusKey] as StateRow['initiator_status']
-  const actorValue = nextState[actorValueKey] as Json | null
-  const otherValue =
-    actorPrefix === 'initiator' ? state.responder_value : state.initiator_value
-
-  if (
-    actorStatus === 'accepted' &&
-    otherStatus === 'accepted' &&
-    actorValue &&
-    otherValue &&
-    answersMatch(actorValue, otherValue)
-  ) {
-    nextState.review_bucket = 'locked'
-    nextState.locked_at = new Date().toISOString()
-  } else if ((nextState.round_count ?? state.round_count ?? 0) >= 3) {
-    nextState.review_bucket = 'unresolved'
-    nextState.unresolved_at = new Date().toISOString()
-  } else if (
-    (nextState.initiator_status ?? state.initiator_status) === 'pending' &&
-    (nextState.responder_status ?? state.responder_status) === 'pending' &&
-    engineResult.status !== 'agreed'
-  ) {
-    nextState.review_bucket = 'to_review'
-  } else if (engineResult.status === 'agreed') {
-    nextState.review_bucket = 'agreed'
-  } else {
-    nextState.review_bucket = 'disputed'
-  }
+  const nextState = buildResolutionNextState({
+    actorPrefix,
+    action: parsed.data.action,
+    engineStatus: engineResult.status,
+    proposedValue,
+    state,
+  })
 
   const { data: updatedState, error: updateError } = await supabaseAdmin
     .from('case_item_states')

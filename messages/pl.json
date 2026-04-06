@@ -164,6 +164,25 @@
   "dashboard": {
     "title": "Twoje sprawy",
     "subtitle": "Wszystko, co rozpocząłeś lub do czego zostałeś zaproszony, pojawia się tutaj.",
+    "searchPlaceholder": "Szukaj według typu sprawy, statusu, roli lub ID",
+    "filterStatus": "Filtruj według statusu",
+    "filterCaseType": "Filtruj według typu sprawy",
+    "filterRole": "Filtruj według roli",
+    "filterAllStatuses": "Wszystkie statusy",
+    "filterAllCaseTypes": "Wszystkie typy spraw",
+    "filterAllRoles": "Wszystkie role",
+    "roleLabel": "Rola",
+    "roleInitiator": "Właściciel sprawy",
+    "roleResponder": "Zaproszony rodzic",
+    "pageSize": "Spraw na stronę",
+    "pageSizeOption": "{count} na stronę",
+    "resultsCount": "Wyświetlanie {shown} z {total} spraw",
+    "pageSummary": "Strona {page} z {totalPages}",
+    "previousPage": "Poprzednia",
+    "nextPage": "Następna",
+    "noResultsTitle": "Żadne sprawy nie pasują do tych filtrów",
+    "noResultsBody": "Spróbuj wyczyścić część filtrów lub użyć szerszego wyszukiwania, aby znaleźć potrzebną sprawę.",
+    "clearFilters": "Wyczyść filtry",
     "emptyTitle": "Brak spraw",
     "emptyBody": "Rozpocznij swoją pierwszą sprawę za darmo, a poprowadzimy Cię krok po kroku.",
     "emptyLinkedTitle": "Nie masz jeszcze zaakceptowanych spraw",
@@ -314,6 +333,9 @@
     "title": "Oś czasu sprawy",
     "subtitle": "Chronologiczny zapis tego, co do tej pory wydarzyło się w tej sprawie.",
     "empty": "Brak wydarzeń na osi czasu.",
+    "showMore": "Pokaż jeszcze {count}",
+    "showLess": "Pokaż mniej",
+    "showingCount": "Wyświetlanie {shown} z {total} wydarzeń",
     "events": {
       "case_created": "Sprawa utworzona",
       "questions_started": "Rozpoczęto pytania",
@@ -590,28 +612,28 @@
       "unsubscribe": "Wypisz się z tych e-maili"
     },
     "initiatorSubmitted": {
-      "subject": "Your answers have been saved",
-      "title": "Your answers are saved",
-      "body": "Your latest answers have been recorded. You can return at any time to continue the case flow.",
-      "cta": "Open case"
+      "subject": "Twoje odpowiedzi zostały zapisane",
+      "title": "Twoje odpowiedzi są zapisane",
+      "body": "Twoje najnowsze odpowiedzi zostały zapisane. Możesz wrócić w dowolnym momencie, aby kontynuować przebieg sprawy.",
+      "cta": "Otwórz sprawę"
     },
     "comparisonReady": {
-      "subject": "Your comparison is ready",
-      "title": "Comparison is now unlocked",
-      "body": "Both parties have submitted their answers. You can now review the comparison and continue to resolution.",
-      "cta": "Open comparison"
+      "subject": "Twoje porównanie jest gotowe",
+      "title": "Porównanie jest już odblokowane",
+      "body": "Obie strony przesłały swoje odpowiedzi. Możesz teraz przejrzeć porównanie i przejść do etapu rozwiązań.",
+      "cta": "Otwórz porównanie"
     },
     "caseCompletion": {
-      "subject": "The case is ready for export review",
-      "title": "A completion confirmation was added",
-      "body": "One party has confirmed they are satisfied with the current outcome. Review the export stage to see what happens next.",
-      "cta": "Open export stage"
+      "subject": "Sprawa jest gotowa do przeglądu eksportu",
+      "title": "Dodano potwierdzenie zakończenia",
+      "body": "Jedna ze stron potwierdziła, że jest zadowolona z obecnego wyniku. Przejrzyj etap eksportu, aby zobaczyć, co stanie się dalej.",
+      "cta": "Otwórz etap eksportu"
     },
     "exportNotice": {
-      "subject": "The case pack has been generated",
-      "title": "The case pack is ready",
-      "body": "The case owner has generated the case pack. They can now download it from FairSettle and share it with you if needed.",
-      "cta": "Open export stage"
+      "subject": "Pakiet sprawy został wygenerowany",
+      "title": "Pakiet sprawy jest gotowy",
+      "body": "Właściciel sprawy wygenerował pakiet sprawy. Może go teraz pobrać z FairSettle i udostępnić Ci w razie potrzeby.",
+      "cta": "Otwórz etap eksportu"
     }
   },
   "pdf": {
@@ -676,12 +698,12 @@
     "goBack": "Wróć"
   },
   "profileComplete": {
-    "eyebrow": "Complete your profile",
-    "title": "Finish your family profile",
-    "subtitle": "Before starting a new v2 case, we need your role and your children's details.",
-    "loading": "Loading your profile…",
-    "continue": "Save and continue",
-    "loadError": "We couldn't load your profile. Please try again.",
-    "saveError": "We couldn't save your profile. Please try again."
+    "eyebrow": "Uzupełnij profil",
+    "title": "Dokończ profil rodzinny",
+    "subtitle": "Zanim rozpoczniesz nową sprawę v2, potrzebujemy Twojej roli i danych dotyczących dzieci.",
+    "loading": "Ładowanie profilu…",
+    "continue": "Zapisz i kontynuuj",
+    "loadError": "Nie udało się załadować Twojego profilu. Spróbuj ponownie.",
+    "saveError": "Nie udało się zapisać Twojego profilu. Spróbuj ponownie."
   }
 }

@@ -17,7 +17,6 @@ export default async function InvitePage({
         <PageHeader
           brandLabel={t("nav.brand")}
           eyebrow={t("invitePage.title")}
-          icon={Mail}
           locale={locale}
           subtitle={t("invitePage.subtitle")}
           title={t("invitePage.heading")}

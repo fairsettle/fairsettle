@@ -13,71 +13,13 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { fetchApi } from '@/lib/api-client'
 import { readApiErrorMessage, resolveApiErrorMessage } from '@/lib/client-errors'
+import {
+  getInviteDeliveryStatusClasses,
+  getInviteStatusClasses,
+} from '@/lib/invitations/view'
 import { getLocalizedPath } from '@/lib/locale-path'
 import { cn } from '@/lib/utils'
-
-type InviteItem = {
-  id: string
-  recipient_contact: string
-  method: 'email' | 'sms' | 'whatsapp'
-  status: 'sent' | 'opened' | 'accepted' | 'expired'
-  resend_email_id: string | null
-  delivery_status: 'queued' | 'delivered' | 'delivery_delayed' | 'bounced' | 'complained' | 'failed'
-  delivery_last_event_at: string | null
-  delivery_last_event_type: string | null
-  delivery_error: string | null
-  sent_at: string
-  opened_at: string | null
-  accepted_at: string | null
-  expires_at: string
-  reminder_count: number
-  last_reminder_at: string | null
-}
-
-type CaseMeta = {
-  viewer_role: 'initiator' | 'responder'
-  status: 'draft' | 'invited' | 'active' | 'comparison' | 'completed' | 'expired'
-  case_type: 'child' | 'financial' | 'asset' | 'combined'
-  question_set_version: 'v1' | 'v2'
-  completed_phases: string[]
-  responder_id: string | null
-  flow_state:
-    | 'default'
-    | 'continue_next_phase'
-    | 'waiting_for_responder'
-    | 'continue_response'
-    | 'waiting_for_next_phase'
-}
-
-function getDeliveryStatusClasses(status: InviteItem['delivery_status']) {
-  switch (status) {
-    case 'delivered':
-      return 'border-success/10 bg-success-soft text-success'
-    case 'delivery_delayed':
-      return 'border-warning/10 bg-warning-soft text-warning'
-    case 'bounced':
-    case 'complained':
-    case 'failed':
-      return 'border-danger/10 bg-danger-soft text-danger'
-    case 'queued':
-    default:
-      return 'border-brand/10 bg-brand-soft text-brand-strong'
-  }
-}
-
-function getInviteStatusClasses(status: InviteItem['status']) {
-  switch (status) {
-    case 'accepted':
-      return 'border-success/10 bg-success-soft text-success'
-    case 'opened':
-      return 'border-brand/10 bg-brand-soft text-brand-strong'
-    case 'expired':
-      return 'border-danger/10 bg-danger-soft text-danger'
-    case 'sent':
-    default:
-      return 'border-warning/10 bg-warning-soft text-warning'
-  }
-}
+import type { InvitationCaseMeta, InviteItem } from '@/types/invitations'
 
 export function InviteClient({ caseId }: { caseId: string }) {
   const locale = useLocale()
@@ -90,7 +32,7 @@ export function InviteClient({ caseId }: { caseId: string }) {
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
   const [invitations, setInvitations] = useState<InviteItem[]>([])
-  const [caseMeta, setCaseMeta] = useState<CaseMeta | null>(null)
+  const [caseMeta, setCaseMeta] = useState<InvitationCaseMeta | null>(null)
 
   const formatDate = useMemo(
     () =>
@@ -145,7 +87,7 @@ export function InviteClient({ caseId }: { caseId: string }) {
         cache: 'no-store',
       })
       const payload = (await response.json().catch(() => null)) as
-        | { case?: CaseMeta; error?: string }
+        | { case?: InvitationCaseMeta; error?: string }
         | null
 
       if (response.ok && payload?.case) {
@@ -404,7 +346,7 @@ export function InviteClient({ caseId }: { caseId: string }) {
                         <Badge
                           className={cn(
                             'h-8 border px-3 text-sm font-semibold',
-                            getDeliveryStatusClasses(invitation.delivery_status),
+                            getInviteDeliveryStatusClasses(invitation.delivery_status),
                           )}
                           variant="outline"
                         >

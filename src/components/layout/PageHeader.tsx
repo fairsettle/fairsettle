@@ -38,7 +38,7 @@ export function PageHeader({
         <div className="space-y-5">
           <div className={cn('flex items-start', Icon ? 'gap-4' : '')}>
             {Icon ? (
-              <span className="app-icon-chip mt-0.5 shrink-0">
+              <span className="app-icon-chip mt-1 shrink-0">
                 <Icon className="size-5" />
               </span>
             ) : null}

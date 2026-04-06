@@ -247,7 +247,7 @@ export default function RegisterPage() {
 
                 <div className="md:col-span-2">
                   <FamilyProfileFields
-                    children={childRows}
+                    childProfiles={childRows}
                     childrenCount={formState.children_count}
                     parentRole={formState.parent_role}
                     t={t}

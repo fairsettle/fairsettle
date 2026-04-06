@@ -13,49 +13,11 @@ import { Textarea } from '@/components/ui/textarea'
 import { fetchApi } from '@/lib/api-client'
 import { readApiErrorMessage, resolveApiErrorMessage } from '@/lib/client-errors'
 import { getLocalizedPath } from '@/lib/locale-path'
-
-type ReviewAction = 'agree' | 'disagree' | 'counter'
-
-type ReviewItem = {
-  question_id: string
-  dispute_type: 'child' | 'financial' | 'asset'
-  question_label: string
-  answer_summary: string
-}
-
-type SavedReview = {
-  question_id: string
-  action: ReviewAction
-  counter_text?: string
-}
-
-function getBadgeClassName(disputeType: ReviewItem['dispute_type']) {
-  if (disputeType === 'child') {
-    return 'border-brand/10 bg-brand-soft text-brand-strong'
-  }
-
-  if (disputeType === 'financial') {
-    return 'border-warning/10 bg-warning-soft text-warning-foreground'
-  }
-
-  return 'border-line bg-surface-soft text-ink'
-}
-
-function getActionClassName(action: ReviewAction, isSelected: boolean) {
-  if (!isSelected) {
-    return 'border-line bg-surface text-ink-soft hover:border-brand/15 hover:text-ink'
-  }
-
-  if (action === 'agree') {
-    return 'border-success/20 bg-success-soft text-success-foreground'
-  }
-
-  if (action === 'disagree') {
-    return 'border-danger/20 bg-danger-soft text-danger'
-  }
-
-  return 'border-warning/20 bg-warning-soft text-warning-foreground'
-}
+import {
+  getResponderReviewActionClassName,
+  getResponderReviewBadgeClassName,
+} from '@/lib/respond/view'
+import type { ReviewAction, ReviewItem, SavedReview } from '@/types/respond'
 
 export function ResponderReviewClient({
   caseId,
@@ -173,7 +135,10 @@ export function ResponderReviewClient({
             <Card key={item.question_id} className="app-panel">
               <CardContent className="space-y-4 p-6">
                 <div className="space-y-3">
-                  <Badge className={getBadgeClassName(item.dispute_type)} variant="outline">
+                  <Badge
+                    className={getResponderReviewBadgeClassName(item.dispute_type)}
+                    variant="outline"
+                  >
                     {t(`caseTypes.${item.dispute_type}`)}
                   </Badge>
                   <h3 className="text-lg font-semibold text-ink">{item.question_label}</h3>
@@ -184,7 +149,7 @@ export function ResponderReviewClient({
 
                 <div className="grid gap-2 sm:grid-cols-3">
                   <Button
-                    className={`h-12 rounded-[1.25rem] border ${getActionClassName('agree', selection?.action === 'agree')}`}
+                    className={`h-12 rounded-[1.25rem] border ${getResponderReviewActionClassName('agree', selection?.action === 'agree')}`}
                     type="button"
                     variant="outline"
                     onClick={() => updateSelection(item.question_id, 'agree')}
@@ -193,7 +158,7 @@ export function ResponderReviewClient({
                     {t('responder.agree')}
                   </Button>
                   <Button
-                    className={`h-12 rounded-[1.25rem] border ${getActionClassName('disagree', selection?.action === 'disagree')}`}
+                    className={`h-12 rounded-[1.25rem] border ${getResponderReviewActionClassName('disagree', selection?.action === 'disagree')}`}
                     type="button"
                     variant="outline"
                     onClick={() => updateSelection(item.question_id, 'disagree')}
@@ -202,7 +167,7 @@ export function ResponderReviewClient({
                     {t('responder.disagree')}
                   </Button>
                   <Button
-                    className={`h-12 rounded-[1.25rem] border ${getActionClassName('counter', selection?.action === 'counter')}`}
+                    className={`h-12 rounded-[1.25rem] border ${getResponderReviewActionClassName('counter', selection?.action === 'counter')}`}
                     type="button"
                     variant="outline"
                     onClick={() => updateSelection(item.question_id, 'counter')}

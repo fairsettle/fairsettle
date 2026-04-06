@@ -238,7 +238,6 @@ export default async function RespondPage({
           <PageHeader
             brandLabel={t("nav.brand")}
             eyebrow={t("responder.invitedEyebrow")}
-            icon={ShieldCheck}
             locale={locale}
             subtitle={t("responder.independentSubtitle")}
             title={t("responder.independentTitle")}
@@ -277,7 +276,6 @@ export default async function RespondPage({
         <PageHeader
           brandLabel={t("nav.brand")}
           eyebrow={t("responder.invitedEyebrow")}
-          icon={ShieldCheck}
           locale={locale}
           subtitle={t("responder.reviewIntro")}
           title={t("responder.invitedTitle")}

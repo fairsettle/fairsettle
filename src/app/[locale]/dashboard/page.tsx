@@ -1,188 +1,87 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, LayoutDashboard } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { LayoutDashboard } from "lucide-react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
+import { DashboardCaseCard } from "@/components/dashboard/DashboardCaseCard";
+import { DashboardFiltersBar } from "@/components/dashboard/DashboardFiltersBar";
+import { DashboardPagination } from "@/components/dashboard/DashboardPagination";
+import { PendingInvitationsPanel } from "@/components/dashboard/PendingInvitationsPanel";
 import { AsyncStateCard } from "@/components/feedback/AsyncStateCard";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { fetchApi } from "@/lib/api-client";
-import { readApiErrorMessage, resolveApiErrorMessage } from "@/lib/client-errors";
+import {
+  DASHBOARD_DEFAULT_PAGE_SIZE,
+  type DashboardQuery,
+} from "@/lib/cases/dashboard-search";
+import {
+  readApiErrorMessage,
+  resolveApiErrorMessage,
+} from "@/lib/client-errors";
 import { getLocalizedPath } from "@/lib/locale-path";
-import { cn } from "@/lib/utils";
-
-interface DashboardCase {
-  id: string;
-  case_type: "child" | "financial" | "asset" | "combined";
-  viewer_role: "initiator" | "responder";
-  question_set_version: "v1" | "v2";
-  completed_phases: string[];
-  responder_id: string | null;
-  flow_state:
-    | "default"
-    | "continue_next_phase"
-    | "waiting_for_responder"
-    | "continue_response"
-    | "waiting_for_next_phase";
-  status:
-    | "draft"
-    | "invited"
-    | "active"
-    | "comparison"
-    | "completed"
-    | "expired";
-  created_at: string;
-  savings_to_date: number;
-}
-
-interface PendingInvitation {
-  id: string;
-  case_id: string;
-  token: string;
-  status: "sent" | "opened";
-  sent_at: string;
-  opened_at: string | null;
-  expires_at: string;
-  case_type: "child" | "financial" | "asset" | "combined";
-  initiator_name: string | null;
-}
-
-function getNextStepKey(caseItem: DashboardCase) {
-  if (caseItem.status === "active") {
-    switch (caseItem.flow_state) {
-      case "continue_next_phase":
-        return "dashboard.nextStepContinueNextPhase";
-      case "waiting_for_responder":
-        return "dashboard.nextStepWaitingForResponder";
-      case "continue_response":
-        return "dashboard.nextStepContinueResponse";
-      case "waiting_for_next_phase":
-        return "dashboard.nextStepWaitingForNextPhase";
-      default:
-        break;
-    }
-  }
-
-  switch (caseItem.status) {
-    case "draft":
-      return "dashboard.nextStepDraft";
-    case "invited":
-      return "dashboard.nextStepInvited";
-    case "active":
-      return caseItem.viewer_role === "initiator"
-        ? "dashboard.nextStepActiveInitiator"
-        : "dashboard.nextStepActiveResponder";
-    case "comparison":
-      return "dashboard.nextStepComparison";
-    case "completed":
-      return "dashboard.nextStepCompleted";
-    case "expired":
-    default:
-      return "dashboard.nextStepExpired";
-  }
-}
-
-function getCaseHref(locale: string, caseItem: DashboardCase) {
-  switch (caseItem.status) {
-    case "invited":
-      return getLocalizedPath(locale, `/cases/${caseItem.id}/invite`);
-    case "active":
-      if (caseItem.flow_state === "continue_next_phase") {
-        return getLocalizedPath(locale, `/cases/${caseItem.id}/questions`);
-      }
-      if (
-        caseItem.flow_state === "continue_response" ||
-        caseItem.flow_state === "waiting_for_next_phase"
-      ) {
-        return getLocalizedPath(locale, `/cases/${caseItem.id}/questions`);
-      }
-      return caseItem.viewer_role === "initiator"
-        ? getLocalizedPath(locale, `/cases/${caseItem.id}/invite`)
-        : getLocalizedPath(locale, `/cases/${caseItem.id}/questions`);
-    case "comparison":
-    case "completed":
-      return getLocalizedPath(locale, `/cases/${caseItem.id}/comparison`);
-    case "expired":
-      return getLocalizedPath(locale, `/cases/${caseItem.id}/export`);
-    case "draft":
-    default:
-      return getLocalizedPath(locale, `/cases/${caseItem.id}/questions`);
-  }
-}
-
-function getCaseActionKey(caseItem: DashboardCase) {
-  if (caseItem.status === "active") {
-    switch (caseItem.flow_state) {
-      case "continue_next_phase":
-        return "dashboard.actionContinueNextPhase";
-      case "waiting_for_responder":
-        return "dashboard.actionWaitingForResponder";
-      case "continue_response":
-        return "dashboard.actionContinueResponse";
-      case "waiting_for_next_phase":
-        return "dashboard.actionWaitingForNextPhase";
-      default:
-        break;
-    }
-  }
-
-  switch (caseItem.status) {
-    case "draft":
-      return "dashboard.actionDraft";
-    case "invited":
-      return "dashboard.actionInvited";
-    case "active":
-      return caseItem.viewer_role === "initiator"
-        ? "dashboard.actionActiveInitiator"
-        : "dashboard.actionActiveResponder";
-    case "comparison":
-      return "dashboard.actionComparison";
-    case "completed":
-      return "dashboard.actionCompleted";
-    case "expired":
-    default:
-      return "dashboard.actionExpired";
-  }
-}
-
-function getStatusBadgeClasses(status: DashboardCase["status"]) {
-  switch (status) {
-    case "active":
-    case "completed":
-      return "border-success/10 bg-success-soft text-success";
-    case "comparison":
-      return "border-brand/10 bg-brand-soft text-brand-strong";
-    case "expired":
-      return "border-danger/10 bg-danger-soft text-danger";
-    case "draft":
-      return "border-line bg-surface-soft text-ink-soft";
-    case "invited":
-    default:
-      return "border-warning/10 bg-warning-soft text-warning";
-  }
-}
+import type {
+  DashboardCase,
+  DashboardCasesMeta,
+  DashboardCasesResponse,
+  PendingInvitation,
+} from "@/types/dashboard";
 
 export default function DashboardPage() {
   const locale = useLocale();
   const t = useTranslations();
   const [cases, setCases] = useState<DashboardCase[]>([]);
+  const [meta, setMeta] = useState<DashboardCasesMeta>({
+    page: 1,
+    pageSize: DASHBOARD_DEFAULT_PAGE_SIZE,
+    total: 0,
+    totalPages: 1,
+    hasNextPage: false,
+    hasPreviousPage: false,
+  });
   const [pendingInvitations, setPendingInvitations] = useState<
     PendingInvitation[]
   >([]);
+  const [filters, setFilters] = useState<DashboardQuery>({
+    q: "",
+    status: "all",
+    caseType: "all",
+    role: "all",
+    page: 1,
+    pageSize: DASHBOARD_DEFAULT_PAGE_SIZE,
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const deferredSearch = useDeferredValue(filters.q);
 
   useEffect(() => {
     let ignore = false;
 
     async function loadCases() {
       try {
+        const caseParams = new URLSearchParams({
+          page: String(filters.page),
+          pageSize: String(filters.pageSize),
+        });
+
+        if (deferredSearch.trim()) {
+          caseParams.set("q", deferredSearch.trim());
+        }
+        if (filters.status !== "all") {
+          caseParams.set("status", filters.status);
+        }
+        if (filters.caseType !== "all") {
+          caseParams.set("caseType", filters.caseType);
+        }
+        if (filters.role !== "all") {
+          caseParams.set("role", filters.role);
+        }
+
         const [casesResponse, invitationsResponse] = await Promise.all([
-          fetchApi("/api/cases", locale, { cache: "no-store" }),
+          fetchApi(`/api/cases?${caseParams.toString()}`, locale, { cache: "no-store" }),
           fetchApi("/api/invitations/pending", locale, { cache: "no-store" }),
         ]);
 
@@ -204,17 +103,39 @@ export default function DashboardPage() {
           );
         }
 
-        const casesData = await casesResponse.json().catch(() => null);
-        const invitationsData = await invitationsResponse.json().catch(() => null);
+        const casesData = (await casesResponse
+          .json()
+          .catch(() => null)) as DashboardCasesResponse | null;
+        const invitationsData = await invitationsResponse
+          .json()
+          .catch(() => null);
 
         if (!ignore) {
           setCases(casesData?.cases ?? []);
+          setMeta(
+            casesData?.meta ?? {
+              page: 1,
+              pageSize: filters.pageSize,
+              total: 0,
+              totalPages: 1,
+              hasNextPage: false,
+              hasPreviousPage: false,
+            },
+          );
           setPendingInvitations(invitationsData?.invitations ?? []);
           setErrorMessage("");
         }
       } catch (error) {
         if (!ignore) {
           setCases([]);
+          setMeta({
+            page: 1,
+            pageSize: filters.pageSize,
+            total: 0,
+            totalPages: 1,
+            hasNextPage: false,
+            hasPreviousPage: false,
+          });
           setPendingInvitations([]);
           setErrorMessage(
             error instanceof Error && error.message
@@ -234,7 +155,16 @@ export default function DashboardPage() {
     return () => {
       ignore = true;
     };
-  }, [locale, t]);
+  }, [
+    deferredSearch,
+    filters.caseType,
+    filters.page,
+    filters.pageSize,
+    filters.role,
+    filters.status,
+    locale,
+    t,
+  ]);
 
   const currency = useMemo(
     () =>
@@ -268,7 +198,6 @@ export default function DashboardPage() {
             </>
           }
           brandLabel={t("nav.brand")}
-          icon={LayoutDashboard}
           locale={locale}
           subtitle={t("dashboard.subtitle")}
           title={t("dashboard.title")}
@@ -287,99 +216,54 @@ export default function DashboardPage() {
           />
         ) : (
           <>
-            {pendingInvitations.length > 0 ? (
-              <Card className="app-panel-soft border-brand/15">
-                <CardContent className="space-y-5 p-6">
-                  <div className="space-y-2">
-                    <p className="app-kicker">
-                      {t("dashboard.pendingInvitesLabel")}
-                    </p>
-                    <h2 className="font-display text-3xl text-ink">
-                      {t("dashboard.pendingInvitesTitle")}
-                    </h2>
-                    <p className="max-w-2xl text-sm leading-6 text-ink-soft">
-                      {t("dashboard.pendingInvitesBody")}
-                    </p>
-                  </div>
+            <PendingInvitationsPanel
+              formatDate={formatDate}
+              invitations={pendingInvitations}
+              locale={locale}
+            />
 
-                  <div className="grid gap-4">
-                    {pendingInvitations.map((invitation) => (
-                      <div key={invitation.id} className="app-panel-soft p-5">
-                        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                          <div className="space-y-2">
-                            <p className="app-kicker">
-                              {t("dashboard.pendingInvitesFrom")}
-                            </p>
-                            <h3 className="font-display text-2xl text-ink">
-                              {invitation.initiator_name || t("nav.brand")}
-                            </h3>
-                            <p className="text-sm leading-6 text-ink-soft">
-                              {t("dashboard.pendingInvitesCaseType", {
-                                caseType: t(
-                                  `caseTypes.${invitation.case_type}`,
-                                ),
-                              })}
-                            </p>
-                          </div>
+            <DashboardFiltersBar
+              filters={filters}
+              resultCount={cases.length}
+              totalCount={meta.total}
+              onCaseTypeChange={(value) =>
+                setFilters((current) => ({
+                  ...current,
+                  caseType: value,
+                  page: 1,
+                }))
+              }
+              onPageSizeChange={(value) =>
+                setFilters((current) => ({
+                  ...current,
+                  page: 1,
+                  pageSize: value,
+                }))
+              }
+              onRoleChange={(value) =>
+                setFilters((current) => ({
+                  ...current,
+                  page: 1,
+                  role: value,
+                }))
+              }
+              onSearchChange={(value) =>
+                setFilters((current) => ({
+                  ...current,
+                  page: 1,
+                  q: value,
+                }))
+              }
+              onStatusChange={(value) =>
+                setFilters((current) => ({
+                  ...current,
+                  page: 1,
+                  status: value,
+                }))
+              }
+            />
 
-                          <div className="flex flex-wrap items-center gap-2">
-                            <Badge
-                              className="border-brand/10 bg-brand-soft text-brand-strong"
-                              variant="outline"
-                            >
-                              {t(
-                                invitation.status === "opened"
-                                  ? "dashboard.pendingInvitesOpened"
-                                  : "dashboard.pendingInvitesWaiting",
-                              )}
-                            </Badge>
-                            <Button asChild className="h-11 px-5" size="lg">
-                              <Link
-                                href={getLocalizedPath(
-                                  locale,
-                                  `/respond/${invitation.token}`,
-                                )}
-                              >
-                                {t("dashboard.pendingInvitesReview")}
-                              </Link>
-                            </Button>
-                          </div>
-                        </div>
-
-                        <div className="mt-4 grid gap-3 border-t border-line/80 pt-4 text-sm sm:grid-cols-2">
-                          <div className="space-y-1">
-                            <p className="text-xs uppercase tracking-[0.2em] text-ink-soft/70">
-                              {t("dashboard.pendingInvitesSent")}
-                            </p>
-                            <p className="font-medium text-ink">
-                              {formatDate.format(new Date(invitation.sent_at))}
-                            </p>
-                          </div>
-                          <div className="space-y-1 sm:text-right">
-                            <p className="text-xs uppercase tracking-[0.2em] text-ink-soft/70">
-                              {t("dashboard.pendingInvitesExpires")}
-                            </p>
-                            <p className="font-medium text-ink">
-                              {formatDate.format(
-                                new Date(invitation.expires_at),
-                              )}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="app-note-brand mt-4 px-4 py-3">
-                          <p className="text-sm font-medium text-ink">
-                            {t("dashboard.pendingInvitesHint")}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ) : null}
-
-            {cases.length === 0 ? (
+            {meta.total === 0 ? (
               <Card className="border-dashed border-brand/15">
                 <CardContent className="space-y-4 p-8 text-center">
                   <h2 className="font-display text-3xl text-ink">
@@ -399,96 +283,60 @@ export default function DashboardPage() {
                   </Button>
                 </CardContent>
               </Card>
-            ) : (
-              <div className="grid gap-4">
-                {cases.map((caseItem) => (
-                  <Link
-                    key={caseItem.id}
-                    aria-label={`${t(`caseTypes.${caseItem.case_type}`)} ${t(`caseStatus.${caseItem.status}`)}`}
-                    className="group block"
-                    href={getCaseHref(locale, caseItem)}
+            ) : cases.length === 0 ? (
+              <Card className="border-dashed border-line/80">
+                <CardContent className="space-y-3 p-8 text-center">
+                  <h2 className="font-display text-3xl text-ink">
+                    {t("dashboard.noResultsTitle")}
+                  </h2>
+                  <p className="mx-auto max-w-md text-sm leading-6 text-ink-soft">
+                    {t("dashboard.noResultsBody")}
+                  </p>
+                  <Button
+                    className="mx-auto"
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
+                      setFilters({
+                        q: "",
+                        status: "all",
+                        caseType: "all",
+                        role: "all",
+                        page: 1,
+                        pageSize: filters.pageSize,
+                      })
+                    }
                   >
-                    <Card className="app-panel-soft app-interactive-card border-line/80">
-                      <CardContent className="space-y-5 p-6">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="space-y-2">
-                            <p className="app-kicker">
-                              {t("dashboard.caseTypeLabel")}
-                            </p>
-                            <h2 className="font-display text-3xl text-ink">
-                              {t(`caseTypes.${caseItem.case_type}`)}
-                            </h2>
-                          </div>
+                    {t("dashboard.clearFilters")}
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                <div className="grid gap-4">
+                  {cases.map((caseItem) => (
+                    <DashboardCaseCard
+                      key={caseItem.id}
+                      caseItem={caseItem}
+                      currency={currency}
+                      locale={locale}
+                    />
+                  ))}
+                </div>
 
-                          <div className="flex items-center gap-3">
-                            <Badge
-                              className={cn(
-                                "h-8 border px-3 text-sm font-semibold",
-                                getStatusBadgeClasses(caseItem.status),
-                              )}
-                              variant="outline"
-                            >
-                              {t(`caseStatus.${caseItem.status}`)}
-                            </Badge>
-                            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-ink-soft transition-all duration-200 group-hover:border-brand/20 group-hover:bg-brand-soft group-hover:text-brand">
-                              <ArrowUpRight className="size-4" />
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="grid gap-4 border-t border-line/80 pt-4 text-sm sm:grid-cols-2">
-                          <div className="space-y-1">
-                            <p className="text-xs uppercase tracking-[0.2em] text-ink-soft/70">
-                              {t("dashboard.created")}
-                            </p>
-                            <p className="font-medium text-ink">
-                              {new Date(caseItem.created_at).toLocaleDateString(
-                                locale,
-                              )}
-                            </p>
-                          </div>
-
-                          <div className="space-y-1 sm:text-right">
-                            <p className="text-xs uppercase tracking-[0.2em] text-ink-soft/70">
-                              {t("dashboard.saved")}
-                            </p>
-                            <p className="font-semibold text-brand">
-                              {currency.format(caseItem.savings_to_date)}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="app-note-brand px-4 py-3 transition-colors duration-200 group-hover:bg-surface-brand">
-                          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">
-                            {t("dashboard.nextStepLabel")}
-                          </p>
-                          <p className="mt-1 text-sm font-medium text-ink">
-                            {t(getNextStepKey(caseItem))}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center justify-between gap-3 border-t border-line/80 pt-4">
-                          <p className="text-sm text-ink-soft">
-                            {t("dashboard.openCaseHint")}
-                          </p>
-                          <span
-                            className={cn(
-                              buttonVariants({
-                                variant: "outline",
-                                size: "lg",
-                              }),
-                              "h-11 px-5",
-                            )}
-                          >
-                            {t(getCaseActionKey(caseItem))}
-                            <ArrowUpRight className="ml-2 size-4" />
-                          </span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
+                <DashboardPagination
+                  currentPage={meta.page}
+                  hasNextPage={meta.hasNextPage}
+                  hasPreviousPage={meta.hasPreviousPage}
+                  totalPages={meta.totalPages}
+                  onPageChange={(page) =>
+                    setFilters((current) => ({
+                      ...current,
+                      page,
+                    }))
+                  }
+                />
+              </>
             )}
           </>
         )}

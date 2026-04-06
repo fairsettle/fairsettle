@@ -11,16 +11,12 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-type ChildDraft = {
-  first_name: string;
-  date_of_birth: string;
-};
+import type { ChildProfileInput, ParentRole } from "@/types/profile";
 
 const childCountOptions = [0, 1, 2, 3, 4] as const;
 
 export function FamilyProfileFields({
-  children,
+  childProfiles,
   childrenCount,
   parentRole,
   onChildChange,
@@ -28,16 +24,16 @@ export function FamilyProfileFields({
   onParentRoleChange,
   t,
 }: {
-  children: ChildDraft[];
+  childProfiles: ChildProfileInput[];
   childrenCount: number;
-  parentRole: "mum" | "dad" | "";
+  parentRole: ParentRole;
   onChildChange: (
     index: number,
-    key: keyof ChildDraft,
+    key: keyof ChildProfileInput,
     value: string,
   ) => void;
   onChildrenCountChange: (count: number) => void;
-  onParentRoleChange: (role: "mum" | "dad") => void;
+  onParentRoleChange: (role: Exclude<ParentRole, "">) => void;
   t: (key: string, values?: Record<string, string | number>) => string;
 }) {
   return (
@@ -101,7 +97,7 @@ export function FamilyProfileFields({
 
       {childrenCount > 0 ? (
         <div className="space-y-4">
-          {children.map((child, index) => (
+          {childProfiles.map((child, index) => (
             <div
               key={`child-${index}`}
               className="rounded-[1.5rem] border border-line bg-surface p-4"

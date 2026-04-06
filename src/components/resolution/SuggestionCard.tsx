@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { formatAnswerValue, getLocalizedMessage, getLocalizedOptions } from '@/lib/questions'
 import type { ResolutionSuggestion } from '@/lib/resolution/types'
+import type { ViewerRole } from '@/types/core'
 
 type ResolutionActionState = 'idle' | 'accept' | 'modify' | 'reject'
 
@@ -53,7 +54,7 @@ export function SuggestionCard({
     action: 'accept' | 'modify' | 'reject',
     modifiedValue?: unknown,
   ) => Promise<void>
-  viewerRole: 'initiator' | 'responder'
+  viewerRole: ViewerRole
 }) {
   const locale = useLocale()
   const t = useTranslations()

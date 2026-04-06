@@ -9,7 +9,7 @@ export function NeutralityBanner() {
   return (
     <div className="app-panel-brand p-5">
       <div className="flex items-start gap-3">
-        <div className="app-icon-chip h-11 w-11 shrink-0 rounded-2xl">
+        <div className="app-icon-chip">
           <ShieldCheck className="size-5" />
         </div>
         <div className="space-y-1">

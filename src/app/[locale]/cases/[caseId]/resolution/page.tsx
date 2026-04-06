@@ -12,9 +12,15 @@ import { SavingsBar } from "@/components/savings/SavingsBar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { fetchApi } from "@/lib/api-client";
-import { readApiErrorMessage, resolveApiErrorMessage } from "@/lib/client-errors";
+import {
+  readApiErrorMessage,
+  resolveApiErrorMessage,
+} from "@/lib/client-errors";
 import { getLocalizedPath } from "@/lib/locale-path";
-import type { ResolutionPayload, ResolutionSuggestion } from "@/lib/resolution/types";
+import type {
+  ResolutionPayload,
+  ResolutionSuggestion,
+} from "@/lib/resolution/types";
 
 export default function ResolutionPage({
   params: { caseId },
@@ -36,8 +42,12 @@ export default function ResolutionPage({
     async function loadData() {
       try {
         const [resolutionResponse, comparisonResponse] = await Promise.all([
-          fetchApi(`/api/cases/${caseId}/resolution`, locale, { cache: "no-store" }),
-          fetchApi(`/api/cases/${caseId}/comparison`, locale, { cache: "no-store" }),
+          fetchApi(`/api/cases/${caseId}/resolution`, locale, {
+            cache: "no-store",
+          }),
+          fetchApi(`/api/cases/${caseId}/comparison`, locale, {
+            cache: "no-store",
+          }),
         ]);
 
         if (!resolutionResponse.ok) {
@@ -58,9 +68,10 @@ export default function ResolutionPage({
           );
         }
 
-        const resolutionPayload = (await resolutionResponse.json()) as ResolutionPayload & {
-          viewer_role?: "initiator" | "responder";
-        };
+        const resolutionPayload =
+          (await resolutionResponse.json()) as ResolutionPayload & {
+            viewer_role?: "initiator" | "responder";
+          };
         const comparisonPayload = (await comparisonResponse.json()) as {
           viewer_role?: "initiator" | "responder";
         };
@@ -127,7 +138,6 @@ export default function ResolutionPage({
         <PageHeader
           brandLabel={t("nav.brand")}
           eyebrow={t("resolution.eyebrow")}
-          icon={ShieldCheck}
           locale={locale}
           subtitle={t("resolution.subtitle")}
           title={t("resolution.title")}

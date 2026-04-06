@@ -164,6 +164,25 @@
   "dashboard": {
     "title": "قضاياك",
     "subtitle": "كل ما بدأته أو تمت دعوتك إليه يظهر هنا.",
+    "searchPlaceholder": "ابحث حسب نوع القضية أو الحالة أو الدور أو المعرّف",
+    "filterStatus": "التصفية حسب الحالة",
+    "filterCaseType": "التصفية حسب نوع القضية",
+    "filterRole": "التصفية حسب الدور",
+    "filterAllStatuses": "كل الحالات",
+    "filterAllCaseTypes": "كل أنواع القضايا",
+    "filterAllRoles": "كل الأدوار",
+    "roleLabel": "الدور",
+    "roleInitiator": "صاحب القضية",
+    "roleResponder": "الوالد المدعو",
+    "pageSize": "عدد القضايا في الصفحة",
+    "pageSizeOption": "{count} لكل صفحة",
+    "resultsCount": "يتم عرض {shown} من أصل {total} قضية",
+    "pageSummary": "الصفحة {page} من {totalPages}",
+    "previousPage": "السابق",
+    "nextPage": "التالي",
+    "noResultsTitle": "لا توجد قضايا تطابق هذه الفلاتر",
+    "noResultsBody": "جرّب إزالة بعض الفلاتر أو استخدام بحث أوسع للعثور على القضية التي تحتاجها.",
+    "clearFilters": "مسح الفلاتر",
     "emptyTitle": "لا توجد قضايا حتى الآن",
     "emptyBody": "ابدأ قضيتك الأولى مجانًا وسنرشدك خطوة بخطوة.",
     "emptyLinkedTitle": "لا توجد قضايا مقبولة بعد",
@@ -314,6 +333,9 @@
     "title": "الجدول الزمني للقضية",
     "subtitle": "سجل زمني لما حدث في هذه القضية حتى الآن.",
     "empty": "لا توجد أحداث في الجدول الزمني بعد.",
+    "showMore": "إظهار {count} أخرى",
+    "showLess": "إظهار أقل",
+    "showingCount": "يتم عرض {shown} من أصل {total} حدثًا",
     "events": {
       "case_created": "تم إنشاء القضية",
       "questions_started": "تم بدء الأسئلة",
@@ -590,28 +612,28 @@
       "unsubscribe": "إلغاء الاشتراك من هذه الرسائل الإلكترونية"
     },
     "initiatorSubmitted": {
-      "subject": "Your answers have been saved",
-      "title": "Your answers are saved",
-      "body": "Your latest answers have been recorded. You can return at any time to continue the case flow.",
-      "cta": "Open case"
+      "subject": "تم حفظ إجاباتك",
+      "title": "إجاباتك محفوظة",
+      "body": "تم تسجيل أحدث إجاباتك. يمكنك العودة في أي وقت لمتابعة مسار القضية.",
+      "cta": "افتح القضية"
     },
     "comparisonReady": {
-      "subject": "Your comparison is ready",
-      "title": "Comparison is now unlocked",
-      "body": "Both parties have submitted their answers. You can now review the comparison and continue to resolution.",
-      "cta": "Open comparison"
+      "subject": "المقارنة الخاصة بك جاهزة",
+      "title": "تم فتح المقارنة الآن",
+      "body": "قام الطرفان بإرسال إجاباتهما. يمكنك الآن مراجعة المقارنة والمتابعة إلى مرحلة الحل.",
+      "cta": "افتح المقارنة"
     },
     "caseCompletion": {
-      "subject": "The case is ready for export review",
-      "title": "A completion confirmation was added",
-      "body": "One party has confirmed they are satisfied with the current outcome. Review the export stage to see what happens next.",
-      "cta": "Open export stage"
+      "subject": "القضية جاهزة لمراجعة التصدير",
+      "title": "تمت إضافة تأكيد الإكمال",
+      "body": "أكد أحد الطرفين أنه راضٍ عن النتيجة الحالية. راجع مرحلة التصدير لمعرفة ما سيحدث بعد ذلك.",
+      "cta": "افتح مرحلة التصدير"
     },
     "exportNotice": {
-      "subject": "The case pack has been generated",
-      "title": "The case pack is ready",
-      "body": "The case owner has generated the case pack. They can now download it from FairSettle and share it with you if needed.",
-      "cta": "Open export stage"
+      "subject": "تم إنشاء حزمة القضية",
+      "title": "حزمة القضية جاهزة",
+      "body": "قام مالك القضية بإنشاء حزمة القضية. يمكنه الآن تنزيلها من FairSettle ومشاركتها معك إذا لزم الأمر.",
+      "cta": "افتح مرحلة التصدير"
     }
   },
   "pdf": {
@@ -676,12 +698,12 @@
     "goBack": "العودة"
   },
   "profileComplete": {
-    "eyebrow": "Complete your profile",
-    "title": "Finish your family profile",
-    "subtitle": "Before starting a new v2 case, we need your role and your children's details.",
-    "loading": "Loading your profile…",
-    "continue": "Save and continue",
-    "loadError": "We couldn't load your profile. Please try again.",
-    "saveError": "We couldn't save your profile. Please try again."
+    "eyebrow": "أكمل ملفك الشخصي",
+    "title": "أكمل ملف العائلة",
+    "subtitle": "قبل بدء قضية v2 جديدة، نحتاج إلى دورك وتفاصيل أطفالك.",
+    "loading": "جارٍ تحميل ملفك الشخصي…",
+    "continue": "احفظ وتابع",
+    "loadError": "تعذر تحميل ملفك الشخصي. يرجى المحاولة مرة أخرى.",
+    "saveError": "تعذر حفظ ملفك الشخصي. يرجى المحاولة مرة أخرى."
   }
 }

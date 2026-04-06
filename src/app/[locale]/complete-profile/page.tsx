@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { ArrowRight, UsersRound } from "lucide-react";
 
+import { AsyncStateCard } from "@/components/feedback/AsyncStateCard";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { FamilyProfileFields } from "@/components/profile/FamilyProfileFields";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,11 @@ import {
   resolveApiErrorMessage,
 } from "@/lib/client-errors";
 import { getLocalizedPath } from "@/lib/locale-path";
+import type {
+  ChildProfileInput,
+  ParentRole,
+  ProfilePayload,
+} from "@/types/profile";
 
 export default function CompleteProfilePage() {
   const router = useRouter();
@@ -28,10 +34,10 @@ export default function CompleteProfilePage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [formState, setFormState] = useState({
     full_name: "",
-    preferred_language: locale as "en" | "pl" | "ro" | "ar",
-    parent_role: "" as "" | "mum" | "dad",
+    preferred_language: locale,
+    parent_role: "" as ParentRole,
     children_count: 0,
-    children: [] as { first_name: string; date_of_birth: string }[],
+    children: [] as ChildProfileInput[],
   });
 
   const childRows = useMemo(
@@ -48,7 +54,9 @@ export default function CompleteProfilePage() {
 
     async function loadProfile() {
       try {
-        const response = await fetchApi("/api/profile", locale, { cache: "no-store" });
+        const response = await fetchApi("/api/profile", locale, {
+          cache: "no-store",
+        });
 
         if (!response.ok) {
           throw new Error(
@@ -59,25 +67,12 @@ export default function CompleteProfilePage() {
           );
         }
 
-        const payload = (await response.json()) as {
-          profile: {
-            full_name: string;
-            preferred_language: string;
-            parent_role: "mum" | "dad" | null;
-            children_count: number | null;
-          };
-          children: { first_name: string | null; date_of_birth: string }[];
-        };
+        const payload = (await response.json()) as ProfilePayload;
 
         if (!ignore) {
           setFormState({
             full_name: payload.profile.full_name ?? "",
-            preferred_language:
-              (payload.profile.preferred_language as
-                | "en"
-                | "pl"
-                | "ro"
-                | "ar") ?? locale,
+            preferred_language: payload.profile.preferred_language ?? locale,
             parent_role: payload.profile.parent_role ?? "",
             children_count: payload.profile.children_count ?? 0,
             children: (payload.children ?? []).map((child) => ({
@@ -154,10 +149,13 @@ export default function CompleteProfilePage() {
         <div className="mx-auto max-w-6xl">
           <PageHeader
             brandLabel={t("nav.brand")}
-            icon={UsersRound}
             locale={locale}
-            subtitle={t("profileComplete.loading")}
+            subtitle={t("profileComplete.subtitle")}
             title={t("profileComplete.title")}
+          />
+          <AsyncStateCard
+            body={t("profileComplete.subtitle")}
+            title={t("profileComplete.loading")}
           />
         </div>
       </main>
@@ -170,7 +168,6 @@ export default function CompleteProfilePage() {
         <PageHeader
           brandLabel={t("nav.brand")}
           eyebrow={t("profileComplete.eyebrow")}
-          icon={UsersRound}
           locale={locale}
           subtitle={t("profileComplete.subtitle")}
           title={t("profileComplete.title")}
@@ -196,7 +193,7 @@ export default function CompleteProfilePage() {
 
               <div className="md:col-span-2">
                 <FamilyProfileFields
-                  children={childRows}
+                  childProfiles={childRows}
                   childrenCount={formState.children_count}
                   parentRole={formState.parent_role}
                   t={t}
@@ -205,8 +202,7 @@ export default function CompleteProfilePage() {
                       const nextChildren = [...current.children];
                       nextChildren[index] = {
                         first_name: nextChildren[index]?.first_name ?? "",
-                        date_of_birth:
-                          nextChildren[index]?.date_of_birth ?? "",
+                        date_of_birth: nextChildren[index]?.date_of_birth ?? "",
                         [key]: value,
                       };
 
@@ -237,7 +233,9 @@ export default function CompleteProfilePage() {
               </div>
             </div>
 
-            {errorMessage ? <p className="app-alert-danger">{errorMessage}</p> : null}
+            {errorMessage ? (
+              <p className="app-alert-danger">{errorMessage}</p>
+            ) : null}
 
             <Button
               className="h-12 w-full text-base"

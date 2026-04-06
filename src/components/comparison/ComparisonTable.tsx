@@ -6,13 +6,14 @@ import { ComparisonRow } from '@/components/comparison/ComparisonRow'
 import { Card, CardContent } from '@/components/ui/card'
 import { getLocalizedMessage } from '@/lib/questions'
 import type { SafeComparisonItem } from '@/lib/comparison'
+import type { ViewerRole } from '@/types/core'
 
 export function ComparisonTable({
   items,
   viewerRole,
 }: {
   items: SafeComparisonItem[]
-  viewerRole: 'initiator' | 'responder'
+  viewerRole: ViewerRole
 }) {
   const locale = useLocale()
   const t = useTranslations()

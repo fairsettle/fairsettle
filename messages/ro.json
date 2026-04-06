@@ -164,6 +164,25 @@
   "dashboard": {
     "title": "Cazurile tale",
     "subtitle": "Tot ce ai început sau la care ai fost invitat apare aici.",
+    "searchPlaceholder": "Caută după tipul cazului, status, rol sau ID",
+    "filterStatus": "Filtrează după status",
+    "filterCaseType": "Filtrează după tipul cazului",
+    "filterRole": "Filtrează după rol",
+    "filterAllStatuses": "Toate statusurile",
+    "filterAllCaseTypes": "Toate tipurile de caz",
+    "filterAllRoles": "Toate rolurile",
+    "roleLabel": "Rol",
+    "roleInitiator": "Proprietarul cazului",
+    "roleResponder": "Părintele invitat",
+    "pageSize": "Cazuri pe pagină",
+    "pageSizeOption": "{count} pe pagină",
+    "resultsCount": "Se afișează {shown} din {total} cazuri",
+    "pageSummary": "Pagina {page} din {totalPages}",
+    "previousPage": "Anterior",
+    "nextPage": "Următor",
+    "noResultsTitle": "Niciun caz nu corespunde acestor filtre",
+    "noResultsBody": "Încearcă să elimini unele filtre sau să folosești o căutare mai largă pentru a găsi cazul de care ai nevoie.",
+    "clearFilters": "Șterge filtrele",
     "emptyTitle": "Niciun caz încă",
     "emptyBody": "Începe primul tău caz gratuit și te vom ghida pas cu pas.",
     "emptyLinkedTitle": "Nu ai încă niciun caz acceptat",
@@ -314,6 +333,9 @@
     "title": "Cronologia cazului",
     "subtitle": "O înregistrare cronologică a ceea ce s-a întâmplat în acest caz până acum.",
     "empty": "Nu există evenimente în cronologie încă.",
+    "showMore": "Arată încă {count}",
+    "showLess": "Arată mai puțin",
+    "showingCount": "Se afișează {shown} din {total} evenimente",
     "events": {
       "case_created": "Caz creat",
       "questions_started": "Întrebări începute",
@@ -590,28 +612,28 @@
       "unsubscribe": "Dezabonare de la aceste emailuri"
     },
     "initiatorSubmitted": {
-      "subject": "Your answers have been saved",
-      "title": "Your answers are saved",
-      "body": "Your latest answers have been recorded. You can return at any time to continue the case flow.",
-      "cta": "Open case"
+      "subject": "Răspunsurile tale au fost salvate",
+      "title": "Răspunsurile tale sunt salvate",
+      "body": "Cele mai recente răspunsuri ale tale au fost înregistrate. Poți reveni oricând pentru a continua fluxul cazului.",
+      "cta": "Deschide cazul"
     },
     "comparisonReady": {
-      "subject": "Your comparison is ready",
-      "title": "Comparison is now unlocked",
-      "body": "Both parties have submitted their answers. You can now review the comparison and continue to resolution.",
-      "cta": "Open comparison"
+      "subject": "Comparația ta este gata",
+      "title": "Comparația este acum deblocată",
+      "body": "Ambele părți și-au trimis răspunsurile. Acum poți revizui comparația și continua către rezolvare.",
+      "cta": "Deschide comparația"
     },
     "caseCompletion": {
-      "subject": "The case is ready for export review",
-      "title": "A completion confirmation was added",
-      "body": "One party has confirmed they are satisfied with the current outcome. Review the export stage to see what happens next.",
-      "cta": "Open export stage"
+      "subject": "Cazul este pregătit pentru revizuirea exportului",
+      "title": "A fost adăugată o confirmare de finalizare",
+      "body": "Una dintre părți a confirmat că este mulțumită de rezultatul actual. Revizuiește etapa de export pentru a vedea ce urmează.",
+      "cta": "Deschide etapa de export"
     },
     "exportNotice": {
-      "subject": "The case pack has been generated",
-      "title": "The case pack is ready",
-      "body": "The case owner has generated the case pack. They can now download it from FairSettle and share it with you if needed.",
-      "cta": "Open export stage"
+      "subject": "Pachetul cazului a fost generat",
+      "title": "Pachetul cazului este gata",
+      "body": "Proprietarul cazului a generat pachetul cazului. Îl poate descărca acum din FairSettle și îl poate partaja cu tine dacă este nevoie.",
+      "cta": "Deschide etapa de export"
     }
   },
   "pdf": {
@@ -676,12 +698,12 @@
     "goBack": "Înapoi"
   },
   "profileComplete": {
-    "eyebrow": "Complete your profile",
-    "title": "Finish your family profile",
-    "subtitle": "Before starting a new v2 case, we need your role and your children's details.",
-    "loading": "Loading your profile…",
-    "continue": "Save and continue",
-    "loadError": "We couldn't load your profile. Please try again.",
-    "saveError": "We couldn't save your profile. Please try again."
+    "eyebrow": "Completează profilul",
+    "title": "Finalizează profilul familiei",
+    "subtitle": "Înainte de a începe un nou caz v2, avem nevoie de rolul tău și de detaliile despre copii.",
+    "loading": "Se încarcă profilul tău…",
+    "continue": "Salvează și continuă",
+    "loadError": "Nu am putut încărca profilul tău. Te rugăm să încerci din nou.",
+    "saveError": "Nu am putut salva profilul tău. Te rugăm să încerci din nou."
   }
 }

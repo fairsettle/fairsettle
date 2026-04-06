@@ -111,14 +111,8 @@
   }
 
   .app-icon-chip {
-    @apply inline-flex h-12 w-12 items-center justify-center rounded-2xl transition-transform duration-200 ease-out;
-    background: linear-gradient(
-      145deg,
-      rgb(var(--brand)) 0%,
-      rgb(var(--brand-strong)) 100%
-    );
-    color: rgb(var(--brand-foreground));
-    box-shadow: 0 18px 42px rgba(13, 148, 136, 0.24);
+    @apply inline-flex shrink-0 items-center justify-center transition-colors duration-200 ease-out;
+    color: rgb(var(--brand));
   }
 
   .app-kicker {

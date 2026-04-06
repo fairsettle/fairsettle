@@ -3,9 +3,12 @@ import { z } from 'zod'
 
 import { apiError } from '@/lib/api-errors'
 import { getAuthorizedCase } from '@/lib/cases/auth'
+import {
+  loadCaseSubmitFlow,
+  resolveNextCaseStatus,
+} from '@/lib/cases/submit-flow'
 import { getRequestOrigin } from '@/lib/app-url'
 import {
-  getCasePhases,
   makeItemKey,
 } from '@/lib/family-profile'
 import {
@@ -14,8 +17,6 @@ import {
   sendResponderCompletedEmail,
 } from '@/lib/email/resend'
 import {
-  buildQuestionInstancesByPhase,
-  getDisputeTypesForCase,
   type CasePhase,
 } from '@/lib/questions'
 import { supabaseAdmin } from '@/lib/supabase/admin'
@@ -24,169 +25,6 @@ import { logEvent } from '@/lib/timeline'
 const submitSchema = z.object({
   action: z.enum(['continue', 'invite', 'pause']).optional(),
 })
-
-async function loadCaseFlow(caseId: string, userId: string, caseItem: Awaited<ReturnType<typeof getAuthorizedCase>>['caseItem']) {
-  if (!caseItem) {
-    throw new Error('Case not found')
-  }
-
-  const disputeTypes = getDisputeTypesForCase(caseItem.case_type)
-
-  const [
-    { data: questions, error: questionsError },
-    { data: caseChildren, error: childrenError },
-    { data: allResponses, error: responsesError },
-  ] = await Promise.all([
-    supabaseAdmin
-      .from('questions')
-      .select('*')
-      .eq('question_set_version', caseItem.question_set_version)
-      .in('dispute_type', disputeTypes)
-      .eq('is_active', true),
-    supabaseAdmin
-      .from('children')
-      .select('*')
-      .eq('case_id', caseId)
-      .order('sort_order', { ascending: true }),
-    supabaseAdmin
-      .from('responses')
-      .select('id, user_id, question_id, child_id, submitted_at')
-      .eq('case_id', caseId),
-  ])
-
-  if (questionsError || childrenError || responsesError) {
-    throw new Error(
-      questionsError?.message ??
-        childrenError?.message ??
-        responsesError?.message ??
-        'Unable to load case flow',
-    )
-  }
-
-  const phases = getCasePhases(caseItem.case_type)
-  const instancesByPhase = buildQuestionInstancesByPhase({
-    caseItem,
-    questions: questions ?? [],
-    caseChildren: caseChildren ?? [],
-  })
-  const responses = allResponses ?? []
-
-  const responderPublishedPhases = phases.filter((phase) =>
-    caseItem.completed_phases.includes(phase),
-  )
-  const submittedKeysByUser = new Map<string, Set<string>>()
-
-  for (const response of responses) {
-    if (!response.submitted_at) {
-      continue
-    }
-
-    const current = submittedKeysByUser.get(response.user_id) ?? new Set<string>()
-    current.add(makeItemKey(response.question_id, response.child_id))
-    submittedKeysByUser.set(response.user_id, current)
-  }
-
-  const isInitiator = caseItem.initiator_id === userId
-  const activePhase = isInitiator
-    ? phases.find((phase) => !caseItem.completed_phases.includes(phase)) ?? phases.at(-1) ?? 'child'
-    : responderPublishedPhases.find((phase) =>
-        instancesByPhase[phase].some((question) => {
-          const submittedKeys = submittedKeysByUser.get(userId) ?? new Set<string>()
-          return !submittedKeys.has(question.instance_key)
-        }),
-      ) ?? null
-
-  return {
-    questions: questions ?? [],
-    phases,
-    instancesByPhase,
-    responses,
-    activePhase,
-    submittedKeysByUser,
-  }
-}
-
-function areAllPhaseInstancesSubmitted(
-  instances: { instance_key: string }[],
-  submittedKeys: Set<string>,
-) {
-  return instances.every((question) => submittedKeys.has(question.instance_key))
-}
-
-function resolveNextStatus({
-  caseItem,
-  phases,
-  instancesByPhase,
-  submittedKeysByUser,
-  invitationIntent,
-}: {
-  caseItem: NonNullable<Awaited<ReturnType<typeof getAuthorizedCase>>['caseItem']>
-  phases: readonly CasePhase[]
-  instancesByPhase: Record<CasePhase, { instance_key: string }[]>
-  submittedKeysByUser: Map<string, Set<string>>
-  invitationIntent: boolean
-}) {
-  if (caseItem.question_set_version !== 'v2') {
-    const initiatorSubmitted = (submittedKeysByUser.get(caseItem.initiator_id) ?? new Set()).size > 0
-    const responderSubmitted = caseItem.responder_id
-      ? (submittedKeysByUser.get(caseItem.responder_id) ?? new Set()).size > 0
-      : false
-
-    if (initiatorSubmitted && responderSubmitted) {
-      return 'comparison' as const
-    }
-
-    if (initiatorSubmitted && caseItem.responder_id) {
-      return 'active' as const
-    }
-
-    if (initiatorSubmitted || invitationIntent) {
-      return 'invited' as const
-    }
-
-    return 'draft' as const
-  }
-
-  const initiatorSubmittedKeys = submittedKeysByUser.get(caseItem.initiator_id) ?? new Set<string>()
-  const responderSubmittedKeys = caseItem.responder_id
-    ? submittedKeysByUser.get(caseItem.responder_id) ?? new Set<string>()
-    : new Set<string>()
-
-  const initiatorPublishedAll = phases.every((phase) =>
-    caseItem.completed_phases.includes(phase),
-  )
-  const responderSubmittedAllPublished = caseItem.responder_id
-    ? phases
-        .filter((phase) => caseItem.completed_phases.includes(phase))
-        .every((phase) =>
-          areAllPhaseInstancesSubmitted(instancesByPhase[phase], responderSubmittedKeys),
-        )
-    : false
-  const initiatorSubmittedAllPublished = phases
-    .filter((phase) => caseItem.completed_phases.includes(phase))
-    .every((phase) =>
-      areAllPhaseInstancesSubmitted(instancesByPhase[phase], initiatorSubmittedKeys),
-    )
-
-  if (
-    initiatorPublishedAll &&
-    caseItem.responder_id &&
-    initiatorSubmittedAllPublished &&
-    responderSubmittedAllPublished
-  ) {
-    return 'comparison' as const
-  }
-
-  if (caseItem.responder_id) {
-    return 'active' as const
-  }
-
-  if (invitationIntent) {
-    return 'invited' as const
-  }
-
-  return 'draft' as const
-}
 
 export async function POST(
   req: Request,
@@ -216,7 +54,7 @@ export async function POST(
 
   try {
     const { phases, instancesByPhase, responses, activePhase, submittedKeysByUser } =
-      await loadCaseFlow(params.caseId, user.id, caseItem)
+      await loadCaseSubmitFlow(params.caseId, user.id, caseItem)
 
     if (!activePhase) {
       return apiError(req, 'PHASE_NOT_ACTIVE', 409)
@@ -280,7 +118,7 @@ export async function POST(
     }
 
     const isFinalPhase = activePhase === phases.at(-1)
-    const nextStatus = resolveNextStatus({
+    const nextStatus = resolveNextCaseStatus({
       caseItem: {
         ...caseItem,
         completed_phases: nextCompletedPhases,
@@ -403,14 +241,6 @@ export async function POST(
             : action,
     })
   } catch (error) {
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : 'Unable to submit responses',
-      },
-      { status: 400 },
-    )
+    return apiError(req, 'SAVE_FAILED', 400)
   }
 }

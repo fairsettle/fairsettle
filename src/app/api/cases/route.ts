@@ -2,12 +2,17 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
 import { apiError, getApiErrorPayload } from '@/lib/api-errors'
+import {
+  caseMatchesDashboardQuery,
+  parseDashboardQuery,
+} from '@/lib/cases/dashboard-search'
 import { getCaseFlowState } from '@/lib/cases/flow-state'
 import { isFamilyProfileComplete } from '@/lib/family-profile'
 import { getSavingsStageFromCaseStatus, calculateSavings } from '@/lib/savings/calculator'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import { logEvent } from '@/lib/timeline'
+import type { ViewerRole } from '@/types/core'
 
 const createCaseSchema = z.object({
   case_type: z.enum(['child', 'financial', 'asset', 'combined']),
@@ -15,6 +20,7 @@ const createCaseSchema = z.object({
 
 export async function GET(req: Request) {
   const supabase = await createClient()
+  const dashboardQuery = parseDashboardQuery(new URL(req.url).searchParams)
   const {
     data: { user },
     error: authError,
@@ -37,13 +43,38 @@ export async function GET(req: Request) {
   const cases = await Promise.all(
     (data ?? []).map(async (caseItem) => ({
       ...caseItem,
-      viewer_role: caseItem.initiator_id === user.id ? 'initiator' : 'responder',
+      viewer_role: (caseItem.initiator_id === user.id
+        ? 'initiator'
+        : 'responder') as ViewerRole,
       flow_state: await getCaseFlowState(caseItem, user.id),
       savings_to_date: calculateSavings(getSavingsStageFromCaseStatus(caseItem.status)).saved,
     })),
   )
 
-  return NextResponse.json({ cases })
+  const filteredCases = cases.filter((caseItem) =>
+    caseMatchesDashboardQuery(caseItem, dashboardQuery),
+  )
+
+  const total = filteredCases.length
+  const totalPages = Math.max(1, Math.ceil(total / dashboardQuery.pageSize))
+  const page = Math.min(dashboardQuery.page, totalPages)
+  const start = (page - 1) * dashboardQuery.pageSize
+  const paginatedCases = filteredCases.slice(
+    start,
+    start + dashboardQuery.pageSize,
+  )
+
+  return NextResponse.json({
+    cases: paginatedCases,
+    meta: {
+      page,
+      pageSize: dashboardQuery.pageSize,
+      total,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1,
+    },
+  })
 }
 
 export async function POST(req: Request) {
