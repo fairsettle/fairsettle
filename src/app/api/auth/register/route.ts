@@ -2,6 +2,12 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
 import { buildAppUrl, getRequestOrigin } from '@/lib/app-url'
+import { apiError, mapAuthErrorCode } from '@/lib/api-errors'
+import {
+  childProfileInputsSchema,
+  normalizeChildInputs,
+  parentRoleSchema,
+} from '@/lib/family-profile'
 import { createClient } from '@/lib/supabase/server'
 
 const registerSchema = z.object({
@@ -10,7 +16,17 @@ const registerSchema = z.object({
   password: z.string().min(8),
   preferred_language: z.enum(['en', 'pl', 'ro', 'ar']).default('en'),
   children_count: z.number().int().min(0).max(20),
+  parent_role: parentRoleSchema,
+  children: childProfileInputsSchema,
   privacy_consent: z.literal(true),
+}).superRefine((value, ctx) => {
+  if (value.children.length !== value.children_count) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['children'],
+      message: 'children must match children_count',
+    })
+  }
 })
 
 export async function POST(req: Request) {
@@ -19,10 +35,9 @@ export async function POST(req: Request) {
   const parsed = registerSchema.safeParse(body)
 
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: 'Validation failed', details: parsed.error.issues },
-      { status: 400 },
-    )
+    return apiError(req, 'VALIDATION_FAILED', 400, {
+      details: parsed.error.issues,
+    })
   }
 
   const {
@@ -31,6 +46,8 @@ export async function POST(req: Request) {
     password,
     preferred_language,
     children_count,
+    parent_role,
+    children,
     privacy_consent,
   } = parsed.data
 
@@ -43,6 +60,8 @@ export async function POST(req: Request) {
         full_name,
         preferred_language,
         children_count,
+        parent_role,
+        children: normalizeChildInputs(children),
         privacy_consent,
       },
       emailRedirectTo: buildAppUrl('/api/auth/callback', undefined, requestOrigin),
@@ -50,7 +69,7 @@ export async function POST(req: Request) {
   })
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 })
+    return apiError(req, mapAuthErrorCode(error.message), 400)
   }
 
   return NextResponse.json({

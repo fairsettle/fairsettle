@@ -5,16 +5,16 @@ import { ArrowLeft, ArrowRight, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
+import { AsyncStateCard } from "@/components/feedback/AsyncStateCard";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { SuggestionCard } from "@/components/resolution/SuggestionCard";
 import { SavingsBar } from "@/components/savings/SavingsBar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { fetchApi } from "@/lib/api-client";
+import { readApiErrorMessage, resolveApiErrorMessage } from "@/lib/client-errors";
 import { getLocalizedPath } from "@/lib/locale-path";
-import type {
-  ResolutionPayload,
-  ResolutionSuggestion,
-} from "@/lib/resolution/types";
+import type { ResolutionPayload, ResolutionSuggestion } from "@/lib/resolution/types";
 
 export default function ResolutionPage({
   params: { caseId },
@@ -36,31 +36,50 @@ export default function ResolutionPage({
     async function loadData() {
       try {
         const [resolutionResponse, comparisonResponse] = await Promise.all([
-          fetch(`/api/cases/${caseId}/resolution`, { cache: "no-store" }),
-          fetch(`/api/cases/${caseId}/comparison`, { cache: "no-store" }),
+          fetchApi(`/api/cases/${caseId}/resolution`, locale, { cache: "no-store" }),
+          fetchApi(`/api/cases/${caseId}/comparison`, locale, { cache: "no-store" }),
         ]);
 
         if (!resolutionResponse.ok) {
-          throw new Error("resolution_failed");
+          throw new Error(
+            resolveApiErrorMessage(
+              await readApiErrorMessage(resolutionResponse),
+              t("resolution.loadError"),
+            ),
+          );
         }
 
         if (!comparisonResponse.ok) {
-          throw new Error("comparison_failed");
+          throw new Error(
+            resolveApiErrorMessage(
+              await readApiErrorMessage(comparisonResponse),
+              t("resolution.loadError"),
+            ),
+          );
         }
 
-        const resolutionPayload =
-          (await resolutionResponse.json()) as ResolutionPayload;
+        const resolutionPayload = (await resolutionResponse.json()) as ResolutionPayload & {
+          viewer_role?: "initiator" | "responder";
+        };
         const comparisonPayload = (await comparisonResponse.json()) as {
           viewer_role?: "initiator" | "responder";
         };
 
         if (!ignore) {
           setSuggestions(resolutionPayload.suggestions ?? []);
-          setViewerRole(comparisonPayload.viewer_role ?? "initiator");
+          setViewerRole(
+            resolutionPayload.viewer_role ??
+              comparisonPayload.viewer_role ??
+              "initiator",
+          );
         }
-      } catch {
+      } catch (error) {
         if (!ignore) {
-          setErrorMessage(t("resolution.loadError"));
+          setErrorMessage(
+            error instanceof Error && error.message
+              ? error.message
+              : t("resolution.loadError"),
+          );
         }
       } finally {
         if (!ignore) {
@@ -74,15 +93,16 @@ export default function ResolutionPage({
     return () => {
       ignore = true;
     };
-  }, [caseId, t]);
+  }, [caseId, locale, t]);
 
   async function handleDecisionSaved(
-    questionId: string,
+    suggestion: ResolutionSuggestion,
     action: "accept" | "modify" | "reject",
-    modifiedValue?: string,
+    modifiedValue?: unknown,
   ) {
-    const response = await fetch(
-      `/api/cases/${caseId}/resolution/${questionId}`,
+    const response = await fetchApi(
+      `/api/cases/${caseId}/resolution/${suggestion.question_id}`,
+      locale,
       {
         method: "PATCH",
         headers: {
@@ -90,6 +110,7 @@ export default function ResolutionPage({
         },
         body: JSON.stringify({
           action,
+          child_id: suggestion.child_id,
           modified_value: modifiedValue,
         }),
       },
@@ -135,11 +156,10 @@ export default function ResolutionPage({
         </Card>
 
         {isLoading ? (
-          <Card className="app-panel">
-            <CardContent className="p-6 text-sm text-ink-soft">
-              {t("resolution.loading")}
-            </CardContent>
-          </Card>
+          <AsyncStateCard
+            body={t("resolution.subtitle")}
+            title={t("resolution.loading")}
+          />
         ) : errorMessage ? (
           <Card className="app-panel">
             <CardContent className="p-6 text-sm text-danger">
@@ -156,7 +176,7 @@ export default function ResolutionPage({
           <div className="grid gap-4">
             {suggestions.map((suggestion) => (
               <SuggestionCard
-                key={suggestion.question_id}
+                key={suggestion.item_key}
                 suggestion={suggestion}
                 viewerRole={viewerRole}
                 onDecisionSaved={handleDecisionSaved}

@@ -5,10 +5,13 @@ import { ArrowUpRight, LayoutDashboard } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
+import { AsyncStateCard } from "@/components/feedback/AsyncStateCard";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { fetchApi } from "@/lib/api-client";
+import { readApiErrorMessage, resolveApiErrorMessage } from "@/lib/client-errors";
 import { getLocalizedPath } from "@/lib/locale-path";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +19,15 @@ interface DashboardCase {
   id: string;
   case_type: "child" | "financial" | "asset" | "combined";
   viewer_role: "initiator" | "responder";
+  question_set_version: "v1" | "v2";
+  completed_phases: string[];
+  responder_id: string | null;
+  flow_state:
+    | "default"
+    | "continue_next_phase"
+    | "waiting_for_responder"
+    | "continue_response"
+    | "waiting_for_next_phase";
   status:
     | "draft"
     | "invited"
@@ -39,17 +51,29 @@ interface PendingInvitation {
   initiator_name: string | null;
 }
 
-function getNextStepKey(
-  status: DashboardCase["status"],
-  viewerRole: DashboardCase["viewer_role"],
-) {
-  switch (status) {
+function getNextStepKey(caseItem: DashboardCase) {
+  if (caseItem.status === "active") {
+    switch (caseItem.flow_state) {
+      case "continue_next_phase":
+        return "dashboard.nextStepContinueNextPhase";
+      case "waiting_for_responder":
+        return "dashboard.nextStepWaitingForResponder";
+      case "continue_response":
+        return "dashboard.nextStepContinueResponse";
+      case "waiting_for_next_phase":
+        return "dashboard.nextStepWaitingForNextPhase";
+      default:
+        break;
+    }
+  }
+
+  switch (caseItem.status) {
     case "draft":
       return "dashboard.nextStepDraft";
     case "invited":
       return "dashboard.nextStepInvited";
     case "active":
-      return viewerRole === "initiator"
+      return caseItem.viewer_role === "initiator"
         ? "dashboard.nextStepActiveInitiator"
         : "dashboard.nextStepActiveResponder";
     case "comparison":
@@ -67,6 +91,15 @@ function getCaseHref(locale: string, caseItem: DashboardCase) {
     case "invited":
       return getLocalizedPath(locale, `/cases/${caseItem.id}/invite`);
     case "active":
+      if (caseItem.flow_state === "continue_next_phase") {
+        return getLocalizedPath(locale, `/cases/${caseItem.id}/questions`);
+      }
+      if (
+        caseItem.flow_state === "continue_response" ||
+        caseItem.flow_state === "waiting_for_next_phase"
+      ) {
+        return getLocalizedPath(locale, `/cases/${caseItem.id}/questions`);
+      }
       return caseItem.viewer_role === "initiator"
         ? getLocalizedPath(locale, `/cases/${caseItem.id}/invite`)
         : getLocalizedPath(locale, `/cases/${caseItem.id}/questions`);
@@ -82,6 +115,21 @@ function getCaseHref(locale: string, caseItem: DashboardCase) {
 }
 
 function getCaseActionKey(caseItem: DashboardCase) {
+  if (caseItem.status === "active") {
+    switch (caseItem.flow_state) {
+      case "continue_next_phase":
+        return "dashboard.actionContinueNextPhase";
+      case "waiting_for_responder":
+        return "dashboard.actionWaitingForResponder";
+      case "continue_response":
+        return "dashboard.actionContinueResponse";
+      case "waiting_for_next_phase":
+        return "dashboard.actionWaitingForNextPhase";
+      default:
+        break;
+    }
+  }
+
   switch (caseItem.status) {
     case "draft":
       return "dashboard.actionDraft";
@@ -122,10 +170,11 @@ export default function DashboardPage() {
   const locale = useLocale();
   const t = useTranslations();
   const [cases, setCases] = useState<DashboardCase[]>([]);
-  const [pendingInvitations, setPendingInvitations] = useState<PendingInvitation[]>(
-    [],
-  );
+  const [pendingInvitations, setPendingInvitations] = useState<
+    PendingInvitation[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     let ignore = false;
@@ -133,20 +182,45 @@ export default function DashboardPage() {
     async function loadCases() {
       try {
         const [casesResponse, invitationsResponse] = await Promise.all([
-          fetch("/api/cases"),
-          fetch("/api/invitations/pending"),
+          fetchApi("/api/cases", locale, { cache: "no-store" }),
+          fetchApi("/api/invitations/pending", locale, { cache: "no-store" }),
         ]);
+
+        if (!casesResponse.ok) {
+          throw new Error(
+            resolveApiErrorMessage(
+              await readApiErrorMessage(casesResponse),
+              t("dashboard.loading"),
+            ),
+          );
+        }
+
+        if (!invitationsResponse.ok) {
+          throw new Error(
+            resolveApiErrorMessage(
+              await readApiErrorMessage(invitationsResponse),
+              t("dashboard.loading"),
+            ),
+          );
+        }
+
         const casesData = await casesResponse.json().catch(() => null);
         const invitationsData = await invitationsResponse.json().catch(() => null);
 
         if (!ignore) {
           setCases(casesData?.cases ?? []);
           setPendingInvitations(invitationsData?.invitations ?? []);
+          setErrorMessage("");
         }
-      } catch {
+      } catch (error) {
         if (!ignore) {
           setCases([]);
           setPendingInvitations([]);
+          setErrorMessage(
+            error instanceof Error && error.message
+              ? error.message
+              : t("errors.generic"),
+          );
         }
       } finally {
         if (!ignore) {
@@ -160,7 +234,7 @@ export default function DashboardPage() {
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [locale, t]);
 
   const currency = useMemo(
     () =>
@@ -191,19 +265,6 @@ export default function DashboardPage() {
                   {t("dashboard.startCase")}
                 </Link>
               </Button>
-              <form
-                action="/api/auth/logout"
-                method="post"
-                className="w-full lg:w-auto"
-              >
-                <Button
-                  className="h-11 w-full px-5"
-                  type="submit"
-                  variant="outline"
-                >
-                  {t("nav.logout")}
-                </Button>
-              </form>
             </>
           }
           brandLabel={t("nav.brand")}
@@ -214,18 +275,25 @@ export default function DashboardPage() {
         />
 
         {isLoading ? (
-          <Card>
-            <CardContent className="p-6 text-sm text-ink-soft">
-              {t("dashboard.loading")}
-            </CardContent>
-          </Card>
+          <AsyncStateCard
+            body={t("dashboard.subtitle")}
+            title={t("dashboard.loading")}
+          />
+        ) : errorMessage ? (
+          <AsyncStateCard
+            body={t("errors.generic")}
+            title={errorMessage}
+            variant="error"
+          />
         ) : (
           <>
             {pendingInvitations.length > 0 ? (
               <Card className="app-panel-soft border-brand/15">
                 <CardContent className="space-y-5 p-6">
                   <div className="space-y-2">
-                    <p className="app-kicker">{t("dashboard.pendingInvitesLabel")}</p>
+                    <p className="app-kicker">
+                      {t("dashboard.pendingInvitesLabel")}
+                    </p>
                     <h2 className="font-display text-3xl text-ink">
                       {t("dashboard.pendingInvitesTitle")}
                     </h2>
@@ -236,10 +304,7 @@ export default function DashboardPage() {
 
                   <div className="grid gap-4">
                     {pendingInvitations.map((invitation) => (
-                      <div
-                        key={invitation.id}
-                        className="app-panel-soft p-5"
-                      >
+                      <div key={invitation.id} className="app-panel-soft p-5">
                         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                           <div className="space-y-2">
                             <p className="app-kicker">
@@ -250,7 +315,9 @@ export default function DashboardPage() {
                             </h3>
                             <p className="text-sm leading-6 text-ink-soft">
                               {t("dashboard.pendingInvitesCaseType", {
-                                caseType: t(`caseTypes.${invitation.case_type}`),
+                                caseType: t(
+                                  `caseTypes.${invitation.case_type}`,
+                                ),
                               })}
                             </p>
                           </div>
@@ -293,7 +360,9 @@ export default function DashboardPage() {
                               {t("dashboard.pendingInvitesExpires")}
                             </p>
                             <p className="font-medium text-ink">
-                              {formatDate.format(new Date(invitation.expires_at))}
+                              {formatDate.format(
+                                new Date(invitation.expires_at),
+                              )}
                             </p>
                           </div>
                         </div>
@@ -311,105 +380,115 @@ export default function DashboardPage() {
             ) : null}
 
             {cases.length === 0 ? (
-          <Card className="border-dashed border-brand/15">
-            <CardContent className="space-y-4 p-8 text-center">
-              <h2 className="font-display text-3xl text-ink">
-                {pendingInvitations.length > 0
-                  ? t("dashboard.emptyLinkedTitle")
-                  : t("dashboard.emptyTitle")}
-              </h2>
-              <p className="mx-auto max-w-md text-sm leading-6 text-ink-soft">
-                {pendingInvitations.length > 0
-                  ? t("dashboard.emptyLinkedBody")
-                  : t("dashboard.emptyBody")}
-              </p>
-              <Button asChild className="h-12 px-6 text-base" size="lg">
-                <Link href={getLocalizedPath(locale, "/cases/new")}>
-                  {t("dashboard.startCase")}
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+              <Card className="border-dashed border-brand/15">
+                <CardContent className="space-y-4 p-8 text-center">
+                  <h2 className="font-display text-3xl text-ink">
+                    {pendingInvitations.length > 0
+                      ? t("dashboard.emptyLinkedTitle")
+                      : t("dashboard.emptyTitle")}
+                  </h2>
+                  <p className="mx-auto max-w-md text-sm leading-6 text-ink-soft">
+                    {pendingInvitations.length > 0
+                      ? t("dashboard.emptyLinkedBody")
+                      : t("dashboard.emptyBody")}
+                  </p>
+                  <Button asChild className="h-12 px-6 text-base" size="lg">
+                    <Link href={getLocalizedPath(locale, "/cases/new")}>
+                      {t("dashboard.startCase")}
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
             ) : (
-          <div className="grid gap-4">
-            {cases.map((caseItem) => (
-              <Link
-                key={caseItem.id}
-                aria-label={`${t(`caseTypes.${caseItem.case_type}`)} ${t(`caseStatus.${caseItem.status}`)}`}
-                className="group block"
-                href={getCaseHref(locale, caseItem)}
-              >
-                <Card className="app-panel-soft app-interactive-card border-line/80">
-                  <CardContent className="space-y-5 p-6">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="space-y-2">
-                        <p className="app-kicker">{t("dashboard.caseTypeLabel")}</p>
-                        <h2 className="font-display text-3xl text-ink">
-                          {t(`caseTypes.${caseItem.case_type}`)}
-                        </h2>
-                      </div>
+              <div className="grid gap-4">
+                {cases.map((caseItem) => (
+                  <Link
+                    key={caseItem.id}
+                    aria-label={`${t(`caseTypes.${caseItem.case_type}`)} ${t(`caseStatus.${caseItem.status}`)}`}
+                    className="group block"
+                    href={getCaseHref(locale, caseItem)}
+                  >
+                    <Card className="app-panel-soft app-interactive-card border-line/80">
+                      <CardContent className="space-y-5 p-6">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="space-y-2">
+                            <p className="app-kicker">
+                              {t("dashboard.caseTypeLabel")}
+                            </p>
+                            <h2 className="font-display text-3xl text-ink">
+                              {t(`caseTypes.${caseItem.case_type}`)}
+                            </h2>
+                          </div>
 
-                      <div className="flex items-center gap-3">
-                        <Badge
-                          className={cn("h-8 border px-3 text-sm font-semibold", getStatusBadgeClasses(caseItem.status))}
-                          variant="outline"
-                        >
-                          {t(`caseStatus.${caseItem.status}`)}
-                        </Badge>
-                        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-ink-soft transition-all duration-200 group-hover:border-brand/20 group-hover:bg-brand-soft group-hover:text-brand">
-                          <ArrowUpRight className="size-4" />
-                        </span>
-                      </div>
-                    </div>
+                          <div className="flex items-center gap-3">
+                            <Badge
+                              className={cn(
+                                "h-8 border px-3 text-sm font-semibold",
+                                getStatusBadgeClasses(caseItem.status),
+                              )}
+                              variant="outline"
+                            >
+                              {t(`caseStatus.${caseItem.status}`)}
+                            </Badge>
+                            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-ink-soft transition-all duration-200 group-hover:border-brand/20 group-hover:bg-brand-soft group-hover:text-brand">
+                              <ArrowUpRight className="size-4" />
+                            </span>
+                          </div>
+                        </div>
 
-                    <div className="grid gap-4 border-t border-line/80 pt-4 text-sm sm:grid-cols-2">
-                      <div className="space-y-1">
-                        <p className="text-xs uppercase tracking-[0.2em] text-ink-soft/70">
-                          {t("dashboard.created")}
-                        </p>
-                        <p className="font-medium text-ink">
-                          {new Date(caseItem.created_at).toLocaleDateString(locale)}
-                        </p>
-                      </div>
+                        <div className="grid gap-4 border-t border-line/80 pt-4 text-sm sm:grid-cols-2">
+                          <div className="space-y-1">
+                            <p className="text-xs uppercase tracking-[0.2em] text-ink-soft/70">
+                              {t("dashboard.created")}
+                            </p>
+                            <p className="font-medium text-ink">
+                              {new Date(caseItem.created_at).toLocaleDateString(
+                                locale,
+                              )}
+                            </p>
+                          </div>
 
-                      <div className="space-y-1 sm:text-right">
-                        <p className="text-xs uppercase tracking-[0.2em] text-ink-soft/70">
-                          {t("dashboard.saved")}
-                        </p>
-                        <p className="font-semibold text-brand">
-                          {currency.format(caseItem.savings_to_date)}
-                        </p>
-                      </div>
-                    </div>
+                          <div className="space-y-1 sm:text-right">
+                            <p className="text-xs uppercase tracking-[0.2em] text-ink-soft/70">
+                              {t("dashboard.saved")}
+                            </p>
+                            <p className="font-semibold text-brand">
+                              {currency.format(caseItem.savings_to_date)}
+                            </p>
+                          </div>
+                        </div>
 
-                    <div className="app-note-brand px-4 py-3 transition-colors duration-200 group-hover:bg-surface-brand">
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">
-                        {t("dashboard.nextStepLabel")}
-                      </p>
-                      <p className="mt-1 text-sm font-medium text-ink">
-                        {t(getNextStepKey(caseItem.status, caseItem.viewer_role))}
-                      </p>
-                    </div>
+                        <div className="app-note-brand px-4 py-3 transition-colors duration-200 group-hover:bg-surface-brand">
+                          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">
+                            {t("dashboard.nextStepLabel")}
+                          </p>
+                          <p className="mt-1 text-sm font-medium text-ink">
+                            {t(getNextStepKey(caseItem))}
+                          </p>
+                        </div>
 
-                    <div className="flex items-center justify-between gap-3 border-t border-line/80 pt-4">
-                      <p className="text-sm text-ink-soft">
-                        {t("dashboard.openCaseHint")}
-                      </p>
-                      <span
-                        className={cn(
-                          buttonVariants({ variant: "outline", size: "lg" }),
-                          "h-11 px-5",
-                        )}
-                      >
-                        {t(getCaseActionKey(caseItem))}
-                        <ArrowUpRight className="ml-2 size-4" />
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
+                        <div className="flex items-center justify-between gap-3 border-t border-line/80 pt-4">
+                          <p className="text-sm text-ink-soft">
+                            {t("dashboard.openCaseHint")}
+                          </p>
+                          <span
+                            className={cn(
+                              buttonVariants({
+                                variant: "outline",
+                                size: "lg",
+                              }),
+                              "h-11 px-5",
+                            )}
+                          >
+                            {t(getCaseActionKey(caseItem))}
+                            <ArrowUpRight className="ml-2 size-4" />
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
             )}
           </>
         )}

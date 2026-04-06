@@ -231,6 +231,46 @@ export default async function RespondPage({
     getResponderSavedReviewItems(acceptance.caseId, user.id),
   ]);
 
+  if (invitationContext.caseItem.question_set_version === "v2") {
+    return (
+      <main className=" px-5 py-6">
+        <div className="mx-auto max-w-6xl space-y-6">
+          <PageHeader
+            brandLabel={t("nav.brand")}
+            eyebrow={t("responder.invitedEyebrow")}
+            icon={ShieldCheck}
+            locale={locale}
+            subtitle={t("responder.independentSubtitle")}
+            title={t("responder.independentTitle")}
+          />
+
+          <Card className="app-panel">
+            <CardContent className="space-y-4 p-6">
+              <div className="app-note-brand">
+                <p className="font-medium text-ink">
+                  {t("responder.independentBodyTitle")}
+                </p>
+                <p className="mt-2">{t("responder.independentBody")}</p>
+              </div>
+              <NeutralityBanner />
+              <Button asChild className="h-12" size="lg">
+                <Link
+                  href={getLocalizedPath(
+                    locale,
+                    `/cases/${acceptance.caseId}/questions`,
+                  )}
+                >
+                  {t("responder.startQuestions")}
+                  <ArrowRight className="ml-2 size-4" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className=" px-5 py-6">
       <div className="mx-auto max-w-6xl space-y-6">

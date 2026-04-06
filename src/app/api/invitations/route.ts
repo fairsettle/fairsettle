@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { sendInvitationEmail } from '@/lib/email/resend'
 import { generateInvitationToken } from '@/lib/invitations'
 import { getRequestOrigin } from '@/lib/app-url'
+import { apiError, getApiErrorPayload } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import { logEvent } from '@/lib/timeline'
 
@@ -17,7 +18,7 @@ function normalizeEmail(value: string) {
   return value.trim().toLowerCase()
 }
 
-async function getAuthorizedContext(caseId: string) {
+async function getAuthorizedContext(caseId: string, req?: Request) {
   const supabase = await createClient()
   const {
     data: { user },
@@ -25,7 +26,7 @@ async function getAuthorizedContext(caseId: string) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return { supabase, user: null, caseItem: null, profile: null, response: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) }
+    return { supabase, user: null, caseItem: null, profile: null, response: await apiError(req, 'UNAUTHORIZED', 401) }
   }
 
   const { data: caseItem, error: caseError } = await supabase
@@ -35,11 +36,11 @@ async function getAuthorizedContext(caseId: string) {
     .single()
 
   if (caseError || !caseItem) {
-    return { supabase, user, caseItem: null, profile: null, response: NextResponse.json({ error: 'Case not found' }, { status: 404 }) }
+    return { supabase, user, caseItem: null, profile: null, response: await apiError(req, 'CASE_NOT_FOUND', 404) }
   }
 
   if (caseItem.initiator_id !== user.id) {
-    return { supabase, user, caseItem, profile: null, response: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) }
+    return { supabase, user, caseItem, profile: null, response: await apiError(req, 'FORBIDDEN', 403) }
   }
 
   const { data: profile } = await supabase
@@ -86,7 +87,11 @@ async function createAndSendInvitation({
   if (invitationError || !invitation) {
     return {
       response: NextResponse.json(
-        { error: invitationError?.message ?? 'Unable to create invitation' },
+        {
+          error: await getApiErrorPayload(undefined, 'CREATE_INVITATION_FAILED', 400, {
+            preferredLocale: preferredLanguage,
+          }),
+        },
         { status: 400 },
       ),
     }
@@ -128,7 +133,12 @@ async function createAndSendInvitation({
 
     return {
       response: NextResponse.json(
-        { error: errorMessage, invitation_id: invitation.id },
+        {
+          error: await getApiErrorPayload(undefined, 'SEND_INVITATION_FAILED', 500, {
+            preferredLocale: preferredLanguage,
+          }),
+          invitation_id: invitation.id,
+        },
         { status: 500 },
       ),
     }
@@ -163,10 +173,10 @@ export async function GET(req: Request) {
   const caseId = url.searchParams.get('case_id')
 
   if (!caseId) {
-    return NextResponse.json({ error: 'Case id is required' }, { status: 400 })
+    return apiError(req, 'INVITATION_CASE_ID_REQUIRED', 400)
   }
 
-  const context = await getAuthorizedContext(caseId)
+  const context = await getAuthorizedContext(caseId, req)
 
   if (context.response) {
     return context.response
@@ -181,7 +191,7 @@ export async function GET(req: Request) {
     .order('sent_at', { ascending: false })
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 })
+    return apiError(req, 'FETCH_FAILED', 400)
   }
 
   return NextResponse.json({ invitations: invitations ?? [] })
@@ -192,13 +202,12 @@ export async function POST(req: Request) {
   const parsed = invitationSchema.safeParse(body)
 
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: 'Validation failed', details: parsed.error.issues },
-      { status: 400 },
-    )
+    return apiError(req, 'VALIDATION_FAILED', 400, {
+      details: parsed.error.issues,
+    })
   }
 
-  const context = await getAuthorizedContext(parsed.data.case_id)
+  const context = await getAuthorizedContext(parsed.data.case_id, req)
   const origin = getRequestOrigin(req)
 
   if (context.response || !context.user || !context.caseItem) {
@@ -209,7 +218,7 @@ export async function POST(req: Request) {
   const ownEmail = normalizeEmail(context.profile?.email ?? '')
 
   if (ownEmail && recipientContact === ownEmail) {
-    return NextResponse.json({ error: 'You cannot invite yourself' }, { status: 409 })
+    return apiError(req, 'SELF_INVITE_NOT_ALLOWED', 409)
   }
 
   if (parsed.data.resend_invitation_id) {
@@ -221,11 +230,11 @@ export async function POST(req: Request) {
       .single()
 
     if (previousInvitationError || !previousInvitation) {
-      return NextResponse.json({ error: 'Invitation not found' }, { status: 404 })
+      return apiError(req, 'INVITATION_NOT_FOUND', 404)
     }
 
     if (previousInvitation.status === 'accepted') {
-      return NextResponse.json({ error: 'Invitation already accepted' }, { status: 409 })
+      return apiError(req, 'INVITATION_ALREADY_ACCEPTED', 409)
     }
 
     return (
@@ -254,7 +263,7 @@ export async function POST(req: Request) {
   if (existingInvitation) {
     return NextResponse.json(
       {
-        error: 'Active invitation already exists',
+        error: await getApiErrorPayload(req, 'INVITATION_ACTIVE_EXISTS', 409),
         invitation_id: existingInvitation.id,
       },
       { status: 409 },

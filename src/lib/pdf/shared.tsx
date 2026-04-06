@@ -556,6 +556,7 @@ export async function loadExportContext(
         initiatorId: caseItem.initiator_id,
         responderId: caseItem.responder_id,
         viewerRole: purchaserUserId === caseItem.responder_id ? 'responder' : 'initiator',
+        questionSetVersion: caseItem.question_set_version,
       })
 
       const initiatorResponses = (responsesResult.data ?? []).filter(

@@ -1,204 +1,90 @@
 import { NextResponse } from 'next/server'
 
+import { apiError } from '@/lib/api-errors'
+import { buildSafeComparisonPayload } from '@/lib/comparison'
 import { getAuthorizedCase } from '@/lib/cases/auth'
 import {
-  buildComparisonItems,
-  resolveAll,
-  type AnswerValue,
-  type CaseContext,
-  type QuestionRecord,
-  type RawResponse,
+  resolveItem,
+  type ComparisonItem as EngineComparisonItem,
 } from '@/lib/resolution/engine'
-import type { Database } from '@/types/database'
-import { supabaseAdmin } from '@/lib/supabase/admin'
-
-function parseAnswerString(answerValue: AnswerValue | null | undefined) {
-  if (!answerValue) {
-    return undefined
-  }
-
-  const value = answerValue.value
-  return typeof value === 'string' ? value : undefined
-}
-
-function parseAnswerNumber(answerValue: AnswerValue | null | undefined) {
-  if (!answerValue) {
-    return undefined
-  }
-
-  const value = answerValue.value
-  return typeof value === 'number' ? value : undefined
-}
-
-function buildCaseContext({
-  questions,
-  initiatorResponses,
-  responderResponses,
-  initiatorProfile,
-}: {
-  questions: QuestionRecord[]
-  initiatorResponses: RawResponse[]
-  responderResponses: RawResponse[]
-  initiatorProfile: Database['public']['Tables']['profiles']['Row'] | null
-}): CaseContext {
-  const questionById = new Map(questions.map((question) => [question.id, question]))
-
-  let initiatorIncome: number | undefined
-  let responderIncome: number | undefined
-  let initiatorNightsAnswer: string | undefined
-  let responderNightsAnswer: string | undefined
-
-  for (const response of initiatorResponses) {
-    const question = questionById.get(response.question_id)
-
-    if (!question) {
-      continue
-    }
-
-    const questionText = question.question_text.en?.toLowerCase() ?? ''
-
-    if (question.section === 'Income' && questionText.includes('gross annual income')) {
-      initiatorIncome = parseAnswerNumber(response.answer_value)
-    }
-
-    if (question.section === 'Weekly schedule' && questionText.includes('how many nights per week')) {
-      initiatorNightsAnswer = parseAnswerString(response.answer_value)
-    }
-  }
-
-  for (const response of responderResponses) {
-    const question = questionById.get(response.question_id)
-
-    if (!question) {
-      continue
-    }
-
-    const questionText = question.question_text.en?.toLowerCase() ?? ''
-
-    if (question.section === 'Income' && questionText.includes('gross annual income')) {
-      responderIncome = parseAnswerNumber(response.answer_value)
-    }
-
-    if (question.section === 'Weekly schedule' && questionText.includes('how many nights per week')) {
-      responderNightsAnswer = parseAnswerString(response.answer_value)
-    }
-  }
-
-  return {
-    children_count: initiatorProfile?.children_count ?? 0,
-    initiator_income: initiatorIncome,
-    responder_income: responderIncome,
-    initiator_nights_answer: initiatorNightsAnswer,
-    responder_nights_answer: responderNightsAnswer,
-  }
-}
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: { caseId: string } },
 ) {
-  const { user, caseItem, response } = await getAuthorizedCase(params.caseId)
+  const { user, caseItem, response } = await getAuthorizedCase(params.caseId, req)
 
   if (response) {
     return response
   }
   if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return apiError(req, 'UNAUTHORIZED', 401)
   }
   if (!caseItem) {
-    return NextResponse.json({ error: 'Case not found' }, { status: 404 })
+    return apiError(req, 'CASE_NOT_FOUND', 404)
   }
 
   if (!caseItem.responder_id) {
-    return NextResponse.json({ error: 'Resolution not ready' }, { status: 409 })
+    return apiError(req, 'RESOLUTION_NOT_READY', 409)
   }
 
-  const [initiatorResponsesResult, responderResponsesResult, questionsResult, initiatorProfileResult] =
-    await Promise.all([
-      supabaseAdmin
-        .from('responses')
-        .select('question_id, answer_value, submitted_at')
-        .eq('case_id', params.caseId)
-        .eq('user_id', caseItem.initiator_id)
-        .not('submitted_at', 'is', null),
-      supabaseAdmin
-        .from('responses')
-        .select('question_id, answer_value, submitted_at')
-        .eq('case_id', params.caseId)
-        .eq('user_id', caseItem.responder_id)
-        .not('submitted_at', 'is', null),
-      supabaseAdmin
-        .from('questions')
-        .select('id, dispute_type, section, question_text, question_type, options, guidance_text, display_order')
-        .eq('is_active', true)
-        .in(
-          'dispute_type',
-          caseItem.case_type === 'combined'
-            ? ['child', 'financial', 'asset']
-            : [caseItem.case_type],
-        )
-        .order('display_order', { ascending: true }),
-      supabaseAdmin
-        .from('profiles')
-        .select('*')
-        .eq('id', caseItem.initiator_id)
-        .maybeSingle(),
-    ])
-
-  if (initiatorResponsesResult.error || responderResponsesResult.error || questionsResult.error) {
-    return NextResponse.json(
-      {
-        error:
-          initiatorResponsesResult.error?.message ||
-          responderResponsesResult.error?.message ||
-          questionsResult.error?.message ||
-          'Unable to build resolution data',
-      },
-      { status: 400 },
-    )
-  }
-
-  const initiatorResponses = (initiatorResponsesResult.data ?? []) as RawResponse[]
-  const responderResponses = (responderResponsesResult.data ?? []) as RawResponse[]
-
-  if (!initiatorResponses.length || !responderResponses.length) {
-    return NextResponse.json({ error: 'Resolution not ready' }, { status: 409 })
-  }
-
-  const questions = (questionsResult.data ?? []) as QuestionRecord[]
-  const context = buildCaseContext({
-    questions,
-    initiatorResponses,
-    responderResponses,
-    initiatorProfile: initiatorProfileResult.data ?? null,
-  })
-
-  const comparisonItems = buildComparisonItems(
-    questions,
-    initiatorResponses,
-    responderResponses,
-    context,
-  )
-
-  const resolutionSummary = resolveAll(comparisonItems)
-
-  const suggestions = resolutionSummary.results
-    .filter((result) => result.status === 'gap')
-    .map((result) => {
-      const sourceItem = comparisonItems.find((item) => item.question_id === result.question_id)
-
-      if (!sourceItem) {
-        return null
-      }
-
-      return {
-        ...result,
-        question_text: sourceItem.question_text,
-        section: sourceItem.section,
-        dispute_type: sourceItem.dispute_type,
-      }
+  try {
+    const comparison = await buildSafeComparisonPayload({
+      caseType: caseItem.case_type,
+      caseId: params.caseId,
+      initiatorId: caseItem.initiator_id,
+      responderId: caseItem.responder_id,
+      viewerRole: caseItem.initiator_id === user.id ? 'initiator' : 'responder',
+      questionSetVersion: caseItem.question_set_version,
     })
-    .filter((item): item is NonNullable<typeof item> => item !== null)
 
-  return NextResponse.json({ suggestions })
+    const suggestions = comparison.items
+      .filter((item) => item.status === 'gap')
+      .map((item) => {
+        const resolution = resolveItem({
+          question_id: item.question_id,
+          question_type: item.question_type,
+          question_text: item.question_text as Record<string, string>,
+          section: item.section,
+          dispute_type: item.dispute_type,
+          party_a_answer: item.party_a_answer as EngineComparisonItem['party_a_answer'],
+          party_b_answer: item.party_b_answer as EngineComparisonItem['party_b_answer'],
+          guidance_text: item.guidance_text as Record<string, string> | null,
+        })
+
+        const currentValue =
+          item.current_value &&
+          typeof item.current_value === 'object' &&
+          !Array.isArray(item.current_value)
+            ? (item.current_value as typeof resolution.suggestion)
+            : resolution.suggestion
+
+        return {
+          ...resolution,
+          item_key: item.item_key,
+          child_id: item.child_id,
+          child_label: item.child_label,
+          question_text: item.question_text,
+          question_type: item.question_type,
+          options: item.options,
+          section: item.section,
+          dispute_type: item.dispute_type,
+          review_bucket: item.review_bucket,
+          round_count: item.round_count,
+          is_locked: item.is_locked,
+          is_unresolved: item.is_unresolved,
+          initiator_status: item.initiator_status,
+          responder_status: item.responder_status,
+          current_value: currentValue,
+        }
+      })
+
+    return NextResponse.json({
+      suggestions,
+      viewer_role: comparison.viewer_role,
+      summary: comparison.summary,
+    })
+  } catch (error) {
+    return apiError(req, 'FETCH_FAILED', 400)
+  }
 }

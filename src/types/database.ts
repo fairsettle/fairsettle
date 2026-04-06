@@ -16,6 +16,7 @@ export interface Database {
           email: string
           preferred_language: string
           children_count: number | null
+          parent_role: 'mum' | 'dad' | null
           role: 'initiator' | 'responder' | null
           privacy_consent: boolean
           privacy_consent_at: string | null
@@ -28,6 +29,7 @@ export interface Database {
           email?: string
           preferred_language?: string
           children_count?: number | null
+          parent_role?: 'mum' | 'dad' | null
           role?: 'initiator' | 'responder' | null
           privacy_consent?: boolean
           privacy_consent_at?: string | null
@@ -40,6 +42,7 @@ export interface Database {
           email?: string
           preferred_language?: string
           children_count?: number | null
+          parent_role?: 'mum' | 'dad' | null
           role?: 'initiator' | 'responder' | null
           privacy_consent?: boolean
           privacy_consent_at?: string | null
@@ -54,6 +57,12 @@ export interface Database {
           initiator_id: string
           responder_id: string | null
           case_type: 'child' | 'financial' | 'asset' | 'combined'
+          question_set_version: 'v1' | 'v2'
+          completed_phases: string[]
+          initiator_satisfied_at: string | null
+          responder_satisfied_at: string | null
+          auto_generate_due_at: string | null
+          auto_generate_warning_sent_at: string | null
           status: 'draft' | 'invited' | 'active' | 'comparison' | 'completed' | 'expired'
           created_at: string
           updated_at: string
@@ -63,6 +72,12 @@ export interface Database {
           initiator_id: string
           responder_id?: string | null
           case_type: 'child' | 'financial' | 'asset' | 'combined'
+          question_set_version?: 'v1' | 'v2'
+          completed_phases?: string[]
+          initiator_satisfied_at?: string | null
+          responder_satisfied_at?: string | null
+          auto_generate_due_at?: string | null
+          auto_generate_warning_sent_at?: string | null
           status?: 'draft' | 'invited' | 'active' | 'comparison' | 'completed' | 'expired'
           created_at?: string
           updated_at?: string
@@ -72,6 +87,12 @@ export interface Database {
           initiator_id?: string
           responder_id?: string | null
           case_type?: 'child' | 'financial' | 'asset' | 'combined'
+          question_set_version?: 'v1' | 'v2'
+          completed_phases?: string[]
+          initiator_satisfied_at?: string | null
+          responder_satisfied_at?: string | null
+          auto_generate_due_at?: string | null
+          auto_generate_warning_sent_at?: string | null
           status?: 'draft' | 'invited' | 'active' | 'comparison' | 'completed' | 'expired'
           created_at?: string
           updated_at?: string
@@ -147,6 +168,7 @@ export interface Database {
       questions: {
         Row: {
           id: string
+          question_set_version: 'v1' | 'v2'
           dispute_type: 'child' | 'financial' | 'asset'
           section: string
           question_text: Json
@@ -154,12 +176,17 @@ export interface Database {
           options: Json | null
           display_order: number
           guidance_text: Json | null
+          min_child_age: number | null
+          max_child_age: number | null
+          skip_if_combined: boolean
+          is_per_child: boolean
           is_active: boolean
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
+          question_set_version?: 'v1' | 'v2'
           dispute_type: 'child' | 'financial' | 'asset'
           section: string
           question_text: Json
@@ -167,12 +194,17 @@ export interface Database {
           options?: Json | null
           display_order: number
           guidance_text?: Json | null
+          min_child_age?: number | null
+          max_child_age?: number | null
+          skip_if_combined?: boolean
+          is_per_child?: boolean
           is_active?: boolean
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
+          question_set_version?: 'v1' | 'v2'
           dispute_type?: 'child' | 'financial' | 'asset'
           section?: string
           question_text?: Json
@@ -180,6 +212,10 @@ export interface Database {
           options?: Json | null
           display_order?: number
           guidance_text?: Json | null
+          min_child_age?: number | null
+          max_child_age?: number | null
+          skip_if_combined?: boolean
+          is_per_child?: boolean
           is_active?: boolean
           created_at?: string
           updated_at?: string
@@ -192,6 +228,7 @@ export interface Database {
           case_id: string
           user_id: string
           question_id: string
+          child_id: string | null
           answer_value: Json
           version: number
           submitted_at: string | null
@@ -203,6 +240,7 @@ export interface Database {
           case_id: string
           user_id: string
           question_id: string
+          child_id?: string | null
           answer_value: Json
           version?: number
           submitted_at?: string | null
@@ -214,9 +252,49 @@ export interface Database {
           case_id?: string
           user_id?: string
           question_id?: string
+          child_id?: string | null
           answer_value?: Json
           version?: number
           submitted_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      children: {
+        Row: {
+          id: string
+          owner_user_id: string
+          profile_id: string | null
+          case_id: string | null
+          source_profile_child_id: string | null
+          first_name: string | null
+          date_of_birth: string
+          sort_order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          owner_user_id: string
+          profile_id?: string | null
+          case_id?: string | null
+          source_profile_child_id?: string | null
+          first_name?: string | null
+          date_of_birth: string
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          owner_user_id?: string
+          profile_id?: string | null
+          case_id?: string | null
+          source_profile_child_id?: string | null
+          first_name?: string | null
+          date_of_birth?: string
+          sort_order?: number
           created_at?: string
           updated_at?: string
         }
@@ -410,6 +488,96 @@ export interface Database {
           deleted_text?: string | null
           sentiment_score?: number | null
           flags?: Json | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      case_item_states: {
+        Row: {
+          id: string
+          case_id: string
+          item_key: string
+          question_id: string
+          child_id: string | null
+          review_bucket: 'to_review' | 'agreed' | 'disputed' | 'locked' | 'unresolved'
+          round_count: number
+          initiator_status: 'pending' | 'accepted' | 'modified' | 'rejected'
+          responder_status: 'pending' | 'accepted' | 'modified' | 'rejected'
+          initiator_value: Json | null
+          responder_value: Json | null
+          locked_at: string | null
+          unresolved_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          case_id: string
+          item_key: string
+          question_id: string
+          child_id?: string | null
+          review_bucket?: 'to_review' | 'agreed' | 'disputed' | 'locked' | 'unresolved'
+          round_count?: number
+          initiator_status?: 'pending' | 'accepted' | 'modified' | 'rejected'
+          responder_status?: 'pending' | 'accepted' | 'modified' | 'rejected'
+          initiator_value?: Json | null
+          responder_value?: Json | null
+          locked_at?: string | null
+          unresolved_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          case_id?: string
+          item_key?: string
+          question_id?: string
+          child_id?: string | null
+          review_bucket?: 'to_review' | 'agreed' | 'disputed' | 'locked' | 'unresolved'
+          round_count?: number
+          initiator_status?: 'pending' | 'accepted' | 'modified' | 'rejected'
+          responder_status?: 'pending' | 'accepted' | 'modified' | 'rejected'
+          initiator_value?: Json | null
+          responder_value?: Json | null
+          locked_at?: string | null
+          unresolved_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      case_item_events: {
+        Row: {
+          id: string
+          case_id: string
+          item_key: string
+          question_id: string
+          child_id: string | null
+          actor_user_id: string | null
+          action: 'accept' | 'modify' | 'reject' | 'lock' | 'unresolved' | 'comparison_unlocked'
+          proposed_value: Json | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          case_id: string
+          item_key: string
+          question_id: string
+          child_id?: string | null
+          actor_user_id?: string | null
+          action: 'accept' | 'modify' | 'reject' | 'lock' | 'unresolved' | 'comparison_unlocked'
+          proposed_value?: Json | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          case_id?: string
+          item_key?: string
+          question_id?: string
+          child_id?: string | null
+          actor_user_id?: string | null
+          action?: 'accept' | 'modify' | 'reject' | 'lock' | 'unresolved' | 'comparison_unlocked'
+          proposed_value?: Json | null
           created_at?: string
         }
         Relationships: []

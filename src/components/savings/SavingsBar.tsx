@@ -2,17 +2,20 @@
 
 import { useTranslations } from "next-intl";
 
+import type { SavingsData } from "@/lib/savings/calculator";
 import { calculateSavings } from "@/lib/savings/calculator";
 
 export function SavingsBar({
   stage,
   tier = "standard",
+  snapshot,
 }: {
-  stage: number;
+  stage?: number;
   tier?: "standard" | "resolution";
+  snapshot?: SavingsData;
 }) {
   const t = useTranslations();
-  const savings = calculateSavings(stage, tier);
+  const savings = snapshot ?? calculateSavings(stage ?? 0, tier);
   const formatCurrency = new Intl.NumberFormat("en-GB", {
     style: "currency",
     currency: "GBP",

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { WebhookEventPayload } from 'resend'
 
+import { apiError } from '@/lib/api-errors'
 import { resend } from '@/lib/email/resend'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 
@@ -64,13 +65,13 @@ function isEmailWebhookEvent(event: WebhookEventPayload): event is EmailWebhookE
 
 export async function POST(req: Request) {
   if (!process.env.RESEND_WEBHOOK_SECRET) {
-    return NextResponse.json({ error: 'Resend webhook is not configured' }, { status: 500 })
+    return apiError(req, 'INTERNAL_ERROR', 500)
   }
 
   const headers = getWebhookHeaders(req)
 
   if (!headers) {
-    return NextResponse.json({ error: 'Missing webhook headers' }, { status: 400 })
+    return apiError(req, 'SIGNATURE_MISSING', 400)
   }
 
   const payload = await req.text()
@@ -84,7 +85,7 @@ export async function POST(req: Request) {
       webhookSecret: process.env.RESEND_WEBHOOK_SECRET,
     })
   } catch {
-    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
+    return apiError(req, 'SIGNATURE_INVALID', 400)
   }
 
   if (!isEmailWebhookEvent(event)) {

@@ -4,10 +4,29 @@ export async function readApiErrorMessage(response: Response) {
   const contentType = response.headers.get('content-type') ?? ''
 
   if (contentType.includes('application/json')) {
-    const payload = (await response.json().catch(() => null)) as { error?: unknown } | null
+    const payload = (await response.json().catch(() => null)) as
+      | {
+          error?:
+            | string
+            | {
+                code?: unknown
+                message?: unknown
+                status?: unknown
+              }
+        }
+      | null
 
     if (typeof payload?.error === 'string' && payload.error.trim()) {
       return payload.error.trim()
+    }
+
+    if (
+      payload?.error &&
+      typeof payload.error === 'object' &&
+      typeof payload.error.message === 'string' &&
+      payload.error.message.trim()
+    ) {
+      return payload.error.message.trim()
     }
   } else {
     const text = await response.text().catch(() => '')

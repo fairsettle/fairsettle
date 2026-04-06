@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
 
+import { apiError } from '@/lib/api-errors'
 import { deleteUserGdprData } from '@/lib/gdpr'
 import { createClient } from '@/lib/supabase/server'
 
-export async function DELETE() {
+export async function DELETE(req: Request) {
   const supabase = await createClient()
   const {
     data: { user },
@@ -11,7 +12,7 @@ export async function DELETE() {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return apiError(req, 'UNAUTHORIZED', 401)
   }
 
   try {
@@ -23,12 +24,6 @@ export async function DELETE() {
 
     return NextResponse.json({ success: true, ...result })
   } catch (error) {
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error ? error.message : 'Unable to delete user data',
-      },
-      { status: 500 },
-    )
+    return apiError(req, 'SAVE_FAILED', 500)
   }
 }

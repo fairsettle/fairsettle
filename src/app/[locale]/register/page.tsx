@@ -4,24 +4,17 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { LockKeyhole, MailCheck, ShieldCheck } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 
+import { FamilyProfileFields } from "@/components/profile/FamilyProfileFields";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { fetchApi } from "@/lib/api-client";
 import { mapAuthErrorMessage, readApiErrorMessage } from "@/lib/client-errors";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { getLocalizedPath } from "@/lib/locale-path";
-
-const childOptions = [1, 2, 3, 4] as const;
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -36,10 +29,20 @@ export default function RegisterPage() {
     full_name: "",
     email: "",
     password: "",
-    preferred_language: locale,
+    preferred_language: locale as "en" | "pl" | "ro" | "ar",
     children_count: 1,
+    parent_role: "" as "" | "mum" | "dad",
+    children: [{ first_name: "", date_of_birth: "" }],
     privacy_consent: false,
   });
+  const childRows = useMemo(
+    () =>
+      Array.from({ length: formState.children_count }, (_, index) => ({
+        first_name: formState.children[index]?.first_name ?? "",
+        date_of_birth: formState.children[index]?.date_of_birth ?? "",
+      })),
+    [formState.children, formState.children_count],
+  );
 
   const redirectTarget = searchParams.get("redirect")?.startsWith("/")
     ? searchParams.get("redirect")!
@@ -51,7 +54,7 @@ export default function RegisterPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/auth/register", {
+      const response = await fetchApi("/api/auth/register", locale, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -188,33 +191,29 @@ export default function RegisterPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="preferred_language">
-                    {t("register.preferredLanguage")}
-                  </Label>
-                  <Select
-                    value={formState.preferred_language}
-                    onValueChange={(value) =>
-                      setFormState((current) => ({
-                        ...current,
-                        preferred_language: value,
-                      }))
-                    }
-                  >
-                    <SelectTrigger
-                      aria-label={t("register.preferredLanguage")}
-                      className="w-full"
-                    >
-                      <SelectValue
-                        placeholder={t("register.preferredLanguage")}
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="en">{t("languages.en")}</SelectItem>
-                      <SelectItem value="pl">{t("languages.pl")}</SelectItem>
-                      <SelectItem value="ro">{t("languages.ro")}</SelectItem>
-                      <SelectItem value="ar">{t("languages.ar")}</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label>{t("register.preferredLanguage")}</Label>
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    {(["en", "pl", "ro", "ar"] as const).map((language) => (
+                      <Button
+                        key={language}
+                        className="h-11 rounded-2xl"
+                        onClick={() =>
+                          setFormState((current) => ({
+                            ...current,
+                            preferred_language: language,
+                          }))
+                        }
+                        type="button"
+                        variant={
+                          formState.preferred_language === language
+                            ? "default"
+                            : "outline"
+                        }
+                      >
+                        {t(`languages.${language}`)}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
@@ -246,41 +245,46 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                <div className="space-y-3 md:col-span-2">
-                  <Label>{t("register.childrenCount")}</Label>
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    {childOptions.map((value) => {
-                      const key =
-                        value === 1
-                          ? "register.childrenOption1"
-                          : value === 2
-                            ? "register.childrenOption2"
-                            : value === 3
-                              ? "register.childrenOption3"
-                              : "register.childrenOption4Plus";
+                <div className="md:col-span-2">
+                  <FamilyProfileFields
+                    children={childRows}
+                    childrenCount={formState.children_count}
+                    parentRole={formState.parent_role}
+                    t={t}
+                    onChildChange={(index, key, value) =>
+                      setFormState((current) => {
+                        const nextChildren = [...current.children];
+                        nextChildren[index] = {
+                          first_name: nextChildren[index]?.first_name ?? "",
+                          date_of_birth:
+                            nextChildren[index]?.date_of_birth ?? "",
+                          [key]: value,
+                        };
 
-                      return (
-                        <Button
-                          key={value}
-                          className="h-11 rounded-2xl"
-                          onClick={() =>
-                            setFormState((current) => ({
-                              ...current,
-                              children_count: value,
-                            }))
-                          }
-                          type="button"
-                          variant={
-                            formState.children_count === value
-                              ? "default"
-                              : "outline"
-                          }
-                        >
-                          {t(key)}
-                        </Button>
-                      );
-                    })}
-                  </div>
+                        return {
+                          ...current,
+                          children: nextChildren,
+                        };
+                      })
+                    }
+                    onChildrenCountChange={(count) =>
+                      setFormState((current) => ({
+                        ...current,
+                        children_count: count,
+                        children: Array.from({ length: count }, (_, index) => ({
+                          first_name: current.children[index]?.first_name ?? "",
+                          date_of_birth:
+                            current.children[index]?.date_of_birth ?? "",
+                        })),
+                      }))
+                    }
+                    onParentRoleChange={(role) =>
+                      setFormState((current) => ({
+                        ...current,
+                        parent_role: role,
+                      }))
+                    }
+                  />
                 </div>
               </div>
 

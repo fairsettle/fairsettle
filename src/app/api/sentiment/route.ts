@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { apiError } from "@/lib/api-errors";
 import { getAuthorizedCase } from "@/lib/cases/auth";
 import { checkTone } from "@/lib/openai/moderation";
 import { createClient } from "@/lib/supabase/server";
@@ -20,20 +21,19 @@ export async function POST(req: Request) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError(req, "UNAUTHORIZED", 401);
   }
 
   const body = await req.json();
   const parsed = sentimentSchema.safeParse(body);
 
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: "Validation failed", details: parsed.error.issues },
-      { status: 400 },
-    );
+    return apiError(req, "VALIDATION_FAILED", 400, {
+      details: parsed.error.issues,
+    });
   }
 
-  const { response } = await getAuthorizedCase(parsed.data.case_id);
+  const { response } = await getAuthorizedCase(parsed.data.case_id, req);
 
   if (response) {
     return response;

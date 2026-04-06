@@ -1,9 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { Textarea } from "@/components/ui/textarea";
+import { fetchApi } from "@/lib/api-client";
 
 export function TextField({
   caseId,
@@ -19,6 +20,7 @@ export function TextField({
   maxLength?: number;
 }) {
   const t = useTranslations();
+  const locale = useLocale();
   const [showToneAdvisory, setShowToneAdvisory] = useState(false);
   const latestValueRef = useRef(value ?? "");
   const lastRecordedValueRef = useRef(value ?? "");
@@ -50,7 +52,7 @@ export function TextField({
     requestSequenceRef.current += 1;
     const requestId = requestSequenceRef.current;
 
-    void fetch("/api/sentiment", {
+    void fetchApi("/api/sentiment", locale, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

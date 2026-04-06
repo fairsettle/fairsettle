@@ -1,28 +1,29 @@
 import { NextResponse } from 'next/server'
 
+import { apiError } from '@/lib/api-errors'
 import { getAuthorizedCase } from '@/lib/cases/auth'
 import { buildSafeComparisonPayload } from '@/lib/comparison'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { logEvent } from '@/lib/timeline'
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: { caseId: string } },
 ) {
-  const { user, caseItem, response } = await getAuthorizedCase(params.caseId)
+  const { user, caseItem, response } = await getAuthorizedCase(params.caseId, req)
 
   if (response) {
     return response
   }
   if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return apiError(req, 'UNAUTHORIZED', 401)
   }
   if (!caseItem) {
-    return NextResponse.json({ error: 'Case not found' }, { status: 404 })
+    return apiError(req, 'CASE_NOT_FOUND', 404)
   }
 
   if (!caseItem.responder_id) {
-    return NextResponse.json({ error: 'Comparison not ready' }, { status: 409 })
+    return apiError(req, 'COMPARISON_NOT_READY', 403)
   }
 
   const [initiatorSubmittedResult, responderSubmittedResult] = await Promise.all([
@@ -41,7 +42,7 @@ export async function GET(
   ])
 
   if (!initiatorSubmittedResult.count || !responderSubmittedResult.count) {
-    return NextResponse.json({ error: 'Comparison not ready' }, { status: 409 })
+    return apiError(req, 'COMPARISON_NOT_READY', 403)
   }
 
   try {
@@ -51,6 +52,7 @@ export async function GET(
       initiatorId: caseItem.initiator_id,
       responderId: caseItem.responder_id,
       viewerRole: caseItem.initiator_id === user.id ? 'initiator' : 'responder',
+      questionSetVersion: caseItem.question_set_version,
     })
 
     if (caseItem.status !== 'comparison') {
@@ -73,9 +75,6 @@ export async function GET(
 
     return NextResponse.json(payload)
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Unable to generate comparison' },
-      { status: 400 },
-    )
+    return apiError(req, 'FETCH_FAILED', 400)
   }
 }

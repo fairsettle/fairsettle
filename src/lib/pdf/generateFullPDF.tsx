@@ -9,6 +9,7 @@ import {
   PdfPage,
   pdfStyles,
 } from './shared'
+import { getParentRoleLabel } from '../participant-labels'
 import { getLocalizedMessage } from '../questions'
 import { getMessage } from '../messages'
 
@@ -66,6 +67,22 @@ export async function generateFullPDF(
       })
       .filter((clause) => clause.body),
   ]
+  const initiatorLabel = getParentRoleLabel(messages, initiatorProfile.parent_role)
+  const responderLabel = responderProfile
+    ? getParentRoleLabel(messages, responderProfile.parent_role)
+    : getMessage(messages, 'roles.otherParent')
+  const initiatorPositionTitle = getMessage(messages, 'pdf.participantPositionTitle', {
+    partyLabel: initiatorLabel,
+  })
+  const responderPositionTitle = getMessage(messages, 'pdf.participantPositionTitle', {
+    partyLabel: responderLabel,
+  })
+  const initiatorPositionBody = getMessage(messages, 'pdf.participantPositionBody', {
+    partyLabel: initiatorLabel,
+  })
+  const responderPositionBody = getMessage(messages, 'pdf.participantPositionBody', {
+    partyLabel: responderLabel,
+  })
 
   const document = (
     <PdfDocument>
@@ -81,10 +98,10 @@ export async function generateFullPDF(
             {getMessage(messages, 'pdf.generatedOn')}: {new Date().toLocaleString(locale)}
           </Text>
           <Text style={pdfStyles.smallText}>
-            {getMessage(messages, 'pdf.partyALabel')}: {initiatorProfile.full_name}
+            {initiatorLabel}: {initiatorProfile.full_name}
           </Text>
           <Text style={pdfStyles.smallText}>
-            {getMessage(messages, 'pdf.partyBLabel')}: {responderProfile?.full_name ?? '-'}
+            {responderLabel}: {responderProfile?.full_name ?? '-'}
           </Text>
           <Text style={pdfStyles.smallText}>
             {getMessage(messages, 'pdf.caseTypeLabel')}: {caseItem.case_type}
@@ -121,8 +138,8 @@ export async function generateFullPDF(
 
       <PdfPage
         footerLabel={footerLabel}
-        subtitle={getMessage(messages, 'pdf.partyAPositionBody')}
-        title={getMessage(messages, 'pdf.partyAPositionTitle')}
+        subtitle={initiatorPositionBody}
+        title={initiatorPositionTitle}
       >
         {initiatorSections.map((section) => (
           <View key={section.section} style={pdfStyles.panel}>
@@ -141,8 +158,8 @@ export async function generateFullPDF(
 
       <PdfPage
         footerLabel={footerLabel}
-        subtitle={getMessage(messages, 'pdf.partyBPositionBody')}
-        title={getMessage(messages, 'pdf.partyBPositionTitle')}
+        subtitle={responderPositionBody}
+        title={responderPositionTitle}
       >
         {responderSections.map((section) => (
           <View key={section.section} style={pdfStyles.panel}>
@@ -166,8 +183,12 @@ export async function generateFullPDF(
       >
         <View style={pdfStyles.comparisonHeader}>
           <Text style={pdfStyles.comparisonHeaderCell}>{getMessage(messages, 'pdf.questionColumn')}</Text>
-          <Text style={pdfStyles.comparisonHeaderCell}>{getMessage(messages, 'pdf.partyAColumn')}</Text>
-          <Text style={pdfStyles.comparisonHeaderCell}>{getMessage(messages, 'pdf.partyBColumn')}</Text>
+          <Text style={pdfStyles.comparisonHeaderCell}>
+            {getMessage(messages, 'pdf.participantColumn', { partyLabel: initiatorLabel })}
+          </Text>
+          <Text style={pdfStyles.comparisonHeaderCell}>
+            {getMessage(messages, 'pdf.participantColumn', { partyLabel: responderLabel })}
+          </Text>
           <Text style={pdfStyles.comparisonHeaderCell}>{getMessage(messages, 'pdf.statusColumn')}</Text>
         </View>
         {(comparison?.items ?? []).map((item) => (

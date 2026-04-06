@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { apiError } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 
@@ -6,7 +7,7 @@ function normalizeEmail(value: string) {
   return value.trim().toLowerCase()
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   const supabase = await createClient()
   const {
     data: { user },
@@ -14,7 +15,7 @@ export async function GET() {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return apiError(req, 'UNAUTHORIZED', 401)
   }
 
   const userEmail = normalizeEmail(user.email ?? '')
@@ -34,7 +35,7 @@ export async function GET() {
     .order('sent_at', { ascending: false })
 
   if (invitationsError) {
-    return NextResponse.json({ error: invitationsError.message }, { status: 400 })
+    return apiError(req, 'FETCH_FAILED', 400)
   }
 
   if (!invitations?.length) {
@@ -49,7 +50,7 @@ export async function GET() {
     .in('id', caseIds)
 
   if (casesError) {
-    return NextResponse.json({ error: casesError.message }, { status: 400 })
+    return apiError(req, 'FETCH_FAILED', 400)
   }
 
   const relevantCases = (cases ?? []).filter(
@@ -68,7 +69,7 @@ export async function GET() {
     .in('id', initiatorIds)
 
   if (profilesError) {
-    return NextResponse.json({ error: profilesError.message }, { status: 400 })
+    return apiError(req, 'FETCH_FAILED', 400)
   }
 
   const caseMap = new Map(relevantCases.map((caseItem) => [caseItem.id, caseItem]))

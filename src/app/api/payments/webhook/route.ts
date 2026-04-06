@@ -1,21 +1,23 @@
 import { NextResponse } from 'next/server'
 import type Stripe from 'stripe'
 
-import { sendExportReadyEmail } from '@/lib/email/resend'
+import { apiError } from '@/lib/api-errors'
+import { getRequestOrigin } from '@/lib/app-url'
+import { sendExportReadyEmail, sendExportReadyNoticeEmail } from '@/lib/email/resend'
 import { createStoredFullExport } from '@/lib/exports'
 import { stripe } from '@/lib/stripe/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 
 export async function POST(req: Request) {
   if (!process.env.STRIPE_WEBHOOK_SECRET) {
-    return NextResponse.json({ error: 'Stripe webhook is not configured' }, { status: 500 })
+    return apiError(req, 'STRIPE_NOT_CONFIGURED', 500)
   }
 
   const body = await req.text()
   const signature = req.headers.get('stripe-signature')
 
   if (!signature) {
-    return NextResponse.json({ error: 'Missing signature' }, { status: 400 })
+    return apiError(req, 'SIGNATURE_MISSING', 400)
   }
 
   let event: Stripe.Event
@@ -27,7 +29,7 @@ export async function POST(req: Request) {
       process.env.STRIPE_WEBHOOK_SECRET,
     )
   } catch {
-    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
+    return apiError(req, 'SIGNATURE_INVALID', 400)
   }
 
   if (event.type === 'checkout.session.completed') {
@@ -47,18 +49,46 @@ export async function POST(req: Request) {
       stripeSessionId: session.id,
     })
 
-    const profileResult = await supabaseAdmin
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single()
+    const [initiatorProfileResult, responderProfileResult] = await Promise.all([
+      supabaseAdmin
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single(),
+      supabaseAdmin
+        .from('cases')
+        .select('responder_id')
+        .eq('id', caseId)
+        .maybeSingle()
+        .then(async ({ data }) => {
+          if (!data?.responder_id) {
+            return { data: null }
+          }
 
-    if (profileResult.data?.email && process.env.RESEND_API_KEY) {
+          return await supabaseAdmin
+            .from('profiles')
+            .select('*')
+            .eq('id', data.responder_id)
+            .maybeSingle()
+        }),
+    ])
+
+    if (initiatorProfileResult.data?.email && process.env.RESEND_API_KEY) {
       await sendExportReadyEmail(
-        profileResult.data.email,
+        initiatorProfileResult.data.email,
         caseId,
         exportRecord.tier,
-        profileResult.data.preferred_language || 'en',
+        initiatorProfileResult.data.preferred_language || 'en',
+        getRequestOrigin(req),
+      )
+    }
+
+    if (responderProfileResult.data?.email && process.env.RESEND_API_KEY) {
+      await sendExportReadyNoticeEmail(
+        responderProfileResult.data.email,
+        caseId,
+        responderProfileResult.data.preferred_language || 'en',
+        getRequestOrigin(req),
       )
     }
   }

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 
+import { apiError } from '@/lib/api-errors'
 import {
+  sendAutoGenerateWarningEmail,
   sendReminderEmail,
   sendSinglePartyExportReadyEmail,
 } from '@/lib/email/resend'
@@ -160,13 +162,90 @@ async function processExpiryBatch(invitations: InvitationRow[]) {
   return processed
 }
 
+async function processAutoGenerateWarningBatch(cases: CaseRow[]) {
+  if (!cases.length) {
+    return 0
+  }
+
+  const participantIds = [
+    ...new Set(
+      cases.flatMap((caseItem) => [caseItem.initiator_id, caseItem.responder_id].filter(Boolean) as string[]),
+    ),
+  ]
+
+  const { data: profiles, error: profilesError } = await supabaseAdmin
+    .from('profiles')
+    .select('id, email, preferred_language')
+    .in('id', participantIds)
+
+  if (profilesError) {
+    throw new Error(profilesError.message)
+  }
+
+  const profileMap = new Map((profiles ?? []).map((profile) => [profile.id, profile]))
+  const processedAt = new Date().toISOString()
+  let processed = 0
+
+  for (const caseItem of cases) {
+    const onlyOneSatisfied =
+      Boolean(caseItem.initiator_satisfied_at) !== Boolean(caseItem.responder_satisfied_at)
+
+    if (!caseItem.auto_generate_due_at || !onlyOneSatisfied) {
+      continue
+    }
+
+    const dueDateLabel = new Date(caseItem.auto_generate_due_at).toLocaleDateString('en-GB')
+    const recipients = [caseItem.initiator_id, caseItem.responder_id].filter(Boolean) as string[]
+    let sentAllWarnings = true
+
+    for (const recipientId of recipients) {
+      const profile = profileMap.get(recipientId)
+
+      if (!profile?.email) {
+        continue
+      }
+
+      try {
+        await sendAutoGenerateWarningEmail(
+          profile.email,
+          caseItem.id,
+          dueDateLabel,
+          profile.preferred_language || 'en',
+        )
+      } catch {
+        sentAllWarnings = false
+        break
+      }
+    }
+
+    if (!sentAllWarnings) {
+      continue
+    }
+
+    const { error: updateError } = await supabaseAdmin
+      .from('cases')
+      .update({
+        auto_generate_warning_sent_at: processedAt,
+      })
+      .eq('id', caseItem.id)
+
+    if (updateError) {
+      continue
+    }
+
+    processed += 1
+  }
+
+  return processed
+}
+
 async function handleCronRequest(req: Request) {
   if (!process.env.CRON_SECRET) {
-    return NextResponse.json({ error: 'Cron is not configured' }, { status: 500 })
+    return apiError(req, 'INTERNAL_ERROR', 500)
   }
 
   if (req.headers.get('Authorization') !== `Bearer ${process.env.CRON_SECRET}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return apiError(req, 'UNAUTHORIZED', 401)
   }
 
   const now = Date.now()
@@ -175,8 +254,10 @@ async function handleCronRequest(req: Request) {
   const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString()
   const fourteenDaysAgo = new Date(now - 14 * 24 * 60 * 60 * 1000).toISOString()
   const nowIso = new Date(now).toISOString()
+  const fortyNineHoursFromNow = new Date(now + 49 * 60 * 60 * 1000).toISOString()
+  const fortySevenHoursFromNow = new Date(now + 47 * 60 * 60 * 1000).toISOString()
 
-  const [remind48hResult, remind7dResult, remind14dResult, expireResult] = await Promise.all([
+  const [remind48hResult, remind7dResult, remind14dResult, expireResult, autoGenerateWarningResult] = await Promise.all([
     supabaseAdmin
       .from('invitations')
       .select('*')
@@ -205,9 +286,23 @@ async function handleCronRequest(req: Request) {
       .eq('method', 'email')
       .in('status', ['sent', 'opened'])
       .lte('expires_at', nowIso),
+    supabaseAdmin
+      .from('cases')
+      .select('*')
+      .not('auto_generate_due_at', 'is', null)
+      .is('auto_generate_warning_sent_at', null)
+      .in('status', ['comparison', 'completed'])
+      .gte('auto_generate_due_at', fortySevenHoursFromNow)
+      .lte('auto_generate_due_at', fortyNineHoursFromNow),
   ])
 
-  if (remind48hResult.error || remind7dResult.error || remind14dResult.error || expireResult.error) {
+  if (
+    remind48hResult.error ||
+    remind7dResult.error ||
+    remind14dResult.error ||
+    expireResult.error ||
+    autoGenerateWarningResult.error
+  ) {
     return NextResponse.json(
       {
         error:
@@ -215,6 +310,7 @@ async function handleCronRequest(req: Request) {
           remind7dResult.error?.message ||
           remind14dResult.error?.message ||
           expireResult.error?.message ||
+          autoGenerateWarningResult.error?.message ||
           'Unable to load reminder batches',
       },
       { status: 500 },
@@ -237,6 +333,7 @@ async function handleCronRequest(req: Request) {
     daysRemaining: 7,
   })
   const expired = await processExpiryBatch(expireResult.data ?? [])
+  const autoGenerateWarning = await processAutoGenerateWarningBatch(autoGenerateWarningResult.data ?? [])
 
   return NextResponse.json({
     processed: {
@@ -244,6 +341,7 @@ async function handleCronRequest(req: Request) {
       remind_7d: remind7d,
       remind_14d: remind14d,
       expired,
+      auto_generate_warning: autoGenerateWarning,
     },
   })
 }

@@ -9,6 +9,7 @@ import {
   PdfPage,
   pdfStyles,
 } from './shared'
+import { getParentRoleLabel } from '../participant-labels'
 import { getLocalizedMessage } from '../questions'
 import { getMessage } from '../messages'
 
@@ -34,6 +35,13 @@ export async function generateSinglePartyPDF(
   const latestInvitation = invitations.at(-1)
   const footerLabel = `${getMessage(messages, 'nav.brand')} ${getMessage(messages, 'pdf.singlePartyLabel')}`
   const savingsSummary = getSavingsSummary(4, 'standard', messages)
+  const initiatorLabel = getParentRoleLabel(messages, initiatorProfile.parent_role)
+  const initiatorPositionTitle = getMessage(messages, 'pdf.participantPositionTitle', {
+    partyLabel: initiatorLabel,
+  })
+  const initiatorPositionBody = getMessage(messages, 'pdf.participantPositionBody', {
+    partyLabel: initiatorLabel,
+  })
 
   const document = (
     <PdfDocument>
@@ -49,7 +57,7 @@ export async function generateSinglePartyPDF(
             {getMessage(messages, 'pdf.generatedOn')}: {new Date().toLocaleString(locale)}
           </Text>
           <Text style={pdfStyles.smallText}>
-            {getMessage(messages, 'pdf.partyALabel')}: {initiatorProfile.full_name}
+            {initiatorLabel}: {initiatorProfile.full_name}
           </Text>
         </View>
       </PdfPage>
@@ -81,8 +89,8 @@ export async function generateSinglePartyPDF(
 
       <PdfPage
         footerLabel={footerLabel}
-        subtitle={getMessage(messages, 'pdf.partyAPositionBody')}
-        title={getMessage(messages, 'pdf.partyAPositionTitle')}
+        subtitle={initiatorPositionBody}
+        title={initiatorPositionTitle}
       >
         {initiatorSections.map((section) => (
           <View key={section.section} style={pdfStyles.panel}>

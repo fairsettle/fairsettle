@@ -1,9 +1,10 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 
 import { ComparisonRow } from '@/components/comparison/ComparisonRow'
 import { Card, CardContent } from '@/components/ui/card'
+import { getLocalizedMessage } from '@/lib/questions'
 import type { SafeComparisonItem } from '@/lib/comparison'
 
 export function ComparisonTable({
@@ -13,7 +14,18 @@ export function ComparisonTable({
   items: SafeComparisonItem[]
   viewerRole: 'initiator' | 'responder'
 }) {
+  const locale = useLocale()
   const t = useTranslations()
+
+  if (items.length === 0) {
+    return (
+      <Card className="app-panel">
+        <CardContent className="p-6 text-sm text-ink-soft">
+          {t('comparison.emptyBucket')}
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
     <div className="space-y-4">
@@ -26,12 +38,18 @@ export function ComparisonTable({
 
       {items.map((item) => (
         <ComparisonRow
-          key={item.question_id}
+          key={item.item_key}
           disputeType={item.dispute_type}
           guidanceText={item.guidance_text}
           partyAAnswer={viewerRole === 'initiator' ? item.party_a_answer : item.party_b_answer}
           partyBAnswer={viewerRole === 'initiator' ? item.party_b_answer : item.party_a_answer}
-          questionText={item.question_text}
+          questionText={
+            item.child_label
+              ? {
+                  en: `${item.child_label}: ${getLocalizedMessage(item.question_text, locale)}`,
+                }
+              : item.question_text
+          }
           section={item.section}
           status={item.status}
         />

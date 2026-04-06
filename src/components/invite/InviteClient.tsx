@@ -3,13 +3,17 @@
 import { CheckCircle2, Mail, RotateCw } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
+import Link from 'next/link'
 
+import { AsyncStateCard } from '@/components/feedback/AsyncStateCard'
 import { SavingsBar } from '@/components/savings/SavingsBar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { fetchApi } from '@/lib/api-client'
 import { readApiErrorMessage, resolveApiErrorMessage } from '@/lib/client-errors'
+import { getLocalizedPath } from '@/lib/locale-path'
 import { cn } from '@/lib/utils'
 
 type InviteItem = {
@@ -28,6 +32,21 @@ type InviteItem = {
   expires_at: string
   reminder_count: number
   last_reminder_at: string | null
+}
+
+type CaseMeta = {
+  viewer_role: 'initiator' | 'responder'
+  status: 'draft' | 'invited' | 'active' | 'comparison' | 'completed' | 'expired'
+  case_type: 'child' | 'financial' | 'asset' | 'combined'
+  question_set_version: 'v1' | 'v2'
+  completed_phases: string[]
+  responder_id: string | null
+  flow_state:
+    | 'default'
+    | 'continue_next_phase'
+    | 'waiting_for_responder'
+    | 'continue_response'
+    | 'waiting_for_next_phase'
 }
 
 function getDeliveryStatusClasses(status: InviteItem['delivery_status']) {
@@ -66,10 +85,12 @@ export function InviteClient({ caseId }: { caseId: string }) {
   const [email, setEmail] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoadingInvites, setIsLoadingInvites] = useState(true)
+  const [isBootstrapping, setIsBootstrapping] = useState(true)
   const [resendingId, setResendingId] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
   const [invitations, setInvitations] = useState<InviteItem[]>([])
+  const [caseMeta, setCaseMeta] = useState<CaseMeta | null>(null)
 
   const formatDate = useMemo(
     () =>
@@ -88,11 +109,13 @@ export function InviteClient({ caseId }: { caseId: string }) {
     [invitations],
   )
 
-  const loadInvitations = useCallback(async () => {
-    setIsLoadingInvites(true)
+  const loadInvitations = useCallback(async (options?: { silent?: boolean }) => {
+    if (!options?.silent) {
+      setIsLoadingInvites(true)
+    }
 
     try {
-      const response = await fetch(`/api/invitations?case_id=${encodeURIComponent(caseId)}`, {
+      const response = await fetchApi(`/api/invitations?case_id=${encodeURIComponent(caseId)}`, locale, {
         cache: 'no-store',
       })
       const payload = (await response.json().catch(() => null)) as
@@ -110,13 +133,54 @@ export function InviteClient({ caseId }: { caseId: string }) {
       setErrorMessage(t('errors.generic'))
       setInvitations([])
     } finally {
-      setIsLoadingInvites(false)
+      if (!options?.silent) {
+        setIsLoadingInvites(false)
+      }
     }
-  }, [caseId, t])
+  }, [caseId, locale, t])
+
+  const loadCaseMeta = useCallback(async () => {
+    try {
+      const response = await fetchApi(`/api/cases/${caseId}`, locale, {
+        cache: 'no-store',
+      })
+      const payload = (await response.json().catch(() => null)) as
+        | { case?: CaseMeta; error?: string }
+        | null
+
+      if (response.ok && payload?.case) {
+        setCaseMeta(payload.case)
+      }
+    } catch {
+      setCaseMeta(null)
+    }
+  }, [caseId, locale])
 
   useEffect(() => {
-    void loadInvitations()
-  }, [loadInvitations])
+    let ignore = false
+
+    async function bootstrap() {
+      setIsBootstrapping(true)
+
+      try {
+        await Promise.all([
+          loadInvitations({ silent: true }),
+          loadCaseMeta(),
+        ])
+      } finally {
+        if (!ignore) {
+          setIsLoadingInvites(false)
+          setIsBootstrapping(false)
+        }
+      }
+    }
+
+    void bootstrap()
+
+    return () => {
+      ignore = true
+    }
+  }, [loadCaseMeta, loadInvitations])
 
   async function createInvitation({
     recipientContact,
@@ -135,7 +199,7 @@ export function InviteClient({ caseId }: { caseId: string }) {
     }
 
     try {
-      const response = await fetch('/api/invitations', {
+      const response = await fetchApi('/api/invitations', locale, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -185,9 +249,32 @@ export function InviteClient({ caseId }: { caseId: string }) {
 
   return (
     <div className="space-y-6">
+      {isBootstrapping ? (
+        <AsyncStateCard
+          body={t('invite.statusTracking')}
+          title={t('dashboard.loading')}
+        />
+      ) : null}
+
+      {!isBootstrapping ? (
       <form className="space-y-6" onSubmit={handleSubmit}>
         <Card className="app-panel">
           <CardContent className="space-y-5 p-6">
+            {caseMeta?.viewer_role === 'initiator' &&
+            caseMeta.flow_state === 'continue_next_phase' ? (
+              <div className="app-note-brand">
+                <p className="font-medium text-ink">{t('invite.nextPhaseReadyTitle')}</p>
+                <p className="mt-2">
+                  {t('invite.nextPhaseReadyBody')}
+                </p>
+                <Button asChild className="mt-4 h-11 px-5" size="lg">
+                  <Link href={getLocalizedPath(locale, `/cases/${caseId}/questions`)}>
+                    {t('invite.nextPhaseReadyAction')}
+                  </Link>
+                </Button>
+              </div>
+            ) : null}
+
             <div className="app-chip h-12 w-12 justify-center rounded-2xl px-0">
               <Mail className="size-5" />
             </div>
@@ -238,7 +325,9 @@ export function InviteClient({ caseId }: { caseId: string }) {
           </CardContent>
         </Card>
       </form>
+      ) : null}
 
+      {!isBootstrapping ? (
       <Card className="app-panel-soft">
         <CardContent className="space-y-5 p-6">
           <div className="space-y-2">
@@ -370,8 +459,9 @@ export function InviteClient({ caseId }: { caseId: string }) {
           )}
         </CardContent>
       </Card>
+      ) : null}
 
-      <SavingsBar stage={2} />
+      {!isBootstrapping ? <SavingsBar stage={2} /> : null}
     </div>
   )
 }

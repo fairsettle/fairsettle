@@ -1,14 +1,13 @@
 import 'server-only'
 
-import { NextResponse } from 'next/server'
-
+import { apiError } from '@/lib/api-errors'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import type { Database } from '@/types/database'
 
 type CaseRow = Database['public']['Tables']['cases']['Row']
 
-export async function getAuthorizedCase(caseId: string) {
+export async function getAuthorizedCase(caseId: string, req?: Request) {
   const supabase = await createClient()
   const {
     data: { user },
@@ -20,7 +19,7 @@ export async function getAuthorizedCase(caseId: string) {
       supabase,
       user: null,
       caseItem: null,
-      response: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
+      response: await apiError(req, 'UNAUTHORIZED', 401),
     }
   }
 
@@ -35,7 +34,7 @@ export async function getAuthorizedCase(caseId: string) {
       supabase,
       user,
       caseItem: null,
-      response: NextResponse.json({ error: caseError.message }, { status: 400 }),
+      response: await apiError(req, 'FETCH_FAILED', 400),
     }
   }
 
@@ -44,7 +43,7 @@ export async function getAuthorizedCase(caseId: string) {
       supabase,
       user,
       caseItem: null,
-      response: NextResponse.json({ error: 'Case not found' }, { status: 404 }),
+      response: await apiError(req, 'CASE_NOT_FOUND', 404),
     }
   }
 
@@ -56,7 +55,7 @@ export async function getAuthorizedCase(caseId: string) {
       supabase,
       user,
       caseItem: null,
-      response: NextResponse.json({ error: 'Forbidden' }, { status: 403 }),
+      response: await apiError(req, 'FORBIDDEN', 403),
     }
   }
 

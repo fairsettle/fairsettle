@@ -3,6 +3,7 @@
     "brand": "FairSettle",
     "start": "ابدأ قضيتك مجانًا",
     "invited": "لقد تمت دعوتي من قبل شريكي السابق",
+    "account": "الحساب",
     "logout": "تسجيل الخروج"
   },
   "languages": {
@@ -114,7 +115,19 @@
     "childrenOption1": "1",
     "childrenOption2": "2",
     "childrenOption3": "3",
-    "childrenOption4Plus": "4+"
+    "childrenOption4Plus": "4+",
+    "familyEyebrow": "Family profile",
+    "familyTitle": "About your family",
+    "familyBody": "We use this to show the right questions for each child and keep future cases consistent.",
+    "parentRole": "Which parent are you?",
+    "parentRolePlaceholder": "Select your role",
+    "parentRoleMum": "Mum",
+    "parentRoleDad": "Dad",
+    "childCardTitle": "Child {index}",
+    "childFirstName": "Child first name (optional)",
+    "childFirstNamePlaceholder": "First name",
+    "childDob": "Date of birth",
+    "noChildrenHint": "You can continue without adding children if this case does not involve child arrangements."
   },
   "login": {
     "title": "تسجيل الدخول",
@@ -178,6 +191,10 @@
     "nextStepActive": "أكمل رحلة الرد الخاصة بهذه القضية.",
     "nextStepActiveInitiator": "الطرف الآخر يُكمل جانبه الآن. تابع تقدّم القضية من هنا أثناء انتظارك.",
     "nextStepActiveResponder": "أكمل إجاباتك حتى يمكن إنشاء المقارنة.",
+    "nextStepContinueNextPhase": "The other parent has joined. Continue to the next phase so the case keeps moving.",
+    "nextStepWaitingForResponder": "The other parent is completing the phases you have already shared. Track progress here while you wait.",
+    "nextStepContinueResponse": "Continue the shared phase so the comparison can be generated once both sides are done.",
+    "nextStepWaitingForNextPhase": "You have finished the shared phase. The next phase will appear once the other parent publishes it.",
     "nextStepComparison": "راجع المواقف جنبًا إلى جنب والحلول المقترحة.",
     "nextStepCompleted": "أعد فتح المقارنة أو نزّل حزمة القضية.",
     "nextStepExpired": "حضّر التصدير من طرف واحد لهذه القضية.",
@@ -185,6 +202,10 @@
     "actionInvited": "إدارة الدعوة",
     "actionActiveInitiator": "عرض تقدّم القضية",
     "actionActiveResponder": "متابعة الرد",
+    "actionContinueNextPhase": "Continue next phase",
+    "actionWaitingForResponder": "View case progress",
+    "actionContinueResponse": "Continue response",
+    "actionWaitingForNextPhase": "Check phase status",
     "actionComparison": "فتح المقارنة",
     "actionCompleted": "فتح حزمة القضية",
     "actionExpired": "فتح تصدير الطرف الواحد",
@@ -234,9 +255,29 @@
     "reviewBody": "تحقق من كل شيء بعناية قبل دعوة الوالد المشارك.",
     "reviewCta": "مراجعة الإجابات",
     "edit": "تعديل",
-    "submit": "إرسال ودعوة الوالد المشارك",
+    "submit": "إرسال والمتابعة",
+    "submitAndInvite": "إرسال ودعوة الوالد المشارك",
+    "submitAnswers": "إرسال إجاباتك",
     "noAnswer": "لا توجد إجابة بعد",
-    "toneAdvisory": "حاول الحفاظ على اللغة موضوعية ومحايدة — هذا سيسهل على كلاكما الاتفاق."
+    "toneAdvisory": "حاول الحفاظ على اللغة موضوعية ومحايدة — هذا سيسهل على كلاكما الاتفاق.",
+    "waitingForPhase": "This phase has not been shared with you yet.",
+    "waitingTitle": "Waiting for the next phase",
+    "waitingBody": "The other parent has not shared the next phase yet. Return to your dashboard and reopen the case when you receive an update.",
+    "phaseCompleteTitle": "اكتمل قسم {phase}!",
+    "phaseCompleteBody": "لقد أجبت عن جميع الأسئلة وعددها {count} في هذه المرحلة. إليك ملخصًا سريعًا قبل المتابعة.",
+    "phaseReviewTitle": "المراجعة النهائية قبل نشر القضية",
+    "phaseReviewBody": "راجع إجابات هذه المرحلة الأخيرة بعناية قبل إرسال القضية.",
+    "fullReviewLabel": "المراجعة النهائية",
+    "finalReviewBody": "راجع إجابات هذه المرحلة، وأجرِ أي تعديلات تحتاجها، ثم انشر القضية للانتقال إلى المرحلة التالية.",
+    "saveAndReturn": "احفظ وارجع لاحقًا",
+    "returnToDashboard": "العودة إلى لوحة التحكم",
+    "inviteAfterPhase": "ادعُ الوالد الآخر الآن",
+    "continuePhase": "انتقل إلى المرحلة التالية",
+    "continueToSpecificPhase": "انتقل إلى مرحلة {phase}",
+    "phaseBadge": "المرحلة {current} من {total}: {phase}",
+    "completedPhases": "المراحل المكتملة: {count}",
+    "earlyInviteHint": "إذا كنت تحتاج فقط إلى حل ترتيبات الأطفال، يمكنك دعوة الوالد الآخر الآن وترك بقية القضية لوقت لاحق.",
+    "multiSelectHint": "اختر كل ما ينطبق"
   },
   "savings": {
     "solicitorRoute": "مسار المحامي",
@@ -262,7 +303,12 @@
     "yourPosition": "موقفك",
     "theirPosition": "موقفهم",
     "gap": "فجوة",
-    "seeOutcomes": "شاهد النتائج المقترحة"
+    "seeOutcomes": "شاهد النتائج المقترحة",
+    "toReviewTab": "{count} to review",
+    "agreedTab": "{count} agreed",
+    "disputedTab": "{count} disputed",
+    "progressLabel": "items reviewed",
+    "emptyBucket": "There is nothing in this section right now."
   },
   "timeline": {
     "title": "الجدول الزمني للقضية",
@@ -277,8 +323,8 @@
       "invitation_accepted": "تم قبول الدعوة",
       "invitation_expired": "انتهت صلاحية الدعوة",
       "reminder_sent": "تم إرسال تذكير",
-      "responder_started": "بدأ مراجعة المستجيب",
-      "responder_completed": "اكتملت مراجعة المستجيب",
+      "responder_started": "Responder started answering",
+      "responder_completed": "Responder submitted answers",
       "comparison_generated": "تم إنشاء المقارنة",
       "resolution_accepted": "تم قبول النتيجة المقترحة",
       "resolution_modified": "تم تعديل النتيجة المقترحة",
@@ -309,7 +355,12 @@
     "modifyLabel": "الصياغة المقترحة منك",
     "modifyPlaceholder": "اكتب النتيجة التي تريد اقتراحها",
     "saveError": "لم نتمكن من حفظ هذا القرار. يرجى المحاولة مرة أخرى.",
-    "exportCta": "المتابعة إلى تصدير القضية"
+    "exportCta": "المتابعة إلى تصدير القضية",
+    "currentProposalLabel": "Current proposal",
+    "noProposalYet": "No proposal has been set yet.",
+    "yourStatusLabel": "Your status",
+    "otherStatusLabel": "Other status",
+    "noAutomaticSuggestion": "Review both positions directly"
   },
   "responder": {
     "neutralityTitle": "هذه المنصة محايدة",
@@ -340,7 +391,11 @@
     "invalidBody": "رابط الدعوة هذا لم يعد صالحًا. اطلب من المرسل إصدار دعوة جديدة إذا كنت لا تزال بحاجة إلى الوصول.",
     "noItemsTitle": "لا توجد مواقف للمراجعة بعد",
     "noItemsBody": "لا توجد عناصر مقدمة تنتظر ردك، لذا يمكنك الانتقال مباشرة إلى تدفق الأسئلة.",
-    "startQuestions": "ابدأ تدفق الأسئلة"
+    "startQuestions": "ابدأ تدفق الأسئلة",
+    "independentTitle": "Answer independently",
+    "independentSubtitle": "You'll complete your own answers first. Comparison unlocks only after both of you submit.",
+    "independentBodyTitle": "What happens next",
+    "independentBody": "Answer the same structured questions privately and independently. You will not see the other parent's positions until both sides have submitted."
   },
   "invite": {
     "title": "ادعُ شريكك في الأبوة",
@@ -384,7 +439,10 @@
     "deliveryBounced": "تم رفض هذا البريد الإلكتروني ويحتاج إلى متابعة.",
     "deliveryComplained": "قام المستلم بوضع علامة على هذه الرسالة كبريد مزعج.",
     "deliveryFailed": "فشل هذا البريد الإلكتروني قبل التسليم.",
-    "deliveryFailedVisible": "تم إنشاء الدعوة، لكن تعذر تسليم البريد الإلكتروني. تحقق من حالة الدعوة أدناه وأعد الإرسال بعد معالجة مشكلة العنوان أو مزود الخدمة."
+    "deliveryFailedVisible": "تم إنشاء الدعوة، لكن تعذر تسليم البريد الإلكتروني. تحقق من حالة الدعوة أدناه وأعد الإرسال بعد معالجة مشكلة العنوان أو مزود الخدمة.",
+    "nextPhaseReadyTitle": "The next phase is ready to continue",
+    "nextPhaseReadyBody": "The other parent has now joined this case. Continue into the next phase here so both sides can keep progressing.",
+    "nextPhaseReadyAction": "Continue to the next phase"
   },
   "inviteStatus": {
     "sent": "أُرسلت",
@@ -444,7 +502,21 @@
     "initiatorOnlyBody": "فقط الشخص الذي بدأ هذه القضية يمكنه شراء وتنزيل حزمة التصدير. لا يزال بإمكانك مراجعة القضية، لكن عليه هو إكمال الدفع.",
     "footerNote": "يمكنك أخذ حزمة قضيتك إلى محامٍ أو وسيط أو المحكمة. إنها تظهر الرغبة في حل الأمور بشكل عادل.",
     "included": "مشمول",
-    "resolution": "الحل"
+    "resolution": "الحل",
+    "nextStepAwaitingConfirmation": "Confirm that you are satisfied with the negotiated outcome. Export unlocks once both of you confirm, or after the fallback window ends.",
+    "nextStepResponderConfirmation": "Review the negotiated outcome and confirm when you are satisfied. The case owner will be able to purchase the export once it unlocks.",
+    "confirmationTitle": "Confirm the case is ready",
+    "confirmationRecorded": "Your confirmation has been saved. Export will unlock once both parties confirm, or when the fallback window ends.",
+    "confirmationBody": "Mark this case as ready once you are satisfied with the current outcome. If the other party does not confirm, FairSettle will unlock export after the fallback window.",
+    "yourConfirmationStatus": "Your confirmation",
+    "otherConfirmationStatus": "Other party confirmation",
+    "confirmed": "Confirmed",
+    "awaitingYourConfirmation": "Awaiting your confirmation",
+    "awaitingOtherConfirmation": "Awaiting the other party",
+    "autoGenerateDue": "If the other party stays inactive, export unlocks automatically after {date}.",
+    "markingComplete": "Saving confirmation...",
+    "markSatisfied": "I am satisfied — unlock my case pack",
+    "markCompleteError": "We could not save your confirmation. Please try again."
   },
   "gdpr": {
     "dataSafe": "بياناتك آمنة",
@@ -516,6 +588,30 @@
     "footer": {
       "notice": "FairSettle يرسل هذه التحديثات حتى تتمكن من متابعة النشاط في قضيتك.",
       "unsubscribe": "إلغاء الاشتراك من هذه الرسائل الإلكترونية"
+    },
+    "initiatorSubmitted": {
+      "subject": "Your answers have been saved",
+      "title": "Your answers are saved",
+      "body": "Your latest answers have been recorded. You can return at any time to continue the case flow.",
+      "cta": "Open case"
+    },
+    "comparisonReady": {
+      "subject": "Your comparison is ready",
+      "title": "Comparison is now unlocked",
+      "body": "Both parties have submitted their answers. You can now review the comparison and continue to resolution.",
+      "cta": "Open comparison"
+    },
+    "caseCompletion": {
+      "subject": "The case is ready for export review",
+      "title": "A completion confirmation was added",
+      "body": "One party has confirmed they are satisfied with the current outcome. Review the export stage to see what happens next.",
+      "cta": "Open export stage"
+    },
+    "exportNotice": {
+      "subject": "The case pack has been generated",
+      "title": "The case pack is ready",
+      "body": "The case owner has generated the case pack. They can now download it from FairSettle and share it with you if needed.",
+      "cta": "Open export stage"
     }
   },
   "pdf": {
@@ -578,5 +674,14 @@
     "description": "قد يكون الرابط قديمًا، أو تم نقل الصفحة، أو أن العنوان غير صحيح. يمكنك العودة إلى الصفحة الرئيسية والمتابعة من هناك.",
     "goHome": "الذهاب إلى الصفحة الرئيسية",
     "goBack": "العودة"
+  },
+  "profileComplete": {
+    "eyebrow": "Complete your profile",
+    "title": "Finish your family profile",
+    "subtitle": "Before starting a new v2 case, we need your role and your children's details.",
+    "loading": "Loading your profile…",
+    "continue": "Save and continue",
+    "loadError": "We couldn't load your profile. Please try again.",
+    "saveError": "We couldn't save your profile. Please try again."
   }
 }

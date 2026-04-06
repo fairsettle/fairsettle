@@ -24,6 +24,7 @@ export default async function LocaleLayout({
   const t = await getTranslations({ locale })
   const dir = locale === 'ar' ? 'rtl' : 'ltr'
   let isAuthenticated = false
+  let userLabel: string | null = null
 
   try {
     const supabase = await createClient()
@@ -31,6 +32,10 @@ export default async function LocaleLayout({
       data: { user },
     } = await supabase.auth.getUser()
     isAuthenticated = Boolean(user)
+    userLabel =
+      (typeof user?.user_metadata?.full_name === 'string' && user.user_metadata.full_name) ||
+      user?.email ||
+      null
   } catch {}
 
   return (
@@ -42,10 +47,14 @@ export default async function LocaleLayout({
         className="min-h-screen bg-[radial-gradient(circle_at_top,rgb(var(--page-glow-strong)_/_0.62)_0%,rgb(var(--page)_/_0.9)_24%,rgb(var(--canvas))_72%)]"
       >
         <SiteHeader
+          accountLabel={t('nav.account')}
           brandLabel={t('nav.brand')}
+          dashboardLabel={t('dashboard.title')}
           isAuthenticated={isAuthenticated}
           locale={locale}
           loginLabel={t('login.title')}
+          logoutLabel={t('nav.logout')}
+          userLabel={userLabel}
         />
         {children}
       </div>

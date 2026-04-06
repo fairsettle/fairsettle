@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 
+import { apiError } from '@/lib/api-errors'
 import {
   createSignedExportUrl,
   ensureSinglePartyExport,
@@ -9,7 +10,7 @@ import { createClient } from '@/lib/supabase/server'
 import { logEvent } from '@/lib/timeline'
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: { caseId: string } },
 ) {
   const supabase = await createClient()
@@ -19,7 +20,7 @@ export async function GET(
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return apiError(req, 'UNAUTHORIZED', 401)
   }
 
   const caseResult = await supabase
@@ -29,7 +30,7 @@ export async function GET(
     .single()
 
   if (caseResult.error || !caseResult.data) {
-    return NextResponse.json({ error: 'Case not found' }, { status: 404 })
+    return apiError(req, 'CASE_NOT_FOUND', 404)
   }
 
   const caseItem = caseResult.data
@@ -37,7 +38,7 @@ export async function GET(
     caseItem.initiator_id === user.id || caseItem.responder_id === user.id
 
   if (!isParticipant) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    return apiError(req, 'FORBIDDEN', 403)
   }
 
   try {
@@ -48,7 +49,7 @@ export async function GET(
     }
 
     if (!exportRecord) {
-      return NextResponse.json({ error: 'Export not ready' }, { status: 404 })
+      return apiError(req, 'EXPORT_NOT_READY', 404)
     }
 
     const downloadUrl = await createSignedExportUrl(exportRecord.file_path)
@@ -62,14 +63,6 @@ export async function GET(
       is_single_party: exportRecord.is_single_party,
     })
   } catch (error) {
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : 'Unable to prepare export download',
-      },
-      { status: 500 },
-    )
+    return apiError(req, 'FETCH_FAILED', 500)
   }
 }

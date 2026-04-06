@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { getLocalizedMessage } from '@/lib/questions'
+import { formatAnswerValue, getLocalizedMessage, getLocalizedOptions } from '@/lib/questions'
 import type { ResolutionSuggestion } from '@/lib/resolution/types'
 
 type ResolutionActionState = 'idle' | 'accept' | 'modify' | 'reject'
@@ -48,13 +48,19 @@ export function SuggestionCard({
   viewerRole,
 }: {
   suggestion: ResolutionSuggestion
-  onDecisionSaved: (questionId: string, action: 'accept' | 'modify' | 'reject', modifiedValue?: string) => Promise<void>
+  onDecisionSaved: (
+    suggestion: ResolutionSuggestion,
+    action: 'accept' | 'modify' | 'reject',
+    modifiedValue?: unknown,
+  ) => Promise<void>
   viewerRole: 'initiator' | 'responder'
 }) {
   const locale = useLocale()
   const t = useTranslations()
   const [decisionState, setDecisionState] = useState<ResolutionActionState>('idle')
-  const [modifiedValue, setModifiedValue] = useState('')
+  const [modifiedValue, setModifiedValue] = useState<unknown>(
+    suggestion.question_type === 'multi_choice' ? [] : '',
+  )
   const [isSaving, setIsSaving] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
 
@@ -63,16 +69,31 @@ export function SuggestionCard({
   const theirAnswer =
     viewerRole === 'initiator' ? suggestion.party_b_answer : suggestion.party_a_answer
 
+  const currentProposal = suggestion.current_value ?? suggestion.suggestion
+  const viewerStatus =
+    viewerRole === 'initiator' ? suggestion.initiator_status : suggestion.responder_status
+  const otherStatus =
+    viewerRole === 'initiator' ? suggestion.responder_status : suggestion.initiator_status
+  const localizedOptions = getLocalizedOptions(suggestion.options, locale)
+
+  function hasValidModifiedValue() {
+    if (suggestion.question_type === 'multi_choice') {
+      return Array.isArray(modifiedValue) && modifiedValue.length > 0
+    }
+
+    if (suggestion.question_type === 'number') {
+      return modifiedValue !== '' && Number.isFinite(Number(modifiedValue))
+    }
+
+    return typeof modifiedValue === 'string' && modifiedValue.trim().length > 0
+  }
+
   async function submitDecision(action: 'accept' | 'modify' | 'reject') {
     setErrorMessage('')
     setIsSaving(true)
 
     try {
-      await onDecisionSaved(
-        suggestion.question_id,
-        action,
-        action === 'modify' ? modifiedValue : undefined,
-      )
+      await onDecisionSaved(suggestion, action, action === 'modify' ? modifiedValue : undefined)
       setDecisionState(action)
     } catch {
       setErrorMessage(t('resolution.saveError'))
@@ -113,6 +134,29 @@ export function SuggestionCard({
           </div>
         </div>
 
+        <div className="grid gap-3 md:grid-cols-3">
+          <div className="app-note bg-surface-soft px-4 py-3 text-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ink-soft">
+              {t('resolution.currentProposalLabel')}
+            </p>
+            <p className="mt-2 font-medium text-ink">
+              {currentProposal ? formatAnswerValue(currentProposal as never) : t('resolution.noProposalYet')}
+            </p>
+          </div>
+          <div className="app-note bg-surface-soft px-4 py-3 text-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ink-soft">
+              {t('resolution.yourStatusLabel')}
+            </p>
+            <p className="mt-2 font-medium capitalize text-ink">{viewerStatus}</p>
+          </div>
+          <div className="app-note bg-surface-soft px-4 py-3 text-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ink-soft">
+              {t('resolution.otherStatusLabel')}
+            </p>
+            <p className="mt-2 font-medium capitalize text-ink">{otherStatus}</p>
+          </div>
+        </div>
+
         {suggestion.rule_applied === 'show_guidance_only' ? (
           <div className="app-note bg-surface-soft px-4 py-4 text-sm leading-6 text-ink">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ink-soft">
@@ -129,7 +173,7 @@ export function SuggestionCard({
                 {t('resolution.suggestedOutcome')}
               </p>
               <p className="mt-2 text-xl font-semibold">
-                {suggestion.suggestion_label}
+                {suggestion.suggestion_label ?? t('resolution.noAutomaticSuggestion')}
               </p>
               {suggestion.context_note ? (
                 <p className="mt-2 text-sm italic leading-6 text-ink-soft">
@@ -143,13 +187,68 @@ export function SuggestionCard({
                 <label className="text-sm font-medium text-ink" htmlFor={`modify-${suggestion.question_id}`}>
                   {t('resolution.modifyLabel')}
                 </label>
-                <Input
-                  id={`modify-${suggestion.question_id}`}
-                  maxLength={500}
-                  placeholder={t('resolution.modifyPlaceholder')}
-                  value={modifiedValue}
-                  onChange={(event) => setModifiedValue(event.target.value)}
-                />
+                {suggestion.question_type === 'single_choice' ? (
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {localizedOptions.map((option) => (
+                      <Button
+                        key={option}
+                        type="button"
+                        variant={modifiedValue === option ? 'default' : 'outline'}
+                        className="h-auto min-h-12 justify-start whitespace-normal text-left"
+                        onClick={() => setModifiedValue(option)}
+                      >
+                        {option}
+                      </Button>
+                    ))}
+                  </div>
+                ) : null}
+
+                {suggestion.question_type === 'multi_choice' ? (
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {localizedOptions.map((option) => {
+                      const selectedValues = Array.isArray(modifiedValue) ? modifiedValue : []
+                      const isSelected = selectedValues.includes(option)
+
+                      return (
+                        <Button
+                          key={option}
+                          type="button"
+                          variant={isSelected ? 'default' : 'outline'}
+                          className="h-auto min-h-12 justify-start whitespace-normal text-left"
+                          onClick={() =>
+                            setModifiedValue(
+                              isSelected
+                                ? selectedValues.filter((value) => value !== option)
+                                : [...selectedValues, option],
+                            )
+                          }
+                        >
+                          {option}
+                        </Button>
+                      )
+                    })}
+                  </div>
+                ) : null}
+
+                {suggestion.question_type === 'number' ? (
+                  <Input
+                    id={`modify-${suggestion.item_key}`}
+                    inputMode="decimal"
+                    placeholder={t('resolution.modifyPlaceholder')}
+                    value={typeof modifiedValue === 'number' ? String(modifiedValue) : String(modifiedValue ?? '')}
+                    onChange={(event) => setModifiedValue(event.target.value)}
+                  />
+                ) : null}
+
+                {suggestion.question_type === 'text' || suggestion.question_type === 'date' ? (
+                  <Input
+                    id={`modify-${suggestion.item_key}`}
+                    maxLength={500}
+                    placeholder={t('resolution.modifyPlaceholder')}
+                    value={typeof modifiedValue === 'string' ? modifiedValue : ''}
+                    onChange={(event) => setModifiedValue(event.target.value)}
+                  />
+                ) : null}
               </div>
             ) : null}
 
@@ -165,7 +264,7 @@ export function SuggestionCard({
               </Button>
               <Button
                 className="h-12 rounded-[1.25rem]"
-                disabled={isSaving || (decisionState === 'modify' && !modifiedValue.trim())}
+                disabled={isSaving || (decisionState === 'modify' && !hasValidModifiedValue())}
                 type="button"
                 variant={decisionState === 'modify' ? 'default' : 'outline'}
                 onClick={() => {

@@ -5,6 +5,11 @@ export interface SavingsData {
   stageName: string;
 }
 
+export interface QuestionFlowSavingsInput {
+  phase: "child" | "financial" | "asset";
+  sectionName?: string | null;
+}
+
 const SOLICITOR_STAGE_COSTS = [
   { label: "Consultation", solicitorCost: 225 },
   { label: "Initial position statement", solicitorCost: 750 },
@@ -17,6 +22,63 @@ const SOLICITOR_STAGE_COSTS = [
 const FAIRSETTLE_COSTS = {
   standard: 49,
   resolution: 149,
+};
+
+const QUESTION_FLOW_SECTION_COSTS: Record<
+  QuestionFlowSavingsInput["phase"],
+  Array<{ match: string[]; solicitorCost: number; label: string }>
+> = {
+  child: [
+    {
+      match: ["Living arrangements"],
+      solicitorCost: 225,
+      label: "Initial solicitor consultation",
+    },
+    {
+      match: ["Weekly schedule", "Holidays"],
+      solicitorCost: 500,
+      label: "Child arrangements negotiation",
+    },
+    {
+      match: ["Handovers", "Decision-making"],
+      solicitorCost: 975,
+      label: "Full child arrangements solicitor process",
+    },
+  ],
+  financial: [
+    {
+      match: ["Income"],
+      solicitorCost: 1200,
+      label: "Financial disclosure begins",
+    },
+    {
+      match: ["Property"],
+      solicitorCost: 1500,
+      label: "Property negotiation",
+    },
+    {
+      match: ["Savings and assets", "Debts"],
+      solicitorCost: 1750,
+      label: "Full financial picture",
+    },
+    {
+      match: ["Child maintenance", "Monthly outgoings"],
+      solicitorCost: 2000,
+      label: "Maintenance calculation and outgoings",
+    },
+  ],
+  asset: [
+    {
+      match: ["Property", "Vehicles and contents"],
+      solicitorCost: 2100,
+      label: "Asset split negotiation",
+    },
+    {
+      match: ["Business interests", "Pensions"],
+      solicitorCost: 2225,
+      label: "Full combined solicitor cost",
+    },
+  ],
 };
 
 export function calculateSavings(
@@ -38,6 +100,26 @@ export function calculateSavings(
     fairSettleTotal,
     saved: solicitorTotal - fairSettleTotal,
     stageName: SOLICITOR_STAGE_COSTS[safeStage]?.label ?? "",
+  };
+}
+
+export function calculateQuestionFlowSavings({
+  phase,
+  sectionName,
+}: QuestionFlowSavingsInput): SavingsData {
+  const phaseSections = QUESTION_FLOW_SECTION_COSTS[phase];
+  const matchedSection =
+    phaseSections.find((section) =>
+      section.match.some((value) => value === sectionName),
+    ) ?? phaseSections.at(0);
+
+  const solicitorTotal = matchedSection?.solicitorCost ?? 0;
+
+  return {
+    solicitorTotal,
+    fairSettleTotal: 0,
+    saved: solicitorTotal,
+    stageName: matchedSection?.label ?? "",
   };
 }
 

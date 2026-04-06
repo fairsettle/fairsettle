@@ -1,18 +1,19 @@
 import { NextResponse } from 'next/server'
 
+import { apiError } from '@/lib/api-errors'
 import { getAuthorizedCase } from '@/lib/cases/auth'
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: { caseId: string } },
 ) {
-  const { supabase, caseItem, response } = await getAuthorizedCase(params.caseId)
+  const { supabase, caseItem, response } = await getAuthorizedCase(params.caseId, req)
 
   if (response) {
     return response
   }
   if (!caseItem) {
-    return NextResponse.json({ error: 'Case not found' }, { status: 404 })
+    return apiError(req, 'CASE_NOT_FOUND', 404)
   }
 
   const { data: timelineItems, error: timelineError } = await supabase
@@ -22,7 +23,7 @@ export async function GET(
     .order('created_at', { ascending: true })
 
   if (timelineError) {
-    return NextResponse.json({ error: timelineError.message }, { status: 400 })
+    return apiError(req, 'FETCH_FAILED', 400)
   }
 
   return NextResponse.json({

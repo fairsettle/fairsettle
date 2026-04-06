@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
+import { fetchApi } from '@/lib/api-client'
 import { readApiErrorMessage, resolveApiErrorMessage } from '@/lib/client-errors'
 import { getLocalizedPath } from '@/lib/locale-path'
 
@@ -121,7 +122,7 @@ export function ResponderReviewClient({
     setIsSubmitting(true)
 
     try {
-      const response = await fetch(`/api/invitations/${invitationToken}/review`, {
+      const response = await fetchApi(`/api/invitations/${invitationToken}/review`, locale, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

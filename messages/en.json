@@ -3,6 +3,7 @@
     "brand": "FairSettle",
     "start": "Start your case free",
     "invited": "I've been invited by my ex",
+    "account": "Account",
     "logout": "Sign out"
   },
   "languages": {
@@ -114,7 +115,19 @@
     "childrenOption1": "1",
     "childrenOption2": "2",
     "childrenOption3": "3",
-    "childrenOption4Plus": "4+"
+    "childrenOption4Plus": "4+",
+    "familyEyebrow": "Family profile",
+    "familyTitle": "About your family",
+    "familyBody": "We use this to show the right questions for each child and keep future cases consistent.",
+    "parentRole": "Which parent are you?",
+    "parentRolePlaceholder": "Select your role",
+    "parentRoleMum": "Mum",
+    "parentRoleDad": "Dad",
+    "childCardTitle": "Child {index}",
+    "childFirstName": "Child first name (optional)",
+    "childFirstNamePlaceholder": "First name",
+    "childDob": "Date of birth",
+    "noChildrenHint": "You can continue without adding children if this case does not involve child arrangements."
   },
   "login": {
     "title": "Sign in",
@@ -178,13 +191,21 @@
     "nextStepActive": "Finish the response journey for this case.",
     "nextStepComparison": "Review side-by-side positions and suggested outcomes.",
     "nextStepCompleted": "Reopen the comparison or download the case pack.",
-    "nextStepExpired": "Prepare the single-party export for this case."
-    ,"nextStepActiveInitiator": "The other parent is completing their side. Track the case here while you wait.",
+    "nextStepExpired": "Prepare the single-party export for this case.",
+    "nextStepActiveInitiator": "The other parent is completing their side. Track the case here while you wait.",
     "nextStepActiveResponder": "Finish your question flow so the comparison can be generated.",
+    "nextStepContinueNextPhase": "The other parent has joined. Continue to the next phase so the case keeps moving.",
+    "nextStepWaitingForResponder": "The other parent is completing the phases you have already shared. Track progress here while you wait.",
+    "nextStepContinueResponse": "Continue the shared phase so the comparison can be generated once both sides are done.",
+    "nextStepWaitingForNextPhase": "You have finished the shared phase. The next phase will appear once the other parent publishes it.",
     "actionDraft": "Continue case",
     "actionInvited": "Manage invitation",
     "actionActiveInitiator": "View case progress",
     "actionActiveResponder": "Continue response",
+    "actionContinueNextPhase": "Continue next phase",
+    "actionWaitingForResponder": "View case progress",
+    "actionContinueResponse": "Continue response",
+    "actionWaitingForNextPhase": "Check phase status",
     "actionComparison": "Open comparison",
     "actionCompleted": "Open case pack",
     "actionExpired": "Open single-party export",
@@ -234,9 +255,29 @@
     "reviewBody": "Check everything carefully before you invite your co-parent.",
     "reviewCta": "Review answers",
     "edit": "Edit",
-    "submit": "Submit and invite your co-parent",
+    "submit": "Submit and continue",
+    "submitAndInvite": "Submit and invite your co-parent",
+    "submitAnswers": "Submit your answers",
     "noAnswer": "No answer yet",
-    "toneAdvisory": "Try to keep the language factual and neutral — this will make it easier for both of you to agree."
+    "toneAdvisory": "Try to keep the language factual and neutral — this will make it easier for both of you to agree.",
+    "waitingForPhase": "This phase has not been shared with you yet.",
+    "waitingTitle": "Waiting for the next phase",
+    "waitingBody": "The other parent has not shared the next phase yet. Return to your dashboard and reopen the case when you receive an update.",
+    "phaseCompleteTitle": "{phase} complete!",
+    "phaseCompleteBody": "You’ve answered all {count} questions in this phase. Here’s a quick summary before you move on.",
+    "phaseReviewTitle": "Final review before you publish your case",
+    "phaseReviewBody": "Check the answers from this final phase carefully before you submit the case.",
+    "fullReviewLabel": "Final review",
+    "finalReviewBody": "Review the answers from this phase, make any edits you need, and then publish the case to move to the next stage.",
+    "saveAndReturn": "Save and come back later",
+    "returnToDashboard": "Return to dashboard",
+    "inviteAfterPhase": "Invite the other parent now",
+    "continuePhase": "Continue to the next phase",
+    "continueToSpecificPhase": "Continue to {phase}",
+    "phaseBadge": "Phase {current} of {total}: {phase}",
+    "completedPhases": "{count} phase(s) completed",
+    "earlyInviteHint": "If you only need to resolve child arrangements, you can invite the other parent now and keep the rest of the case for later.",
+    "multiSelectHint": "Select all that apply"
   },
   "savings": {
     "solicitorRoute": "Solicitor route",
@@ -258,12 +299,22 @@
     "notReadyHint": "If you’ve already answered everything, go back to your dashboard and reopen the case after a refresh. If the other parent is still working, this stage will unlock automatically once they submit.",
     "backToDashboard": "Back to dashboard",
     "nextStepLabel": "What happens next",
-    "nextStepBody": "Use this comparison to spot where you already agree and where you still need help. When you’re ready, move on to suggested outcomes."
-    ,
+    "nextStepBody": "Use this comparison to spot where you already agree and where you still need help. When you’re ready, move on to suggested outcomes.",
     "yourPosition": "Your position",
     "theirPosition": "Their position",
     "gap": "Gap",
-    "seeOutcomes": "See suggested outcomes"
+    "seeOutcomes": "See suggested outcomes",
+    "toReviewTab": "{count} to review",
+    "agreedTab": "{count} agreed",
+    "disputedTab": "{count} disputed",
+    "progressLabel": "items reviewed",
+    "emptyBucket": "There is nothing in this section right now."
+  },
+  "roles": {
+    "mum": "Mum",
+    "dad": "Dad",
+    "parent": "Parent",
+    "otherParent": "the other parent"
   },
   "timeline": {
     "title": "Case timeline",
@@ -278,8 +329,8 @@
       "invitation_accepted": "Invitation accepted",
       "invitation_expired": "Invitation expired",
       "reminder_sent": "Reminder sent",
-      "responder_started": "Responder review started",
-      "responder_completed": "Responder review completed",
+      "responder_started": "Responder started answering",
+      "responder_completed": "Responder submitted answers",
       "comparison_generated": "Comparison generated",
       "resolution_accepted": "Suggested outcome accepted",
       "resolution_modified": "Suggested outcome modified",
@@ -310,7 +361,12 @@
     "modifyLabel": "Your proposed wording",
     "modifyPlaceholder": "Write the outcome you want to suggest",
     "saveError": "We couldn’t save that decision. Please try again.",
-    "exportCta": "Continue to case export"
+    "exportCta": "Continue to case export",
+    "currentProposalLabel": "Current proposal",
+    "noProposalYet": "No proposal has been set yet.",
+    "yourStatusLabel": "Your status",
+    "otherStatusLabel": "Other status",
+    "noAutomaticSuggestion": "Review both positions directly"
   },
   "responder": {
     "neutralityTitle": "This platform is neutral",
@@ -319,15 +375,15 @@
     "disagree": "Disagree",
     "counter": "Counter",
     "invitedEyebrow": "You've been invited",
-    "invitedTitle": "Review what has been proposed",
-    "invitedBody": "Start by creating an account or signing in. Once you're in, you'll be able to respond to each point and then complete your own structured question set.",
+    "invitedTitle": "Continue this FairSettle invitation",
+    "invitedBody": "Start by creating an account or signing in. Once you're in, you’ll continue into the secure question flow for this case.",
     "registerTab": "Create account",
     "loginTab": "Sign in",
     "registerTitle": "Create your account",
     "registerBody": "Use the same secure registration flow as the person who invited you, then we'll bring you straight back to this case.",
     "registerCta": "Create account",
     "loginTitle": "Already have an account?",
-    "loginBody": "Sign in to accept this invitation and review the other party's positions.",
+    "loginBody": "Sign in to accept this invitation and continue this case securely.",
     "loginCta": "Sign in",
     "reviewEyebrow": "Responder review",
     "reviewTitle": "Respond to each position",
@@ -341,7 +397,11 @@
     "invalidBody": "This invitation link is no longer valid. Ask the sender to issue a fresh invitation if you still need access.",
     "noItemsTitle": "No positions to review yet",
     "noItemsBody": "There are no submitted items waiting for your response, so you can go straight to the question flow.",
-    "startQuestions": "Start the question flow"
+    "startQuestions": "Start the question flow",
+    "independentTitle": "Answer independently",
+    "independentSubtitle": "You'll complete your own answers first. Comparison unlocks only after both of you submit.",
+    "independentBodyTitle": "What happens next",
+    "independentBody": "Answer the same structured questions privately and independently. You will not see the other parent's positions until both sides have submitted."
   },
   "invite": {
     "title": "Invite your co-parent",
@@ -353,12 +413,12 @@
     "viaSMS": "SMS",
     "comingSoon": "Coming soon",
     "previewTitle": "Preview of invitation",
-    "previewBody": "Hi — you've been invited to use FairSettle, a free tool that helps separating parents work out arrangements for children and finances. It's neutral, private, and designed to help you both reach a fair outcome. Tap here to see what's been proposed and share your side →",
+    "previewBody": "Hi — you've been invited to use FairSettle, a neutral tool that helps separating parents work through arrangements for children and finances. You'll answer privately and independently first, and comparison unlocks only after both sides submit.",
     "ifNoResponse": "If they don't respond",
     "reminderSchedule": "We'll send reminders at 48hrs, 7 days, and 14 days. After 21 days, your case will proceed as a single-party export — documenting your position and their non-engagement.",
     "send": "Send invitation",
     "sentTitle": "Invitation sent",
-    "sentBody": "Your co-parent will receive a neutral invitation and reminder schedule. We'll let you know once they join.",
+    "sentBody": "The other parent will receive a neutral invitation and reminder schedule. They’ll answer independently first, and we’ll let you know once they join.",
     "sentCta": "Back to dashboard",
     "sentTo": "Invitation sent to {email}.",
     "historyTitle": "Invitation tracking",
@@ -385,7 +445,10 @@
     "deliveryBounced": "This email bounced and needs attention.",
     "deliveryComplained": "The recipient marked this email as spam.",
     "deliveryFailed": "This email failed before delivery.",
-    "deliveryFailedVisible": "We created the invitation, but the email could not be delivered. Check the invite status below and use resend once the address or provider issue is resolved."
+    "deliveryFailedVisible": "We created the invitation, but the email could not be delivered. Check the invite status below and use resend once the address or provider issue is resolved.",
+    "nextPhaseReadyTitle": "The next phase is ready to continue",
+    "nextPhaseReadyBody": "The other parent has now joined this case. Continue into the next phase here so both sides can keep progressing.",
+    "nextPhaseReadyAction": "Continue to the next phase"
   },
   "inviteStatus": {
     "sent": "Sent",
@@ -404,7 +467,7 @@
   "invitePage": {
     "title": "Invite Other Parent",
     "heading": "Invite Other Parent",
-    "subtitle": "Send a neutral invitation that opens the responder journey without exposing any of your private answers."
+    "subtitle": "Send a neutral invitation that starts the other parent’s private question flow without exposing any of your answers."
   },
   "export": {
     "eyebrow": "Case Export",
@@ -445,7 +508,21 @@
     "initiatorOnlyBody": "Only the person who started this case can purchase and download the export pack. You can still review the case, but they need to complete checkout.",
     "footerNote": "Your case pack can be taken to a solicitor, mediator, or court. It demonstrates willingness to resolve matters fairly.",
     "included": "Included",
-    "resolution": "Resolution"
+    "resolution": "Resolution",
+    "nextStepAwaitingConfirmation": "Confirm that you are satisfied with the negotiated outcome. Export unlocks once both of you confirm, or after the fallback window ends.",
+    "nextStepResponderConfirmation": "Review the negotiated outcome and confirm when you are satisfied. The case owner will be able to purchase the export once it unlocks.",
+    "confirmationTitle": "Confirm the case is ready",
+    "confirmationRecorded": "Your confirmation has been saved. Export will unlock once both parties confirm, or when the fallback window ends.",
+    "confirmationBody": "Mark this case as ready once you are satisfied with the current outcome. If the other party does not confirm, FairSettle will unlock export after the fallback window.",
+    "yourConfirmationStatus": "Your confirmation",
+    "otherConfirmationStatus": "Other party confirmation",
+    "confirmed": "Confirmed",
+    "awaitingYourConfirmation": "Awaiting your confirmation",
+    "awaitingOtherConfirmation": "Awaiting the other party",
+    "autoGenerateDue": "If the other party stays inactive, export unlocks automatically after {date}.",
+    "markingComplete": "Saving confirmation...",
+    "markSatisfied": "I am satisfied — unlock my case pack",
+    "markCompleteError": "We could not save your confirmation. Please try again."
   },
   "gdpr": {
     "dataSafe": "Your data is safe",
@@ -467,7 +544,7 @@
     "invitation": {
       "subject": "You've been invited to resolve a family matter on FairSettle",
       "title": "You've been invited to FairSettle",
-      "body": "Hi — you've been invited to use FairSettle, a free tool that helps separating parents work out arrangements for children and finances. It's neutral, private, and designed to help you both reach a fair outcome. Tap here to see what's been proposed and share your side →",
+      "body": "Hi — you've been invited to use FairSettle, a neutral tool that helps separating parents work through arrangements for children and finances. You'll answer privately and independently first, and comparison unlocks only after both sides submit.",
       "cta": "Open invitation"
     },
     "reminders": {
@@ -517,6 +594,42 @@
     "footer": {
       "notice": "FairSettle sends these updates so you can keep track of activity on your case.",
       "unsubscribe": "Unsubscribe from these emails"
+    },
+    "initiatorSubmitted": {
+      "subject": "Your answers have been saved",
+      "title": "Your answers are saved",
+      "body": "Your latest answers have been recorded. You can return at any time to continue the case flow.",
+      "cta": "Open case"
+    },
+    "comparisonReady": {
+      "subject": "Your comparison is ready",
+      "title": "Comparison is now unlocked",
+      "body": "Both parties have submitted their answers. You can now review the comparison and continue to resolution.",
+      "cta": "Open comparison"
+    },
+    "caseCompletion": {
+      "subject": "The case is ready for export review",
+      "title": "A completion confirmation was added",
+      "body": "One party has confirmed they are satisfied with the current outcome. Review the export stage to see what happens next.",
+      "cta": "Open export stage"
+    },
+    "autoGenerateWarning": {
+      "subject": "FairSettle export unlocks in 48 hours",
+      "title": "Your export unlock window is approaching",
+      "body": "Unless both of you confirm sooner, the case pack will unlock automatically after {dueDate}. Review the export stage if you want to confirm before then.",
+      "cta": "Open export stage"
+    },
+    "resolutionModified": {
+      "subject": "{actorLabel} suggested a change in FairSettle",
+      "title": "A disputed item was updated",
+      "body": "{actorLabel} has modified one of the remaining disputed items. Review the latest proposal and choose whether to accept, modify, or reject it.",
+      "cta": "Review resolution"
+    },
+    "exportNotice": {
+      "subject": "The case pack has been generated",
+      "title": "The case pack is ready",
+      "body": "The case owner has generated the case pack. They can now download it from FairSettle and share it with you if needed.",
+      "cta": "Open export stage"
     }
   },
   "pdf": {
@@ -529,6 +642,9 @@
     "tierLabel": "Tier",
     "partyALabel": "Party A",
     "partyBLabel": "Party B",
+    "participantPositionTitle": "{partyLabel} position",
+    "participantPositionBody": "{partyLabel} answers organised by section.",
+    "participantColumn": "{partyLabel}",
     "executiveSummaryTitle": "Executive summary",
     "executiveSummaryBody": "A concise overview of the positions, agreements, and unresolved gaps in this case.",
     "executiveSummaryNote": "This document represents the positions of both parties and the structured outputs generated by FairSettle.",
@@ -579,5 +695,14 @@
     "description": "The link may be outdated, the page may have moved, or the address may be incorrect. You can head back to the homepage and continue from there.",
     "goHome": "Go to homepage",
     "goBack": "Go back"
+  },
+  "profileComplete": {
+    "eyebrow": "Complete your profile",
+    "title": "Finish your family profile",
+    "subtitle": "Before starting a new v2 case, we need your role and your children's details.",
+    "loading": "Loading your profile…",
+    "continue": "Save and continue",
+    "loadError": "We couldn't load your profile. Please try again.",
+    "saveError": "We couldn't save your profile. Please try again."
   }
 }

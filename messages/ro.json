@@ -3,6 +3,7 @@
     "brand": "FairSettle",
     "start": "Începe-ți cazul gratuit",
     "invited": "Am fost invitat de fostul meu",
+    "account": "Cont",
     "logout": "Deconectare"
   },
   "languages": {
@@ -114,7 +115,19 @@
     "childrenOption1": "1",
     "childrenOption2": "2",
     "childrenOption3": "3",
-    "childrenOption4Plus": "4+"
+    "childrenOption4Plus": "4+",
+    "familyEyebrow": "Family profile",
+    "familyTitle": "About your family",
+    "familyBody": "We use this to show the right questions for each child and keep future cases consistent.",
+    "parentRole": "Which parent are you?",
+    "parentRolePlaceholder": "Select your role",
+    "parentRoleMum": "Mum",
+    "parentRoleDad": "Dad",
+    "childCardTitle": "Child {index}",
+    "childFirstName": "Child first name (optional)",
+    "childFirstNamePlaceholder": "First name",
+    "childDob": "Date of birth",
+    "noChildrenHint": "You can continue without adding children if this case does not involve child arrangements."
   },
   "login": {
     "title": "Autentificare",
@@ -178,6 +191,10 @@
     "nextStepActive": "Finalizează parcursul de răspuns pentru acest caz.",
     "nextStepActiveInitiator": "Celălalt părinte își completează partea. Urmărește progresul cazului aici între timp.",
     "nextStepActiveResponder": "Finalizează răspunsurile tale pentru ca comparația să poată fi generată.",
+    "nextStepContinueNextPhase": "The other parent has joined. Continue to the next phase so the case keeps moving.",
+    "nextStepWaitingForResponder": "The other parent is completing the phases you have already shared. Track progress here while you wait.",
+    "nextStepContinueResponse": "Continue the shared phase so the comparison can be generated once both sides are done.",
+    "nextStepWaitingForNextPhase": "You have finished the shared phase. The next phase will appear once the other parent publishes it.",
     "nextStepComparison": "Revizuiește pozițiile comparate și soluțiile sugerate.",
     "nextStepCompleted": "Redeschide comparația sau descarcă pachetul cazului.",
     "nextStepExpired": "Pregătește exportul cu o singură parte pentru acest caz.",
@@ -185,6 +202,10 @@
     "actionInvited": "Gestionează invitația",
     "actionActiveInitiator": "Vezi progresul cazului",
     "actionActiveResponder": "Continuă răspunsul",
+    "actionContinueNextPhase": "Continue next phase",
+    "actionWaitingForResponder": "View case progress",
+    "actionContinueResponse": "Continue response",
+    "actionWaitingForNextPhase": "Check phase status",
     "actionComparison": "Deschide comparația",
     "actionCompleted": "Deschide pachetul cazului",
     "actionExpired": "Deschide exportul cu o singură parte",
@@ -234,9 +255,29 @@
     "reviewBody": "Verifică totul cu atenție înainte să-ți inviți co-părintele.",
     "reviewCta": "Revizuiește răspunsurile",
     "edit": "Editează",
-    "submit": "Trimite și invită co-părintele",
+    "submit": "Trimite și continuă",
+    "submitAndInvite": "Trimite și invită co-părintele",
+    "submitAnswers": "Trimite răspunsurile tale",
     "noAnswer": "Niciun răspuns încă",
-    "toneAdvisory": "Încearcă să păstrezi un limbaj factual și neutru — acest lucru va face mai ușor pentru amândoi să ajungeți la un acord."
+    "toneAdvisory": "Încearcă să păstrezi un limbaj factual și neutru — acest lucru va face mai ușor pentru amândoi să ajungeți la un acord.",
+    "waitingForPhase": "This phase has not been shared with you yet.",
+    "waitingTitle": "Waiting for the next phase",
+    "waitingBody": "The other parent has not shared the next phase yet. Return to your dashboard and reopen the case when you receive an update.",
+    "phaseCompleteTitle": "Etapa {phase} este completă!",
+    "phaseCompleteBody": "Ai răspuns la toate cele {count} întrebări din această etapă. Iată un rezumat rapid înainte să continui.",
+    "phaseReviewTitle": "Revizuirea finală înainte de publicarea cazului",
+    "phaseReviewBody": "Verifică atent răspunsurile din această ultimă etapă înainte să trimiți cazul.",
+    "fullReviewLabel": "Revizuire finală",
+    "finalReviewBody": "Revizuiește răspunsurile din această etapă, fă orice modificări necesare și publică cazul pentru a continua.",
+    "saveAndReturn": "Salvează și revino mai târziu",
+    "returnToDashboard": "Înapoi la panou",
+    "inviteAfterPhase": "Invită acum celălalt părinte",
+    "continuePhase": "Continuă la etapa următoare",
+    "continueToSpecificPhase": "Continuă la etapa {phase}",
+    "phaseBadge": "Etapa {current} din {total}: {phase}",
+    "completedPhases": "{count} etapă(e) finalizată(e)",
+    "earlyInviteHint": "Dacă vrei să rezolvi doar aspectele legate de copii, poți invita acum celălalt părinte și poți lăsa restul cazului pentru mai târziu.",
+    "multiSelectHint": "Selectează toate opțiunile care se aplică"
   },
   "savings": {
     "solicitorRoute": "Ruta avocatului",
@@ -262,7 +303,12 @@
     "yourPosition": "Poziția ta",
     "theirPosition": "Poziția lor",
     "gap": "Diferență",
-    "seeOutcomes": "Vezi rezultatele sugerate"
+    "seeOutcomes": "Vezi rezultatele sugerate",
+    "toReviewTab": "{count} to review",
+    "agreedTab": "{count} agreed",
+    "disputedTab": "{count} disputed",
+    "progressLabel": "items reviewed",
+    "emptyBucket": "There is nothing in this section right now."
   },
   "timeline": {
     "title": "Cronologia cazului",
@@ -277,8 +323,8 @@
       "invitation_accepted": "Invitație acceptată",
       "invitation_expired": "Invitație expirată",
       "reminder_sent": "Memento trimis",
-      "responder_started": "Revizuirea răspunsului începută",
-      "responder_completed": "Revizuirea răspunsului finalizată",
+      "responder_started": "Responder started answering",
+      "responder_completed": "Responder submitted answers",
       "comparison_generated": "Comparație generată",
       "resolution_accepted": "Rezultatul sugerat acceptat",
       "resolution_modified": "Rezultatul sugerat modificat",
@@ -309,7 +355,12 @@
     "modifyLabel": "Formularea propusă de tine",
     "modifyPlaceholder": "Scrie rezultatul pe care dorești să-l sugerezi",
     "saveError": "Nu am putut salva acea decizie. Vă rugăm să încercați din nou.",
-    "exportCta": "Continuă către exportul cazului"
+    "exportCta": "Continuă către exportul cazului",
+    "currentProposalLabel": "Current proposal",
+    "noProposalYet": "No proposal has been set yet.",
+    "yourStatusLabel": "Your status",
+    "otherStatusLabel": "Other status",
+    "noAutomaticSuggestion": "Review both positions directly"
   },
   "responder": {
     "neutralityTitle": "Această platformă este neutră",
@@ -340,7 +391,11 @@
     "invalidBody": "Acest link de invitație nu mai este valabil. Cere expeditorului să emită o invitație nouă dacă ai nevoie în continuare de acces.",
     "noItemsTitle": "Nu există poziții de revizuit încă",
     "noItemsBody": "Nu există elemente depuse care să aștepte răspunsul tău, așa că poți merge direct la fluxul de întrebări.",
-    "startQuestions": "Începe fluxul de întrebări"
+    "startQuestions": "Începe fluxul de întrebări",
+    "independentTitle": "Answer independently",
+    "independentSubtitle": "You'll complete your own answers first. Comparison unlocks only after both of you submit.",
+    "independentBodyTitle": "What happens next",
+    "independentBody": "Answer the same structured questions privately and independently. You will not see the other parent's positions until both sides have submitted."
   },
   "invite": {
     "title": "Invită-ți co-părintele",
@@ -384,7 +439,10 @@
     "deliveryBounced": "Acest email a fost respins și necesită atenție.",
     "deliveryComplained": "Destinatarul a marcat acest email ca spam.",
     "deliveryFailed": "Acest email a eșuat înainte de livrare.",
-    "deliveryFailedVisible": "Invitația a fost creată, dar e-mailul nu a putut fi livrat. Verifică starea invitației de mai jos și retrimite după ce adresa sau problema furnizorului este rezolvată."
+    "deliveryFailedVisible": "Invitația a fost creată, dar e-mailul nu a putut fi livrat. Verifică starea invitației de mai jos și retrimite după ce adresa sau problema furnizorului este rezolvată.",
+    "nextPhaseReadyTitle": "The next phase is ready to continue",
+    "nextPhaseReadyBody": "The other parent has now joined this case. Continue into the next phase here so both sides can keep progressing.",
+    "nextPhaseReadyAction": "Continue to the next phase"
   },
   "inviteStatus": {
     "sent": "Trimisă",
@@ -444,7 +502,21 @@
     "initiatorOnlyBody": "Doar persoana care a început acest dosar poate cumpăra și descărca pachetul de export. Tu poți în continuare să revizuiești dosarul, dar acea persoană trebuie să finalizeze plata.",
     "footerNote": "Pachetul dosarului tău poate fi dus la un avocat, mediator sau instanță. Demonstrează dorința de a rezolva problemele corect.",
     "included": "Inclus",
-    "resolution": "Rezoluție"
+    "resolution": "Rezoluție",
+    "nextStepAwaitingConfirmation": "Confirm that you are satisfied with the negotiated outcome. Export unlocks once both of you confirm, or after the fallback window ends.",
+    "nextStepResponderConfirmation": "Review the negotiated outcome and confirm when you are satisfied. The case owner will be able to purchase the export once it unlocks.",
+    "confirmationTitle": "Confirm the case is ready",
+    "confirmationRecorded": "Your confirmation has been saved. Export will unlock once both parties confirm, or when the fallback window ends.",
+    "confirmationBody": "Mark this case as ready once you are satisfied with the current outcome. If the other party does not confirm, FairSettle will unlock export after the fallback window.",
+    "yourConfirmationStatus": "Your confirmation",
+    "otherConfirmationStatus": "Other party confirmation",
+    "confirmed": "Confirmed",
+    "awaitingYourConfirmation": "Awaiting your confirmation",
+    "awaitingOtherConfirmation": "Awaiting the other party",
+    "autoGenerateDue": "If the other party stays inactive, export unlocks automatically after {date}.",
+    "markingComplete": "Saving confirmation...",
+    "markSatisfied": "I am satisfied — unlock my case pack",
+    "markCompleteError": "We could not save your confirmation. Please try again."
   },
   "gdpr": {
     "dataSafe": "Datele tale sunt în siguranță",
@@ -516,6 +588,30 @@
     "footer": {
       "notice": "FairSettle trimite aceste actualizări pentru ca tu să poți urmări activitatea dosarului tău.",
       "unsubscribe": "Dezabonare de la aceste emailuri"
+    },
+    "initiatorSubmitted": {
+      "subject": "Your answers have been saved",
+      "title": "Your answers are saved",
+      "body": "Your latest answers have been recorded. You can return at any time to continue the case flow.",
+      "cta": "Open case"
+    },
+    "comparisonReady": {
+      "subject": "Your comparison is ready",
+      "title": "Comparison is now unlocked",
+      "body": "Both parties have submitted their answers. You can now review the comparison and continue to resolution.",
+      "cta": "Open comparison"
+    },
+    "caseCompletion": {
+      "subject": "The case is ready for export review",
+      "title": "A completion confirmation was added",
+      "body": "One party has confirmed they are satisfied with the current outcome. Review the export stage to see what happens next.",
+      "cta": "Open export stage"
+    },
+    "exportNotice": {
+      "subject": "The case pack has been generated",
+      "title": "The case pack is ready",
+      "body": "The case owner has generated the case pack. They can now download it from FairSettle and share it with you if needed.",
+      "cta": "Open export stage"
     }
   },
   "pdf": {
@@ -578,5 +674,14 @@
     "description": "Este posibil ca linkul să fie vechi, pagina să fi fost mutată sau adresa să fie incorectă. Poți reveni la pagina principală și continua de acolo.",
     "goHome": "Mergi la pagina principală",
     "goBack": "Înapoi"
+  },
+  "profileComplete": {
+    "eyebrow": "Complete your profile",
+    "title": "Finish your family profile",
+    "subtitle": "Before starting a new v2 case, we need your role and your children's details.",
+    "loading": "Loading your profile…",
+    "continue": "Save and continue",
+    "loadError": "We couldn't load your profile. Please try again.",
+    "saveError": "We couldn't save your profile. Please try again."
   }
 }

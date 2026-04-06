@@ -3,6 +3,7 @@
     "brand": "FairSettle",
     "start": "Rozpocznij swoją sprawę za darmo",
     "invited": "Zostałem zaproszony przez mojego byłego",
+    "account": "Konto",
     "logout": "Wyloguj się"
   },
   "languages": {
@@ -114,7 +115,19 @@
     "childrenOption1": "1",
     "childrenOption2": "2",
     "childrenOption3": "3",
-    "childrenOption4Plus": "4+"
+    "childrenOption4Plus": "4+",
+    "familyEyebrow": "Family profile",
+    "familyTitle": "About your family",
+    "familyBody": "We use this to show the right questions for each child and keep future cases consistent.",
+    "parentRole": "Which parent are you?",
+    "parentRolePlaceholder": "Select your role",
+    "parentRoleMum": "Mum",
+    "parentRoleDad": "Dad",
+    "childCardTitle": "Child {index}",
+    "childFirstName": "Child first name (optional)",
+    "childFirstNamePlaceholder": "First name",
+    "childDob": "Date of birth",
+    "noChildrenHint": "You can continue without adding children if this case does not involve child arrangements."
   },
   "login": {
     "title": "Zaloguj się",
@@ -178,6 +191,10 @@
     "nextStepActive": "Dokończ ścieżkę odpowiedzi dla tej sprawy.",
     "nextStepActiveInitiator": "Drugi rodzic kończy swoją część. Śledź tutaj postęp sprawy, czekając.",
     "nextStepActiveResponder": "Dokończ swoje odpowiedzi, aby można było wygenerować porównanie.",
+    "nextStepContinueNextPhase": "The other parent has joined. Continue to the next phase so the case keeps moving.",
+    "nextStepWaitingForResponder": "The other parent is completing the phases you have already shared. Track progress here while you wait.",
+    "nextStepContinueResponse": "Continue the shared phase so the comparison can be generated once both sides are done.",
+    "nextStepWaitingForNextPhase": "You have finished the shared phase. The next phase will appear once the other parent publishes it.",
     "nextStepComparison": "Przejrzyj stanowiska obu stron i sugerowane rozwiązania.",
     "nextStepCompleted": "Wróć do porównania lub pobierz pakiet sprawy.",
     "nextStepExpired": "Przygotuj jednostronny eksport dla tej sprawy.",
@@ -185,6 +202,10 @@
     "actionInvited": "Zarządzaj zaproszeniem",
     "actionActiveInitiator": "Zobacz postęp sprawy",
     "actionActiveResponder": "Kontynuuj odpowiedzi",
+    "actionContinueNextPhase": "Continue next phase",
+    "actionWaitingForResponder": "View case progress",
+    "actionContinueResponse": "Continue response",
+    "actionWaitingForNextPhase": "Check phase status",
     "actionComparison": "Otwórz porównanie",
     "actionCompleted": "Otwórz pakiet sprawy",
     "actionExpired": "Otwórz eksport jednostronny",
@@ -234,9 +255,29 @@
     "reviewBody": "Sprawdź wszystko dokładnie, zanim zaprosisz swojego współrodzica.",
     "reviewCta": "Przejrzyj odpowiedzi",
     "edit": "Edytuj",
-    "submit": "Wyślij i zaproś swojego współrodzica",
+    "submit": "Wyślij i kontynuuj",
+    "submitAndInvite": "Wyślij i zaproś swojego współrodzica",
+    "submitAnswers": "Wyślij swoje odpowiedzi",
     "noAnswer": "Brak odpowiedzi",
-    "toneAdvisory": "Staraj się używać języka faktualnego i neutralnego — ułatwi to wam obu osiągnięcie porozumienia."
+    "toneAdvisory": "Staraj się używać języka faktualnego i neutralnego — ułatwi to wam obu osiągnięcie porozumienia.",
+    "waitingForPhase": "This phase has not been shared with you yet.",
+    "waitingTitle": "Waiting for the next phase",
+    "waitingBody": "The other parent has not shared the next phase yet. Return to your dashboard and reopen the case when you receive an update.",
+    "phaseCompleteTitle": "Etap {phase} ukończony!",
+    "phaseCompleteBody": "Odpowiedziano na wszystkie {count} pytania w tym etapie. Oto krótkie podsumowanie przed przejściem dalej.",
+    "phaseReviewTitle": "Końcowy przegląd przed publikacją sprawy",
+    "phaseReviewBody": "Sprawdź uważnie odpowiedzi z tego ostatniego etapu przed wysłaniem sprawy.",
+    "fullReviewLabel": "Końcowy przegląd",
+    "finalReviewBody": "Przejrzyj odpowiedzi z tego etapu, wprowadź potrzebne poprawki i opublikuj sprawę, aby przejść dalej.",
+    "saveAndReturn": "Zapisz i wróć później",
+    "returnToDashboard": "Wróć do panelu",
+    "inviteAfterPhase": "Zaproś teraz drugiego rodzica",
+    "continuePhase": "Przejdź do następnego etapu",
+    "continueToSpecificPhase": "Przejdź do etapu: {phase}",
+    "phaseBadge": "Etap {current} z {total}: {phase}",
+    "completedPhases": "Ukończone etapy: {count}",
+    "earlyInviteHint": "Jeśli chcesz rozwiązać tylko kwestie dotyczące dzieci, możesz teraz zaprosić drugiego rodzica, a resztę sprawy dokończyć później.",
+    "multiSelectHint": "Zaznacz wszystkie odpowiednie opcje"
   },
   "savings": {
     "solicitorRoute": "Ścieżka prawnika",
@@ -262,7 +303,12 @@
     "yourPosition": "Twoje stanowisko",
     "theirPosition": "Ich stanowisko",
     "gap": "Różnica",
-    "seeOutcomes": "Zobacz sugerowane wyniki"
+    "seeOutcomes": "Zobacz sugerowane wyniki",
+    "toReviewTab": "{count} to review",
+    "agreedTab": "{count} agreed",
+    "disputedTab": "{count} disputed",
+    "progressLabel": "items reviewed",
+    "emptyBucket": "There is nothing in this section right now."
   },
   "timeline": {
     "title": "Oś czasu sprawy",
@@ -277,8 +323,8 @@
       "invitation_accepted": "Zaproszenie zaakceptowane",
       "invitation_expired": "Zaproszenie wygasło",
       "reminder_sent": "Przypomnienie wysłane",
-      "responder_started": "Rozpoczęto przegląd odpowiedzi",
-      "responder_completed": "Przegląd odpowiedzi ukończony",
+      "responder_started": "Responder started answering",
+      "responder_completed": "Responder submitted answers",
       "comparison_generated": "Porównanie wygenerowane",
       "resolution_accepted": "Zaproponowany wynik zaakceptowany",
       "resolution_modified": "Zaproponowany wynik zmodyfikowany",
@@ -309,7 +355,12 @@
     "modifyLabel": "Twoje proponowane sformułowanie",
     "modifyPlaceholder": "Napisz wynik, który chcesz zasugerować",
     "saveError": "Nie udało się zapisać tej decyzji. Proszę spróbuj ponownie.",
-    "exportCta": "Kontynuuj do eksportu sprawy"
+    "exportCta": "Kontynuuj do eksportu sprawy",
+    "currentProposalLabel": "Current proposal",
+    "noProposalYet": "No proposal has been set yet.",
+    "yourStatusLabel": "Your status",
+    "otherStatusLabel": "Other status",
+    "noAutomaticSuggestion": "Review both positions directly"
   },
   "responder": {
     "neutralityTitle": "Ta platforma jest neutralna",
@@ -340,7 +391,11 @@
     "invalidBody": "Ten link zaproszenia jest już nieważny. Poproś nadawcę o wystawienie nowego zaproszenia, jeśli nadal potrzebujesz dostępu.",
     "noItemsTitle": "Brak stanowisk do przeglądu",
     "noItemsBody": "Nie ma żadnych zgłoszonych pozycji oczekujących na twoją odpowiedź, więc możesz przejść bezpośrednio do zestawu pytań.",
-    "startQuestions": "Rozpocznij zestaw pytań"
+    "startQuestions": "Rozpocznij zestaw pytań",
+    "independentTitle": "Answer independently",
+    "independentSubtitle": "You'll complete your own answers first. Comparison unlocks only after both of you submit.",
+    "independentBodyTitle": "What happens next",
+    "independentBody": "Answer the same structured questions privately and independently. You will not see the other parent's positions until both sides have submitted."
   },
   "invite": {
     "title": "Zaproś swojego współrodzica",
@@ -384,7 +439,10 @@
     "deliveryBounced": "Ta wiadomość została odrzucona i wymaga uwagi.",
     "deliveryComplained": "Odbiorca oznaczył tę wiadomość jako spam.",
     "deliveryFailed": "Nie udało się dostarczyć tej wiadomości.",
-    "deliveryFailedVisible": "Zaproszenie zostało utworzone, ale wiadomości e-mail nie udało się dostarczyć. Sprawdź status poniżej i użyj ponownej wysyłki, gdy adres lub problem dostawcy zostanie naprawiony."
+    "deliveryFailedVisible": "Zaproszenie zostało utworzone, ale wiadomości e-mail nie udało się dostarczyć. Sprawdź status poniżej i użyj ponownej wysyłki, gdy adres lub problem dostawcy zostanie naprawiony.",
+    "nextPhaseReadyTitle": "The next phase is ready to continue",
+    "nextPhaseReadyBody": "The other parent has now joined this case. Continue into the next phase here so both sides can keep progressing.",
+    "nextPhaseReadyAction": "Continue to the next phase"
   },
   "inviteStatus": {
     "sent": "Wysłane",
@@ -444,7 +502,21 @@
     "initiatorOnlyBody": "Tylko osoba, która rozpoczęła tę sprawę, może kupić i pobrać pakiet eksportu. Nadal możesz przeglądać sprawę, ale to ona musi dokończyć płatność.",
     "footerNote": "Twój pakiet sprawy można zabrać do prawnika, mediatora lub sądu. Pokazuje chęć uczciwego rozwiązania sprawy.",
     "included": "Wliczone",
-    "resolution": "Resolution"
+    "resolution": "Resolution",
+    "nextStepAwaitingConfirmation": "Confirm that you are satisfied with the negotiated outcome. Export unlocks once both of you confirm, or after the fallback window ends.",
+    "nextStepResponderConfirmation": "Review the negotiated outcome and confirm when you are satisfied. The case owner will be able to purchase the export once it unlocks.",
+    "confirmationTitle": "Confirm the case is ready",
+    "confirmationRecorded": "Your confirmation has been saved. Export will unlock once both parties confirm, or when the fallback window ends.",
+    "confirmationBody": "Mark this case as ready once you are satisfied with the current outcome. If the other party does not confirm, FairSettle will unlock export after the fallback window.",
+    "yourConfirmationStatus": "Your confirmation",
+    "otherConfirmationStatus": "Other party confirmation",
+    "confirmed": "Confirmed",
+    "awaitingYourConfirmation": "Awaiting your confirmation",
+    "awaitingOtherConfirmation": "Awaiting the other party",
+    "autoGenerateDue": "If the other party stays inactive, export unlocks automatically after {date}.",
+    "markingComplete": "Saving confirmation...",
+    "markSatisfied": "I am satisfied — unlock my case pack",
+    "markCompleteError": "We could not save your confirmation. Please try again."
   },
   "gdpr": {
     "dataSafe": "Twoje dane są bezpieczne",
@@ -516,6 +588,30 @@
     "footer": {
       "notice": "FairSettle wysyła te aktualizacje, abyś mógł śledzić aktywność w swojej sprawie.",
       "unsubscribe": "Wypisz się z tych e-maili"
+    },
+    "initiatorSubmitted": {
+      "subject": "Your answers have been saved",
+      "title": "Your answers are saved",
+      "body": "Your latest answers have been recorded. You can return at any time to continue the case flow.",
+      "cta": "Open case"
+    },
+    "comparisonReady": {
+      "subject": "Your comparison is ready",
+      "title": "Comparison is now unlocked",
+      "body": "Both parties have submitted their answers. You can now review the comparison and continue to resolution.",
+      "cta": "Open comparison"
+    },
+    "caseCompletion": {
+      "subject": "The case is ready for export review",
+      "title": "A completion confirmation was added",
+      "body": "One party has confirmed they are satisfied with the current outcome. Review the export stage to see what happens next.",
+      "cta": "Open export stage"
+    },
+    "exportNotice": {
+      "subject": "The case pack has been generated",
+      "title": "The case pack is ready",
+      "body": "The case owner has generated the case pack. They can now download it from FairSettle and share it with you if needed.",
+      "cta": "Open export stage"
     }
   },
   "pdf": {
@@ -578,5 +674,14 @@
     "description": "Link może być nieaktualny, strona mogła zostać przeniesiona lub adres jest nieprawidłowy. Możesz wrócić na stronę główną i kontynuować stamtąd.",
     "goHome": "Przejdź na stronę główną",
     "goBack": "Wróć"
+  },
+  "profileComplete": {
+    "eyebrow": "Complete your profile",
+    "title": "Finish your family profile",
+    "subtitle": "Before starting a new v2 case, we need your role and your children's details.",
+    "loading": "Loading your profile…",
+    "continue": "Save and continue",
+    "loadError": "We couldn't load your profile. Please try again.",
+    "saveError": "We couldn't save your profile. Please try again."
   }
 }

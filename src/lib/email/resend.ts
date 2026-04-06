@@ -1,7 +1,9 @@
 import { Resend } from 'resend'
 
 import { buildAppUrl } from '@/lib/app-url'
+import { getParentRoleLabel } from '@/lib/participant-labels'
 import { getMessage, loadMessages } from '@/lib/messages'
+import type { Database } from '@/types/database'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 export { resend }
@@ -11,10 +13,18 @@ export type EmailTemplate =
   | 'reminder_48h'
   | 'reminder_7d'
   | 'reminder_14d'
+  | 'initiator_submitted'
   | 'responder_accepted'
   | 'responder_completed'
+  | 'comparison_ready'
+  | 'case_completion_marked'
+  | 'auto_generate_warning'
+  | 'resolution_modified_notice'
   | 'export_ready'
+  | 'export_ready_notice'
   | 'single_party_export'
+
+type ParentRole = Database['public']['Tables']['profiles']['Row']['parent_role']
 
 function buildUnsubscribeUrl() {
   const fromEmail = process.env.RESEND_FROM_EMAIL ?? 'noreply@fairsettle.co.uk'
@@ -145,6 +155,13 @@ export async function sendEmail(
       cta: getMessage(messages, 'email.reminders.final.cta', data),
       ctaUrl: data.inviteUrl,
     },
+    initiator_submitted: {
+      subject: getMessage(messages, 'email.initiatorSubmitted.subject', data),
+      title: getMessage(messages, 'email.initiatorSubmitted.title', data),
+      body: getMessage(messages, 'email.initiatorSubmitted.body', data),
+      cta: getMessage(messages, 'email.initiatorSubmitted.cta', data),
+      ctaUrl: data.caseUrl,
+    },
     responder_accepted: {
       subject: getMessage(messages, 'email.accepted.subject', data),
       title: getMessage(messages, 'email.accepted.title', data),
@@ -159,11 +176,46 @@ export async function sendEmail(
       cta: getMessage(messages, 'email.responderCompleted.cta', data),
       ctaUrl: data.caseUrl,
     },
+    comparison_ready: {
+      subject: getMessage(messages, 'email.comparisonReady.subject', data),
+      title: getMessage(messages, 'email.comparisonReady.title', data),
+      body: getMessage(messages, 'email.comparisonReady.body', data),
+      cta: getMessage(messages, 'email.comparisonReady.cta', data),
+      ctaUrl: data.caseUrl,
+    },
+    case_completion_marked: {
+      subject: getMessage(messages, 'email.caseCompletion.subject', data),
+      title: getMessage(messages, 'email.caseCompletion.title', data),
+      body: getMessage(messages, 'email.caseCompletion.body', data),
+      cta: getMessage(messages, 'email.caseCompletion.cta', data),
+      ctaUrl: data.caseUrl,
+    },
+    auto_generate_warning: {
+      subject: getMessage(messages, 'email.autoGenerateWarning.subject', data),
+      title: getMessage(messages, 'email.autoGenerateWarning.title', data),
+      body: getMessage(messages, 'email.autoGenerateWarning.body', data),
+      cta: getMessage(messages, 'email.autoGenerateWarning.cta', data),
+      ctaUrl: data.caseUrl,
+    },
+    resolution_modified_notice: {
+      subject: getMessage(messages, 'email.resolutionModified.subject', data),
+      title: getMessage(messages, 'email.resolutionModified.title', data),
+      body: getMessage(messages, 'email.resolutionModified.body', data),
+      cta: getMessage(messages, 'email.resolutionModified.cta', data),
+      ctaUrl: data.caseUrl,
+    },
     export_ready: {
       subject: getMessage(messages, 'email.exportReady.subject', data),
       title: getMessage(messages, 'email.exportReady.title', data),
       body: getMessage(messages, 'email.exportReady.body', data),
       cta: getMessage(messages, 'email.exportReady.cta', data),
+      ctaUrl: data.caseUrl,
+    },
+    export_ready_notice: {
+      subject: getMessage(messages, 'email.exportNotice.subject', data),
+      title: getMessage(messages, 'email.exportNotice.title', data),
+      body: getMessage(messages, 'email.exportNotice.body', data),
+      cta: getMessage(messages, 'email.exportNotice.cta', data),
       ctaUrl: data.caseUrl,
     },
     single_party_export: {
@@ -218,6 +270,22 @@ export async function sendEmail(
   }
 
   return result.data.id
+}
+
+export async function sendInitiatorSubmittedEmail(
+  userEmail: string,
+  caseId: string,
+  locale: string = 'en',
+  origin?: string,
+) {
+  await sendEmail(
+    userEmail,
+    'initiator_submitted',
+    {
+      caseUrl: buildAppUrl(`/cases/${caseId}/questions`, locale, origin),
+    },
+    locale,
+  )
 }
 
 export async function sendInvitationEmail(
@@ -301,18 +369,106 @@ export async function sendResponderCompletedEmail(
   )
 }
 
+export async function sendComparisonReadyEmail(
+  userEmail: string,
+  caseId: string,
+  locale: string = 'en',
+  origin?: string,
+) {
+  await sendEmail(
+    userEmail,
+    'comparison_ready',
+    {
+      caseUrl: buildAppUrl(`/cases/${caseId}/comparison`, locale, origin),
+    },
+    locale,
+  )
+}
+
+export async function sendCaseCompletionMarkedEmail(
+  userEmail: string,
+  caseId: string,
+  locale: string = 'en',
+  origin?: string,
+) {
+  await sendEmail(
+    userEmail,
+    'case_completion_marked',
+    {
+      caseUrl: buildAppUrl(`/cases/${caseId}/export`, locale, origin),
+    },
+    locale,
+  )
+}
+
+export async function sendAutoGenerateWarningEmail(
+  userEmail: string,
+  caseId: string,
+  dueDateLabel: string,
+  locale: string = 'en',
+  origin?: string,
+) {
+  await sendEmail(
+    userEmail,
+    'auto_generate_warning',
+    {
+      caseUrl: buildAppUrl(`/cases/${caseId}/export`, locale, origin),
+      dueDate: dueDateLabel,
+    },
+    locale,
+  )
+}
+
+export async function sendResolutionModifiedEmail(
+  userEmail: string,
+  caseId: string,
+  actorRole: ParentRole,
+  locale: string = 'en',
+  origin?: string,
+) {
+  const messages = await loadMessages(locale)
+  const actorLabel = getParentRoleLabel(messages, actorRole)
+
+  await sendEmail(
+    userEmail,
+    'resolution_modified_notice',
+    {
+      caseUrl: buildAppUrl(`/cases/${caseId}/resolution`, locale, origin),
+      actorLabel,
+    },
+    locale,
+  )
+}
+
 export async function sendExportReadyEmail(
   userEmail: string,
   caseId: string,
   tier: 'standard' | 'resolution',
   locale: string = 'en',
+  origin?: string,
 ): Promise<void> {
   await sendEmail(
     userEmail,
     'export_ready',
     {
-      caseUrl: buildAppUrl(`/cases/${caseId}/export`, locale),
+      caseUrl: buildAppUrl(`/cases/${caseId}/export`, locale, origin),
       tier,
+    },
+    locale,
+  )
+}
+
+export async function sendExportReadyNoticeEmail(
+  userEmail: string,
+  caseId: string,
+  locale: string = 'en',
+  origin?: string,
+): Promise<void> {
+  await sendEmail(
+    userEmail,
+    'export_ready_notice',
+    {
+      caseUrl: buildAppUrl(`/cases/${caseId}/export`, locale, origin),
     },
     locale,
   )

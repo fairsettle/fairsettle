@@ -8,10 +8,14 @@ import { useLocale, useTranslations } from "next-intl";
 import { AgreementSummary } from "@/components/comparison/AgreementSummary";
 import { CaseTimeline } from "@/components/comparison/CaseTimeline";
 import { ComparisonTable } from "@/components/comparison/ComparisonTable";
+import { AsyncStateCard } from "@/components/feedback/AsyncStateCard";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { SavingsBar } from "@/components/savings/SavingsBar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { fetchApi } from "@/lib/api-client";
+import { readApiErrorMessage, resolveApiErrorMessage } from "@/lib/client-errors";
 import { getLocalizedPath } from "@/lib/locale-path";
 import type { SafeComparisonPayload } from "@/lib/comparison";
 
@@ -43,8 +47,9 @@ export default function ComparisonPage({
 
     async function loadData() {
       try {
-        const comparisonResponse = await fetch(
+        const comparisonResponse = await fetchApi(
           `/api/cases/${caseId}/comparison`,
+          locale,
           {
             cache: "no-store",
           },
@@ -52,18 +57,26 @@ export default function ComparisonPage({
 
         if (!comparisonResponse.ok) {
           throw new Error(
-            comparisonResponse.status === 409
+            comparisonResponse.status === 403 || comparisonResponse.status === 409
               ? "comparison_not_ready"
-              : "comparison_failed",
+              : resolveApiErrorMessage(
+                  await readApiErrorMessage(comparisonResponse),
+                  t("comparison.loadError"),
+                ),
           );
         }
 
-        const timelineResponse = await fetch(`/api/cases/${caseId}/timeline`, {
+        const timelineResponse = await fetchApi(`/api/cases/${caseId}/timeline`, locale, {
           cache: "no-store",
         });
 
         if (!timelineResponse.ok) {
-          throw new Error("timeline_failed");
+          throw new Error(
+            resolveApiErrorMessage(
+              await readApiErrorMessage(timelineResponse),
+              t("comparison.loadError"),
+            ),
+          );
         }
 
         const comparisonPayload =
@@ -80,7 +93,9 @@ export default function ComparisonPage({
           setErrorMessage(
             error instanceof Error && error.message === "comparison_not_ready"
               ? t("comparison.notReady")
-              : t("comparison.loadError"),
+              : error instanceof Error && error.message
+                ? error.message
+                : t("comparison.loadError"),
           );
         }
       } finally {
@@ -95,7 +110,7 @@ export default function ComparisonPage({
     return () => {
       ignore = true;
     };
-  }, [caseId, t]);
+  }, [caseId, locale, t]);
 
   return (
     <main className=" px-5 py-6">
@@ -110,11 +125,10 @@ export default function ComparisonPage({
         />
 
         {isLoading ? (
-          <Card className="app-panel">
-            <CardContent className="p-6 text-sm text-ink-soft">
-              {t("comparison.loading")}
-            </CardContent>
-          </Card>
+          <AsyncStateCard
+            body={t("comparison.subtitle")}
+            title={t("comparison.loading")}
+          />
         ) : errorMessage || !comparison ? (
           <Card className="app-panel">
             <CardContent className="space-y-4 p-6">
@@ -134,21 +148,78 @@ export default function ComparisonPage({
         ) : (
           <>
             <Card className="app-panel border-brand/15">
-              <CardContent className="space-y-2 p-6">
-                <p className="app-kicker">{t("comparison.nextStepLabel")}</p>
-                <p className="text-sm leading-6 text-ink-soft">
-                  {t("comparison.nextStepBody")}
-                </p>
+              <CardContent className="space-y-3 p-6">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="app-kicker">{t("comparison.nextStepLabel")}</p>
+                    <p className="mt-2 text-sm leading-6 text-ink-soft">
+                      {t("comparison.nextStepBody")}
+                    </p>
+                  </div>
+                  <div className="app-note-brand min-w-[12rem] px-4 py-3 text-sm">
+                    <p className="font-semibold text-ink">
+                      {comparison.summary.reviewed_count}/{comparison.summary.total_compared}
+                    </p>
+                    <p className="mt-1 text-ink-soft">
+                      {t("comparison.progressLabel")}
+                    </p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
             <AgreementSummary
               agreedCount={comparison.summary.agreed_count}
               gapCount={comparison.summary.gap_count}
             />
-            <ComparisonTable
-              items={comparison.items}
-              viewerRole={comparison.viewer_role}
-            />
+            <Tabs className="gap-4" defaultValue="to_review">
+              <TabsList className="grid h-auto grid-cols-3 gap-2 p-2" variant="line">
+                <TabsTrigger className="h-12" value="to_review">
+                  {t("comparison.toReviewTab", {
+                    count: comparison.summary.to_review_count,
+                  })}
+                </TabsTrigger>
+                <TabsTrigger className="h-12" value="agreed">
+                  {t("comparison.agreedTab", {
+                    count:
+                      comparison.summary.agreed_count + comparison.summary.locked_count,
+                  })}
+                </TabsTrigger>
+                <TabsTrigger className="h-12" value="disputed">
+                  {t("comparison.disputedTab", {
+                    count:
+                      comparison.summary.disputed_count +
+                      comparison.summary.unresolved_count,
+                  })}
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="to_review">
+                <ComparisonTable
+                  items={comparison.items.filter(
+                    (item) => item.review_bucket === "to_review",
+                  )}
+                  viewerRole={comparison.viewer_role}
+                />
+              </TabsContent>
+
+              <TabsContent value="agreed">
+                <ComparisonTable
+                  items={comparison.items.filter((item) =>
+                    ["agreed", "locked"].includes(item.review_bucket),
+                  )}
+                  viewerRole={comparison.viewer_role}
+                />
+              </TabsContent>
+
+              <TabsContent value="disputed">
+                <ComparisonTable
+                  items={comparison.items.filter((item) =>
+                    ["disputed", "unresolved"].includes(item.review_bucket),
+                  )}
+                  viewerRole={comparison.viewer_role}
+                />
+              </TabsContent>
+            </Tabs>
             <CaseTimeline events={timeline} />
             <SavingsBar stage={3} />
             <Button asChild className="h-12 w-full text-base" size="lg">

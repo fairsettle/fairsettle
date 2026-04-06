@@ -9,6 +9,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { SavingsBar } from '@/components/savings/SavingsBar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { fetchApi } from '@/lib/api-client'
 import { readApiErrorMessage, resolveApiErrorMessage } from '@/lib/client-errors'
 import { getLocalizedPath } from '@/lib/locale-path'
 import { cn } from '@/lib/utils'
@@ -72,7 +73,7 @@ export default function NewCasePage() {
     setErrorMessage('')
 
     try {
-      const response = await fetch('/api/cases', {
+      const response = await fetchApi('/api/cases', locale, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -83,9 +84,20 @@ export default function NewCasePage() {
       const data = (await response.json().catch(() => null)) as {
         case?: { id?: string }
         error?: string
+        redirect_to?: string | null
       } | null
 
       const nextCaseId = data?.case?.id
+
+      if (response.status === 409 && data?.redirect_to) {
+        router.push(
+          getLocalizedPath(
+            locale,
+            `${data.redirect_to}?redirect=${encodeURIComponent(`/cases/new`)}`,
+          ),
+        )
+        return
+      }
 
       if (!response.ok || !nextCaseId) {
         setErrorMessage(

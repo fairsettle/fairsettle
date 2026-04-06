@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { fetchApi } from "@/lib/api-client";
 import { mapAuthErrorMessage, readApiErrorMessage } from "@/lib/client-errors";
 import { getLocalizedPath } from "@/lib/locale-path";
 import { createClient } from "@/lib/supabase/client";
@@ -37,7 +38,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/auth/login", {
+      const response = await fetchApi("/api/auth/login", locale, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

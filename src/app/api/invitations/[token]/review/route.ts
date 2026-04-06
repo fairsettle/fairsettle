@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
+import { apiError } from '@/lib/api-errors'
 import { getInvitationByToken, getResponderReviewItems } from '@/lib/invitations'
 import { createClient } from '@/lib/supabase/server'
 import { logEvent } from '@/lib/timeline'
@@ -26,28 +27,27 @@ export async function POST(
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return apiError(req, 'UNAUTHORIZED', 401)
   }
 
   const parsed = reviewSchema.safeParse(await req.json())
 
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: 'Validation failed', details: parsed.error.issues },
-      { status: 400 },
-    )
+    return apiError(req, 'VALIDATION_FAILED', 400, {
+      details: parsed.error.issues,
+    })
   }
 
   const { invitation, caseItem } = await getInvitationByToken(params.token)
 
   if (!invitation || !caseItem || caseItem.responder_id !== user.id) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    return apiError(req, 'FORBIDDEN', 403)
   }
 
   const expectedReviewItems = await getResponderReviewItems(caseItem.id)
 
   if (expectedReviewItems.length === 0) {
-    return NextResponse.json({ error: 'No review items available for this invitation' }, { status: 409 })
+    return apiError(req, 'NO_REVIEW_ITEMS', 409)
   }
 
   const expectedQuestionIds = new Set(expectedReviewItems.map((item) => item.question_id))
@@ -60,7 +60,7 @@ export async function POST(
   )
 
   if (hasUnexpectedItems || submittedQuestionIds.size !== expectedQuestionIds.size) {
-    return NextResponse.json({ error: 'Review submission does not match the invitation items' }, { status: 400 })
+    return apiError(req, 'REVIEW_ITEMS_MISMATCH', 400)
   }
 
   await logEvent(caseItem.id, 'responder_completed', user.id, {

@@ -1,5 +1,4 @@
-import { NextResponse } from 'next/server'
-
+import { apiError, mapAuthErrorCode } from '@/lib/api-errors'
 import { createClient } from '@/lib/supabase/server'
 
 export async function POST(req: Request) {
@@ -8,8 +7,8 @@ export async function POST(req: Request) {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 401 })
+    return apiError(req, mapAuthErrorCode(error.message), 401)
   }
 
-  return NextResponse.json({ user: { id: data.user.id, email: data.user.email } })
+  return Response.json({ user: { id: data.user.id, email: data.user.email } })
 }
