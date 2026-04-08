@@ -313,6 +313,10 @@
     "savedLabel": "Saved so far",
     "youveSaved": "You've saved ~{amount}"
   },
+  "ai": {
+    "label": "AI-assisted guidance",
+    "disclaimer": "These suggestions are generated using AI and are not legal advice. They reflect general patterns in UK family law but do not account for all circumstances. Consult a qualified solicitor for legal advice specific to your situation."
+  },
   "comparison": {
     "agreed": "{n} Agreed",
     "disagreed": "{n} Disagreed",
@@ -335,6 +339,8 @@
     "toReviewTab": "{count} to review",
     "agreedTab": "{count} agreed",
     "disputedTab": "{count} disputed",
+    "summaryTab": "Summary",
+    "summaryUnavailable": "We couldn't prepare the case summary just now, but the structured comparison below is still available.",
     "progressLabel": "items reviewed",
     "emptyBucket": "There is nothing in this section right now."
   },
@@ -389,6 +395,7 @@
     "youLabel": "You",
     "themLabel": "Them",
     "guidanceOnly": "What courts typically consider",
+    "aiSuggestedOutcome": "AI suggestion",
     "modifyLabel": "Your proposed wording",
     "modifyPlaceholder": "Write the outcome you want to suggest",
     "saveError": "We couldn’t save that decision. Please try again.",
@@ -397,7 +404,13 @@
     "noProposalYet": "No proposal has been set yet.",
     "yourStatusLabel": "Your status",
     "otherStatusLabel": "Other status",
-    "noAutomaticSuggestion": "Review both positions directly"
+    "noAutomaticSuggestion": "Review both positions directly",
+    "summaryLabel": "Overall summary",
+    "tradeOffsLabel": "Potential trade-offs",
+    "showRuleBasedSuggestion": "Show rule-based suggestion",
+    "hideRuleBasedSuggestion": "Hide rule-based suggestion",
+    "ruleBasedSuggestionLabel": "Rule-based fallback",
+    "confidenceLabel": "Confidence"
   },
   "responder": {
     "neutralityTitle": "This platform is neutral",

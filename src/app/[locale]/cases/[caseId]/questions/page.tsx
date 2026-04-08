@@ -76,6 +76,10 @@ export default function QuestionsPage({
   const [errorMessage, setErrorMessage] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
   const [waitingState, setWaitingState] = useState<string | null>(null);
+  const [guidanceBody, setGuidanceBody] = useState<string | null>(null);
+  const [guidanceDisclaimer, setGuidanceDisclaimer] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     let ignore = false;
@@ -253,6 +257,56 @@ export default function QuestionsPage({
         : t("questionsFlow.continueToSpecificPhase", {
             phase: nextPhase ? t(`caseTypes.${nextPhase}`) : "",
           });
+  const guidanceText = currentQuestion
+    ? getLocalizedMessage(currentQuestion.guidance_text, locale)
+    : null;
+
+  useEffect(() => {
+    let ignore = false;
+
+    async function loadGuidance() {
+      if (!currentQuestion?.guidance_text) {
+        setGuidanceBody(null);
+        setGuidanceDisclaimer(null);
+        return;
+      }
+
+      setGuidanceBody(guidanceText);
+      setGuidanceDisclaimer(null);
+
+      if (locale === "en") {
+        return;
+      }
+
+      try {
+        const response = await fetchApi(
+          `/api/cases/${caseId}/questions/${currentQuestion.id}/guidance?locale=${locale}`,
+          locale,
+          { cache: "no-store" },
+        );
+
+        if (!response.ok) {
+          return;
+        }
+
+        const payload = (await response.json()) as {
+          body?: string | null;
+          ai_disclaimer?: string | null;
+        };
+
+        if (!ignore) {
+          setGuidanceBody(payload.body ?? guidanceText);
+          setGuidanceDisclaimer(payload.ai_disclaimer ?? null);
+        }
+      } catch {}
+    }
+
+    void loadGuidance();
+
+    return () => {
+      ignore = true;
+    };
+  }, [caseId, currentQuestion?.guidance_text, currentQuestion?.id, guidanceText, locale]);
 
   function updateAnswer(nextValue: unknown) {
     if (!currentQuestion) {
@@ -571,11 +625,6 @@ export default function QuestionsPage({
     return null;
   }
 
-  const guidanceText = getLocalizedMessage(
-    currentQuestion.guidance_text,
-    locale,
-  );
-
   return (
     <main className=" px-5 py-6">
       <div className="mx-auto max-w-6xl space-y-6">
@@ -638,7 +687,12 @@ export default function QuestionsPage({
           />
 
           <div className="space-y-4">
-            {guidanceText ? <GuidanceBox body={guidanceText} /> : null}
+            {guidanceBody ? (
+              <GuidanceBox
+                body={guidanceBody}
+                disclaimer={guidanceDisclaimer}
+              />
+            ) : null}
             <SavingsBar snapshot={currentSavings} />
           </div>
         </div>

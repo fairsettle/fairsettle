@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
+import { AiDisclosure } from "@/components/ai/AiDisclosure";
 import { AsyncStateCard } from "@/components/feedback/AsyncStateCard";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { SuggestionCard } from "@/components/resolution/SuggestionCard";
@@ -33,8 +34,10 @@ export default function ResolutionPage({
   const [viewerRole, setViewerRole] = useState<"initiator" | "responder">(
     "initiator",
   );
+  const [payload, setPayload] = useState<ResolutionPayload | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [showRuleBasedSuggestion, setShowRuleBasedSuggestion] = useState(false);
 
   useEffect(() => {
     let ignore = false;
@@ -42,10 +45,10 @@ export default function ResolutionPage({
     async function loadData() {
       try {
         const [resolutionResponse, comparisonResponse] = await Promise.all([
-          fetchApi(`/api/cases/${caseId}/resolution`, locale, {
+          fetchApi(`/api/cases/${caseId}/resolution?locale=${locale}`, locale, {
             cache: "no-store",
           }),
-          fetchApi(`/api/cases/${caseId}/comparison`, locale, {
+          fetchApi(`/api/cases/${caseId}/comparison?locale=${locale}`, locale, {
             cache: "no-store",
           }),
         ]);
@@ -77,6 +80,7 @@ export default function ResolutionPage({
         };
 
         if (!ignore) {
+          setPayload(resolutionPayload);
           setSuggestions(resolutionPayload.suggestions ?? []);
           setViewerRole(
             resolutionPayload.viewer_role ??
@@ -165,6 +169,52 @@ export default function ResolutionPage({
           </CardContent>
         </Card>
 
+        {payload?.ai_disclaimer ? (
+          <AiDisclosure
+            body={payload.ai_disclaimer}
+            title={t("ai.label")}
+          />
+        ) : null}
+
+        {payload?.overall_summary ? (
+          <Card className="app-panel">
+            <CardContent className="space-y-4 p-6">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="app-kicker">{t("resolution.summaryLabel")}</p>
+                  <p className="mt-2 text-sm leading-6 text-ink-soft">
+                    {payload.overall_summary}
+                  </p>
+                </div>
+                <Button
+                  className="h-10"
+                  type="button"
+                  variant="outline"
+                  onClick={() =>
+                    setShowRuleBasedSuggestion((current) => !current)
+                  }
+                >
+                  {showRuleBasedSuggestion
+                    ? t("resolution.hideRuleBasedSuggestion")
+                    : t("resolution.showRuleBasedSuggestion")}
+                </Button>
+              </div>
+              {payload.key_trade_offs.length ? (
+                <div className="space-y-2 border-t border-line pt-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-ink-soft">
+                    {t("resolution.tradeOffsLabel")}
+                  </p>
+                  <ul className="space-y-2 text-sm leading-6 text-ink-soft">
+                    {payload.key_trade_offs.map((tradeOff) => (
+                      <li key={tradeOff}>• {tradeOff}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </CardContent>
+          </Card>
+        ) : null}
+
         {isLoading ? (
           <AsyncStateCard
             body={t("resolution.subtitle")}
@@ -190,6 +240,7 @@ export default function ResolutionPage({
                 suggestion={suggestion}
                 viewerRole={viewerRole}
                 onDecisionSaved={handleDecisionSaved}
+                showRuleBasedSuggestion={showRuleBasedSuggestion}
               />
             ))}
           </div>

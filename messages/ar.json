@@ -309,6 +309,10 @@
     "savedLabel": "المبلغ الموفر حتى الآن",
     "youveSaved": "لقد وفرت ~{amount}"
   },
+  "ai": {
+    "label": "إرشادات مدعومة بالذكاء الاصطناعي",
+    "disclaimer": "هذه الاقتراحات مُولَّدة باستخدام الذكاء الاصطناعي وليست مشورة قانونية. إنها تعكس أنماطًا عامة في قانون الأسرة في المملكة المتحدة، لكنها لا تأخذ جميع الظروف في الاعتبار. يُرجى استشارة محامٍ مؤهل للحصول على مشورة قانونية خاصة بحالتك."
+  },
   "comparison": {
     "agreed": "{n} متفق",
     "disagreed": "{n} غير متفق",
@@ -331,6 +335,8 @@
     "toReviewTab": "{count} to review",
     "agreedTab": "{count} agreed",
     "disputedTab": "{count} disputed",
+    "summaryTab": "ملخص",
+    "summaryUnavailable": "لم نتمكن من إعداد ملخص القضية الآن، لكن المقارنة المنظمة أدناه لا تزال متاحة.",
     "progressLabel": "items reviewed",
     "emptyBucket": "There is nothing in this section right now."
   },
@@ -379,6 +385,7 @@
     "youLabel": "أنت",
     "themLabel": "هم",
     "guidanceOnly": "ما تأخذه المحاكم عادة في الاعتبار",
+    "aiSuggestedOutcome": "اقتراح الذكاء الاصطناعي",
     "modifyLabel": "الصياغة المقترحة منك",
     "modifyPlaceholder": "اكتب النتيجة التي تريد اقتراحها",
     "saveError": "لم نتمكن من حفظ هذا القرار. يرجى المحاولة مرة أخرى.",
@@ -387,7 +394,13 @@
     "noProposalYet": "No proposal has been set yet.",
     "yourStatusLabel": "Your status",
     "otherStatusLabel": "Other status",
-    "noAutomaticSuggestion": "Review both positions directly"
+    "noAutomaticSuggestion": "Review both positions directly",
+    "summaryLabel": "الملخص العام",
+    "tradeOffsLabel": "مقايضات محتملة",
+    "showRuleBasedSuggestion": "إظهار الاقتراح القائم على القواعد",
+    "hideRuleBasedSuggestion": "إخفاء الاقتراح القائم على القواعد",
+    "ruleBasedSuggestionLabel": "البديل القائم على القواعد",
+    "confidenceLabel": "مستوى الثقة"
   },
   "responder": {
     "neutralityTitle": "هذه المنصة محايدة",

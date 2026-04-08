@@ -5,6 +5,7 @@ import { ArrowRight, Scale } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
+import { AiDisclosure } from "@/components/ai/AiDisclosure";
 import { AgreementSummary } from "@/components/comparison/AgreementSummary";
 import { CaseTimeline } from "@/components/comparison/CaseTimeline";
 import { ComparisonTable } from "@/components/comparison/ComparisonTable";
@@ -43,7 +44,7 @@ export default function ComparisonPage({
     async function loadData() {
       try {
         const comparisonResponse = await fetchApi(
-          `/api/cases/${caseId}/comparison`,
+          `/api/cases/${caseId}/comparison?locale=${locale}`,
           locale,
           {
             cache: "no-store",
@@ -175,7 +176,7 @@ export default function ComparisonPage({
             />
             <Tabs className="gap-4" defaultValue="to_review">
               <TabsList
-                className="grid h-auto grid-cols-3 gap-2 p-2"
+                className="grid h-auto grid-cols-4 gap-2 p-2"
                 variant="line"
               >
                 <TabsTrigger className="h-12" value="to_review">
@@ -196,6 +197,9 @@ export default function ComparisonPage({
                       comparison.summary.disputed_count +
                       comparison.summary.unresolved_count,
                   })}
+                </TabsTrigger>
+                <TabsTrigger className="h-12" value="summary">
+                  {t("comparison.summaryTab")}
                 </TabsTrigger>
               </TabsList>
 
@@ -224,6 +228,26 @@ export default function ComparisonPage({
                   )}
                   viewerRole={comparison.viewer_role}
                 />
+              </TabsContent>
+
+              <TabsContent value="summary">
+                <Card className="app-panel">
+                  <CardContent className="space-y-4 p-6">
+                    {comparison.ai_disclaimer ? (
+                      <AiDisclosure
+                        body={comparison.ai_disclaimer}
+                        title={t("ai.label")}
+                      />
+                    ) : null}
+                    <div>
+                      <p className="app-kicker">{t("comparison.summaryTab")}</p>
+                      <p className="mt-3 text-sm leading-6 text-ink-soft">
+                        {comparison.narrative_summary ??
+                          t("comparison.summaryUnavailable")}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
               </TabsContent>
             </Tabs>
             <CaseTimeline events={timeline} />

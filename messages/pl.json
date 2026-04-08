@@ -309,6 +309,10 @@
     "savedLabel": "Zaoszczędzono do tej pory",
     "youveSaved": "Zaoszczędziłeś ~{amount}"
   },
+  "ai": {
+    "label": "Wskazówki wspierane przez AI",
+    "disclaimer": "Te sugestie są generowane przy użyciu AI i nie stanowią porady prawnej. Odzwierciedlają ogólne wzorce występujące w brytyjskim prawie rodzinnym, ale nie uwzględniają wszystkich okoliczności. Skonsultuj się z wykwalifikowanym prawnikiem, aby uzyskać poradę prawną odpowiednią do Twojej sytuacji."
+  },
   "comparison": {
     "agreed": "{n} Zgoda",
     "disagreed": "{n} Nie zgoda",
@@ -331,6 +335,8 @@
     "toReviewTab": "{count} to review",
     "agreedTab": "{count} agreed",
     "disputedTab": "{count} disputed",
+    "summaryTab": "Podsumowanie",
+    "summaryUnavailable": "Nie udało się teraz przygotować podsumowania sprawy, ale uporządkowane porównanie poniżej jest nadal dostępne.",
     "progressLabel": "items reviewed",
     "emptyBucket": "There is nothing in this section right now."
   },
@@ -379,6 +385,7 @@
     "youLabel": "Ty",
     "themLabel": "Oni",
     "guidanceOnly": "Co sądy zazwyczaj rozważają",
+    "aiSuggestedOutcome": "Sugestia AI",
     "modifyLabel": "Twoje proponowane sformułowanie",
     "modifyPlaceholder": "Napisz wynik, który chcesz zasugerować",
     "saveError": "Nie udało się zapisać tej decyzji. Proszę spróbuj ponownie.",
@@ -387,7 +394,13 @@
     "noProposalYet": "No proposal has been set yet.",
     "yourStatusLabel": "Your status",
     "otherStatusLabel": "Other status",
-    "noAutomaticSuggestion": "Review both positions directly"
+    "noAutomaticSuggestion": "Review both positions directly",
+    "summaryLabel": "Podsumowanie ogólne",
+    "tradeOffsLabel": "Możliwe kompromisy",
+    "showRuleBasedSuggestion": "Pokaż sugestię opartą na regułach",
+    "hideRuleBasedSuggestion": "Ukryj sugestię opartą na regułach",
+    "ruleBasedSuggestionLabel": "Awaryjna sugestia oparta na regułach",
+    "confidenceLabel": "Poziom pewności"
   },
   "responder": {
     "neutralityTitle": "Ta platforma jest neutralna",

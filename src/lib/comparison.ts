@@ -50,6 +50,9 @@ export interface SafeComparisonPayload {
   viewer_role: ViewerRole
   summary: ComparisonSummary
   items: SafeComparisonItem[]
+  narrative_summary?: string | null
+  narrative_summary_mode?: 'ai' | 'rule_based'
+  ai_disclaimer?: string | null
 }
 
 function normalizePrimitive(value: unknown) {

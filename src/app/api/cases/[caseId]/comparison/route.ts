@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server'
 
 import { apiError } from '@/lib/api-errors'
+import { getAiDisclaimer } from '@/lib/ai/disclaimer'
+import { getNarrativeSummaryForCase } from '@/lib/ai/narratives'
 import { getAuthorizedCase } from '@/lib/cases/auth'
 import { buildSafeComparisonPayload } from '@/lib/comparison'
+import { coerceSupportedLocale } from '@/lib/locale-path'
+import { loadMessages } from '@/lib/messages'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { logEvent } from '@/lib/timeline'
 
@@ -46,6 +50,7 @@ export async function GET(
   }
 
   try {
+    const locale = coerceSupportedLocale(new URL(req.url).searchParams.get('locale'))
     const payload = await buildSafeComparisonPayload({
       caseType: caseItem.case_type,
       caseId: params.caseId,
@@ -73,7 +78,22 @@ export async function GET(
       }
     }
 
-    return NextResponse.json(payload)
+    const [narrativeSummary, messages] = await Promise.all([
+      getNarrativeSummaryForCase({
+        caseId: params.caseId,
+        viewerUserId: user.id,
+        locale,
+      }),
+      loadMessages(locale),
+    ])
+
+    return NextResponse.json({
+      ...payload,
+      narrative_summary: narrativeSummary.text,
+      narrative_summary_mode: narrativeSummary.mode,
+      ai_disclaimer:
+        narrativeSummary.mode === 'ai' ? getAiDisclaimer(messages) : null,
+    })
   } catch (error) {
     return apiError(req, 'FETCH_FAILED', 400)
   }

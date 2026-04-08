@@ -465,6 +465,75 @@ export interface Database {
         }
         Relationships: []
       }
+      ai_logs: {
+        Row: {
+          id: string
+          case_id: string | null
+          user_id: string | null
+          feature: string
+          model: string
+          input_tokens: number | null
+          output_tokens: number | null
+          cost_estimate: number | null
+          input: Json | null
+          request_hash: string | null
+          response: Json
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          case_id?: string | null
+          user_id?: string | null
+          feature: string
+          model: string
+          input_tokens?: number | null
+          output_tokens?: number | null
+          cost_estimate?: number | null
+          input?: Json | null
+          request_hash?: string | null
+          response: Json
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          case_id?: string | null
+          user_id?: string | null
+          feature?: string
+          model?: string
+          input_tokens?: number | null
+          output_tokens?: number | null
+          cost_estimate?: number | null
+          input?: Json | null
+          request_hash?: string | null
+          response?: Json
+          created_at?: string
+        }
+        Relationships: []
+      }
+      ai_translations: {
+        Row: {
+          id: string
+          question_id: string
+          language: string
+          adapted_text: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          question_id: string
+          language: string
+          adapted_text: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          question_id?: string
+          language?: string
+          adapted_text?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
       sentiment_logs: {
         Row: {
           id: string
@@ -475,6 +544,12 @@ export interface Database {
           deleted_text: string | null
           sentiment_score: number | null
           flags: Json | null
+          risk_level: string | null
+          recommended_action: string | null
+          ai_explanation: string | null
+          ai_patterns: Json | null
+          deep_analysis_model: string | null
+          deep_analysis_at: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           created_at: string
@@ -488,6 +563,12 @@ export interface Database {
           deleted_text?: string | null
           sentiment_score?: number | null
           flags?: Json | null
+          risk_level?: string | null
+          recommended_action?: string | null
+          ai_explanation?: string | null
+          ai_patterns?: Json | null
+          deep_analysis_model?: string | null
+          deep_analysis_at?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           created_at?: string
@@ -501,6 +582,12 @@ export interface Database {
           deleted_text?: string | null
           sentiment_score?: number | null
           flags?: Json | null
+          risk_level?: string | null
+          recommended_action?: string | null
+          ai_explanation?: string | null
+          ai_patterns?: Json | null
+          deep_analysis_model?: string | null
+          deep_analysis_at?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           created_at?: string

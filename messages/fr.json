@@ -309,6 +309,10 @@
     "savedLabel": "Économisé jusqu’à présent",
     "youveSaved": "Vous avez économisé ~{amount}"
   },
+  "ai": {
+    "label": "Conseils assistés par IA",
+    "disclaimer": "Ces suggestions sont générées à l’aide de l’IA et ne constituent pas un avis juridique. Elles reflètent des tendances générales du droit de la famille au Royaume-Uni, mais ne tiennent pas compte de toutes les circonstances. Consultez un solicitor qualifié pour obtenir un avis juridique adapté à votre situation."
+  },
   "comparison": {
     "agreed": "{n} d’accord",
     "disagreed": "{n} en désaccord",
@@ -331,6 +335,8 @@
     "toReviewTab": "{count} à revoir",
     "agreedTab": "{count} convenus",
     "disputedTab": "{count} contestés",
+    "summaryTab": "Résumé",
+    "summaryUnavailable": "Nous n’avons pas pu préparer le résumé du dossier pour le moment, mais la comparaison structurée ci-dessous reste disponible.",
     "progressLabel": "éléments examinés",
     "emptyBucket": "Il n’y a rien dans cette section pour le moment."
   },
@@ -385,6 +391,7 @@
     "youLabel": "Vous",
     "themLabel": "L’autre partie",
     "guidanceOnly": "Ce que les tribunaux prennent généralement en compte",
+    "aiSuggestedOutcome": "Suggestion de l’IA",
     "modifyLabel": "Votre formulation proposée",
     "modifyPlaceholder": "Écrivez l’issue que vous souhaitez proposer",
     "saveError": "Nous n’avons pas pu enregistrer cette décision. Veuillez réessayer.",
@@ -393,7 +400,13 @@
     "noProposalYet": "Aucune proposition n’a encore été définie.",
     "yourStatusLabel": "Votre statut",
     "otherStatusLabel": "Statut de l’autre partie",
-    "noAutomaticSuggestion": "Examiner directement les deux positions"
+    "noAutomaticSuggestion": "Examiner directement les deux positions",
+    "summaryLabel": "Résumé général",
+    "tradeOffsLabel": "Compromis possibles",
+    "showRuleBasedSuggestion": "Afficher la suggestion fondée sur les règles",
+    "hideRuleBasedSuggestion": "Masquer la suggestion fondée sur les règles",
+    "ruleBasedSuggestionLabel": "Solution de repli fondée sur les règles",
+    "confidenceLabel": "Niveau de confiance"
   },
   "invite": {
     "title": "Inviter l’autre parent",

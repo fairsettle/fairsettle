@@ -2,7 +2,13 @@
 
 import { useTranslations } from 'next-intl'
 
-export function GuidanceBox({ body }: { body: string }) {
+export function GuidanceBox({
+  body,
+  disclaimer,
+}: {
+  body: string
+  disclaimer?: string | null
+}) {
   const t = useTranslations()
 
   return (
@@ -11,6 +17,9 @@ export function GuidanceBox({ body }: { body: string }) {
         {t('questions.courtsDecide')}
       </p>
       <p className="mt-3 text-sm leading-6 text-warning-foreground">{body}</p>
+      {disclaimer ? (
+        <p className="mt-3 text-xs leading-5 text-warning-foreground/80">{disclaimer}</p>
+      ) : null}
     </aside>
   )
 }

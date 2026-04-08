@@ -309,6 +309,10 @@
     "savedLabel": "Ahorrado hasta ahora",
     "youveSaved": "Has ahorrado ~{amount}"
   },
+  "ai": {
+    "label": "Orientación asistida por IA",
+    "disclaimer": "Estas sugerencias se generan con IA y no constituyen asesoramiento jurídico. Reflejan patrones generales del derecho de familia del Reino Unido, pero no tienen en cuenta todas las circunstancias. Consulta con un abogado cualificado para obtener asesoramiento jurídico específico para tu situación."
+  },
   "comparison": {
     "agreed": "{n} de acuerdo",
     "disagreed": "{n} en desacuerdo",
@@ -331,6 +335,8 @@
     "toReviewTab": "{count} por revisar",
     "agreedTab": "{count} acordados",
     "disputedTab": "{count} en disputa",
+    "summaryTab": "Resumen",
+    "summaryUnavailable": "No hemos podido preparar el resumen del caso en este momento, pero la comparación estructurada que aparece abajo sigue estando disponible.",
     "progressLabel": "elementos revisados",
     "emptyBucket": "No hay nada en esta sección ahora mismo."
   },
@@ -385,6 +391,7 @@
     "youLabel": "Tú",
     "themLabel": "La otra parte",
     "guidanceOnly": "Lo que suelen considerar los tribunales",
+    "aiSuggestedOutcome": "Sugerencia de IA",
     "modifyLabel": "Tu propuesta",
     "modifyPlaceholder": "Escribe el resultado que quieres proponer",
     "saveError": "No hemos podido guardar esa decisión. Inténtalo de nuevo.",
@@ -393,7 +400,13 @@
     "noProposalYet": "Todavía no se ha establecido ninguna propuesta.",
     "yourStatusLabel": "Tu estado",
     "otherStatusLabel": "Estado de la otra parte",
-    "noAutomaticSuggestion": "Revisar ambas posiciones directamente"
+    "noAutomaticSuggestion": "Revisar ambas posiciones directamente",
+    "summaryLabel": "Resumen general",
+    "tradeOffsLabel": "Posibles concesiones",
+    "showRuleBasedSuggestion": "Mostrar sugerencia basada en reglas",
+    "hideRuleBasedSuggestion": "Ocultar sugerencia basada en reglas",
+    "ruleBasedSuggestionLabel": "Alternativa basada en reglas",
+    "confidenceLabel": "Nivel de confianza"
   },
   "responder": {
     "neutralityTitle": "Esta plataforma es neutral",

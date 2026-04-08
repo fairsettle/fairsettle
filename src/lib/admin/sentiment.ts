@@ -4,7 +4,15 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 import type { AdminSentimentQuery, AdminSentimentResult } from '@/types/admin'
 import type { Json } from '@/types/database'
 
-function getFlagType(flags: Json | null) {
+function getFlagType(flags: Json | null, aiPatterns?: Json | null) {
+  if (Array.isArray(aiPatterns) && aiPatterns.length > 0) {
+    const firstPattern = aiPatterns.find((value) => typeof value === 'string')
+
+    if (typeof firstPattern === 'string') {
+      return firstPattern.replaceAll('_', ' ')
+    }
+  }
+
   if (!flags || typeof flags !== 'object' || Array.isArray(flags)) {
     return 'General'
   }
@@ -34,7 +42,7 @@ export async function loadAdminSentiment(
     .gt('sentiment_score', 0.5)
   let rowsQuery = supabaseAdmin
     .from('sentiment_logs')
-    .select('id, case_id, user_id, sentiment_score, flags, reviewed_at, created_at')
+    .select('id, case_id, user_id, sentiment_score, flags, ai_patterns, reviewed_at, created_at')
     .gt('sentiment_score', 0.5)
     .order('created_at', { ascending: false })
     .range(from, to)
@@ -83,7 +91,7 @@ export async function loadAdminSentiment(
       caseReference: formatCaseReference(row.case_id),
       userLabel: anonymizedUserMap.get(row.user_id) ?? 'User',
       score: Number(row.sentiment_score ?? 0),
-      flagType: getFlagType(row.flags),
+      flagType: getFlagType(row.flags, row.ai_patterns),
       status: row.reviewed_at ? 'Reviewed' : 'Needs review',
       reviewedAt: row.reviewed_at,
     } as const

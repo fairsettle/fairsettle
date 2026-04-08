@@ -47,6 +47,7 @@ export function SuggestionCard({
   suggestion,
   onDecisionSaved,
   viewerRole,
+  showRuleBasedSuggestion,
 }: {
   suggestion: ResolutionSuggestion
   onDecisionSaved: (
@@ -55,6 +56,7 @@ export function SuggestionCard({
     modifiedValue?: unknown,
   ) => Promise<void>
   viewerRole: ViewerRole
+  showRuleBasedSuggestion?: boolean
 }) {
   const locale = useLocale()
   const t = useTranslations()
@@ -158,7 +160,7 @@ export function SuggestionCard({
           </div>
         </div>
 
-        {suggestion.rule_applied === 'show_guidance_only' ? (
+        {suggestion.rule_applied === 'show_guidance_only' && suggestion.mode === 'rule_based' ? (
           <div className="app-note bg-surface-soft px-4 py-4 text-sm leading-6 text-ink">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ink-soft">
               {t('resolution.guidanceOnly')}
@@ -171,17 +173,47 @@ export function SuggestionCard({
           <>
             <div className="app-panel-brand px-4 py-4 text-ink">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-strong">
-                {t('resolution.suggestedOutcome')}
+                {suggestion.mode === 'ai'
+                  ? t('resolution.aiSuggestedOutcome')
+                  : t('resolution.suggestedOutcome')}
               </p>
               <p className="mt-2 text-xl font-semibold">
-                {suggestion.suggestion_label ?? t('resolution.noAutomaticSuggestion')}
+                {suggestion.ai_suggested_outcome ??
+                  suggestion.suggestion_label ??
+                  t('resolution.noAutomaticSuggestion')}
               </p>
+              {suggestion.ai_confidence ? (
+                <div className="mt-3">
+                  <Badge className="border-line bg-surface text-ink" variant="outline">
+                    {t('resolution.confidenceLabel')}: {suggestion.ai_confidence}
+                  </Badge>
+                </div>
+              ) : null}
+              {suggestion.ai_reasoning ? (
+                <p className="mt-3 text-sm leading-6 text-ink-soft">
+                  {suggestion.ai_reasoning}
+                </p>
+              ) : null}
+              {suggestion.ai_trade_off_note ? (
+                <p className="mt-3 text-sm italic leading-6 text-ink-soft">
+                  {suggestion.ai_trade_off_note}
+                </p>
+              ) : null}
               {suggestion.context_note ? (
                 <p className="mt-2 text-sm italic leading-6 text-ink-soft">
                   {suggestion.context_note}
                 </p>
               ) : null}
             </div>
+
+            {showRuleBasedSuggestion && suggestion.rule_based_suggestion ? (
+              <div className="app-note bg-surface-soft px-4 py-4 text-sm leading-6 text-ink">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ink-soft">
+                  {t('resolution.ruleBasedSuggestionLabel')}
+                </p>
+                <p className="mt-2 font-medium">{suggestion.rule_based_suggestion}</p>
+              </div>
+            ) : null}
 
             {decisionState === 'modify' ? (
               <div className="space-y-2">

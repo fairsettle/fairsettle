@@ -309,6 +309,10 @@
     "savedLabel": "Economisit până acum",
     "youveSaved": "Ai economisit ~{amount}"
   },
+  "ai": {
+    "label": "Îndrumare asistată de AI",
+    "disclaimer": "Aceste sugestii sunt generate cu ajutorul AI și nu constituie consultanță juridică. Ele reflectă tipare generale din dreptul familiei din Regatul Unit, dar nu iau în considerare toate circumstanțele. Consultă un avocat calificat pentru recomandări juridice specifice situației tale."
+  },
   "comparison": {
     "agreed": "{n} Agreed",
     "disagreed": "{n} Disagreed",
@@ -331,6 +335,8 @@
     "toReviewTab": "{count} to review",
     "agreedTab": "{count} agreed",
     "disputedTab": "{count} disputed",
+    "summaryTab": "Rezumat",
+    "summaryUnavailable": "Nu am putut pregăti acum rezumatul cazului, dar comparația structurată de mai jos este în continuare disponibilă.",
     "progressLabel": "items reviewed",
     "emptyBucket": "There is nothing in this section right now."
   },
@@ -379,6 +385,7 @@
     "youLabel": "Tu",
     "themLabel": "Ei",
     "guidanceOnly": "Ce iau în considerare de obicei instanțele",
+    "aiSuggestedOutcome": "Sugestie AI",
     "modifyLabel": "Formularea propusă de tine",
     "modifyPlaceholder": "Scrie rezultatul pe care dorești să-l sugerezi",
     "saveError": "Nu am putut salva acea decizie. Vă rugăm să încercați din nou.",
@@ -387,7 +394,13 @@
     "noProposalYet": "No proposal has been set yet.",
     "yourStatusLabel": "Your status",
     "otherStatusLabel": "Other status",
-    "noAutomaticSuggestion": "Review both positions directly"
+    "noAutomaticSuggestion": "Review both positions directly",
+    "summaryLabel": "Rezumat general",
+    "tradeOffsLabel": "Posibile compromisuri",
+    "showRuleBasedSuggestion": "Arată sugestia bazată pe reguli",
+    "hideRuleBasedSuggestion": "Ascunde sugestia bazată pe reguli",
+    "ruleBasedSuggestionLabel": "Variantă de rezervă bazată pe reguli",
+    "confidenceLabel": "Nivel de încredere"
   },
   "responder": {
     "neutralityTitle": "Această platformă este neutră",

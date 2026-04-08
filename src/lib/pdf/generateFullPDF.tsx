@@ -1,5 +1,7 @@
 import { renderToBuffer, Text, View } from '@react-pdf/renderer'
 
+import { getNarrativeSummaryForCase } from '@/lib/ai/narratives'
+import { getResolutionPayload } from '@/lib/ai/resolution'
 import {
   formatJsonAnswer,
   getSavingsSummary,
@@ -34,13 +36,53 @@ export async function generateFullPDF(
     messages,
   } = context
 
+  const [narrativeSummary, aiResolution] = await Promise.all([
+    getNarrativeSummaryForCase({
+      caseId,
+      viewerUserId: userId,
+      locale,
+    }),
+    getResolutionPayload({
+      caseId,
+      viewerUserId: userId,
+      locale,
+    }),
+  ])
+
   const initiatorResponses = responses.filter((response) => response.user_id === initiatorProfile.id)
   const responderResponses = responderProfile
     ? responses.filter((response) => response.user_id === responderProfile.id)
     : []
   const initiatorSections = groupResponsesBySection(questions, initiatorResponses)
   const responderSections = groupResponsesBySection(questions, responderResponses)
-  const suggestions = resolutionSummary?.results ?? []
+  const suggestions = aiResolution.suggestions.length
+    ? aiResolution.suggestions
+    : (resolutionSummary?.results ?? [])
+  const normalizedSuggestions: Array<{
+    question_id: string
+    suggestion_label: string | null
+    context_note: string | null
+    ai_suggested_outcome: string | null
+    ai_reasoning: string | null
+    ai_trade_off_note: string | null
+  }> = suggestions.map((suggestion) => ({
+    question_id: suggestion.question_id,
+    suggestion_label:
+      'suggestion_label' in suggestion ? suggestion.suggestion_label : null,
+    context_note: 'context_note' in suggestion ? suggestion.context_note : null,
+    ai_suggested_outcome:
+      'ai_suggested_outcome' in suggestion && typeof suggestion.ai_suggested_outcome === 'string'
+        ? suggestion.ai_suggested_outcome
+        : null,
+    ai_reasoning:
+      'ai_reasoning' in suggestion && typeof suggestion.ai_reasoning === 'string'
+        ? suggestion.ai_reasoning
+        : null,
+    ai_trade_off_note:
+      'ai_trade_off_note' in suggestion && typeof suggestion.ai_trade_off_note === 'string'
+        ? suggestion.ai_trade_off_note
+        : null,
+  }))
   const savingsSummary = getSavingsSummary(5, tier, messages)
   const footerLabel = `${getMessage(messages, 'nav.brand')} ${getMessage(messages, 'pdf.casePackLabel')}`
   const comparisonItemMap = new Map(
@@ -132,7 +174,16 @@ export async function generateFullPDF(
           </View>
         </View>
         <View style={[pdfStyles.panel, { marginTop: 16 }]}>
-          <Text style={pdfStyles.smallText}>{getMessage(messages, 'pdf.executiveSummaryNote')}</Text>
+          <Text style={pdfStyles.smallText}>{narrativeSummary.text}</Text>
+          {narrativeSummary.mode === 'ai' ? (
+            <Text style={[pdfStyles.note, { marginTop: 10 }]}>
+              {getMessage(messages, 'ai.disclaimer')}
+            </Text>
+          ) : (
+            <Text style={[pdfStyles.note, { marginTop: 10 }]}>
+              {getMessage(messages, 'pdf.executiveSummaryNote')}
+            </Text>
+          )}
         </View>
       </PdfPage>
 
@@ -224,7 +275,7 @@ export async function generateFullPDF(
         subtitle={getMessage(messages, 'pdf.suggestionsBody')}
         title={getMessage(messages, 'pdf.suggestionsTitle')}
       >
-        {suggestions.map((suggestion) => {
+        {normalizedSuggestions.map((suggestion) => {
           const decision = resolutionDecisions.get(suggestion.question_id)
           const comparisonItem = comparisonItemMap.get(suggestion.question_id)
 
@@ -235,7 +286,17 @@ export async function generateFullPDF(
                   ? getLocalizedMessage(comparisonItem.question_text, locale)
                   : suggestion.question_id}
               </Text>
-              <Text style={pdfStyles.rowAnswer}>{suggestion.suggestion_label}</Text>
+              <Text style={pdfStyles.rowAnswer}>
+                {suggestion.ai_suggested_outcome
+                  ? suggestion.ai_suggested_outcome
+                  : suggestion.suggestion_label}
+              </Text>
+              {suggestion.ai_reasoning ? (
+                <Text style={pdfStyles.note}>{suggestion.ai_reasoning}</Text>
+              ) : null}
+              {suggestion.ai_trade_off_note ? (
+                <Text style={pdfStyles.note}>{suggestion.ai_trade_off_note}</Text>
+              ) : null}
               {suggestion.context_note ? (
                 <Text style={pdfStyles.note}>{suggestion.context_note}</Text>
               ) : null}
@@ -248,6 +309,11 @@ export async function generateFullPDF(
             </View>
           )
         })}
+        {aiResolution.ai_disclaimer ? (
+          <View style={pdfStyles.panel}>
+            <Text style={pdfStyles.note}>{aiResolution.ai_disclaimer}</Text>
+          </View>
+        ) : null}
       </PdfPage>
 
       <PdfPage

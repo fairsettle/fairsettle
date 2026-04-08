@@ -16,6 +16,7 @@ import {
   sendInitiatorSubmittedEmail,
   sendResponderCompletedEmail,
 } from '@/lib/email/resend'
+import { getNarrativeSummaryForCase } from '@/lib/ai/narratives'
 import {
   type CasePhase,
 } from '@/lib/questions'
@@ -178,11 +179,20 @@ export async function POST(
         .maybeSingle()
 
       if (initiatorProfile?.email) {
+        const summarySnippet = (
+          await getNarrativeSummaryForCase({
+            caseId: params.caseId,
+            viewerUserId: caseItem.initiator_id,
+            locale: initiatorProfile.preferred_language || 'en',
+          }).catch(() => null)
+        )?.text
+
         await sendResponderCompletedEmail(
           initiatorProfile.email,
           params.caseId,
           initiatorProfile.preferred_language || 'en',
           getRequestOrigin(req),
+          summarySnippet,
         ).catch(() => null)
       }
     }

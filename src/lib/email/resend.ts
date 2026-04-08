@@ -107,6 +107,14 @@ function buildEmailText({
   return [title, '', body, '', `${ctaLabel}: ${ctaUrl}`, '', footer, unsubscribeLabel, unsubscribeUrl].join('\n')
 }
 
+function appendOptionalSummary(body: string, summarySnippet?: string) {
+  if (!summarySnippet) {
+    return body
+  }
+
+  return `${body}\n\n${summarySnippet}`
+}
+
 export async function sendEmail(
   to: string,
   template: EmailTemplate,
@@ -172,7 +180,10 @@ export async function sendEmail(
     responder_completed: {
       subject: getMessage(messages, 'email.responderCompleted.subject', data),
       title: getMessage(messages, 'email.responderCompleted.title', data),
-      body: getMessage(messages, 'email.responderCompleted.body', data),
+      body: appendOptionalSummary(
+        getMessage(messages, 'email.responderCompleted.body', data),
+        data.summarySnippet,
+      ),
       cta: getMessage(messages, 'email.responderCompleted.cta', data),
       ctaUrl: data.caseUrl,
     },
@@ -358,12 +369,14 @@ export async function sendResponderCompletedEmail(
   caseId: string,
   locale: string = 'en',
   origin?: string,
+  summarySnippet?: string,
 ): Promise<void> {
   await sendEmail(
     initiatorEmail,
     'responder_completed',
     {
       caseUrl: buildAppUrl(`/cases/${caseId}/comparison`, locale, origin),
+      summarySnippet: summarySnippet ?? '',
     },
     locale,
   )

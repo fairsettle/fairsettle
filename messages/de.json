@@ -309,6 +309,10 @@
     "savedLabel": "Bisher gespart",
     "youveSaved": "Sie haben ~{amount} gespart"
   },
+  "ai": {
+    "label": "KI-gestützte Hinweise",
+    "disclaimer": "Diese Vorschläge werden mithilfe von KI erstellt und stellen keine Rechtsberatung dar. Sie spiegeln allgemeine Muster im britischen Familienrecht wider, berücksichtigen jedoch nicht alle Umstände. Lassen Sie sich für eine auf Ihren Fall bezogene Rechtsberatung von einer qualifizierten Anwältin oder einem qualifizierten Anwalt beraten."
+  },
   "comparison": {
     "agreed": "{n} vereinbart",
     "disagreed": "{n} strittig",
@@ -331,6 +335,8 @@
     "toReviewTab": "{count} zu prüfen",
     "agreedTab": "{count} vereinbart",
     "disputedTab": "{count} strittig",
+    "summaryTab": "Zusammenfassung",
+    "summaryUnavailable": "Die Fallzusammenfassung konnte gerade nicht erstellt werden, aber der strukturierte Vergleich unten steht weiterhin zur Verfügung.",
     "progressLabel": "Elemente geprüft",
     "emptyBucket": "In diesem Bereich gibt es derzeit nichts."
   },
@@ -385,6 +391,7 @@
     "youLabel": "Sie",
     "themLabel": "Andere Seite",
     "guidanceOnly": "Was Gerichte typischerweise berücksichtigen",
+    "aiSuggestedOutcome": "KI-Vorschlag",
     "modifyLabel": "Ihr Vorschlag",
     "modifyPlaceholder": "Schreiben Sie das Ergebnis, das Sie vorschlagen möchten",
     "saveError": "Diese Entscheidung konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.",
@@ -393,7 +400,13 @@
     "noProposalYet": "Es wurde noch kein Vorschlag festgelegt.",
     "yourStatusLabel": "Ihr Status",
     "otherStatusLabel": "Status der anderen Partei",
-    "noAutomaticSuggestion": "Beide Positionen direkt prüfen"
+    "noAutomaticSuggestion": "Beide Positionen direkt prüfen",
+    "summaryLabel": "Gesamtzusammenfassung",
+    "tradeOffsLabel": "Mögliche Abwägungen",
+    "showRuleBasedSuggestion": "Regelbasierten Vorschlag anzeigen",
+    "hideRuleBasedSuggestion": "Regelbasierten Vorschlag ausblenden",
+    "ruleBasedSuggestionLabel": "Regelbasierte Alternative",
+    "confidenceLabel": "Vertrauensniveau"
   },
   "invite": {
     "title": "Den anderen Elternteil einladen",
