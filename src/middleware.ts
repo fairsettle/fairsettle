@@ -12,10 +12,8 @@ import {
 
 const intlMiddleware = createIntlMiddleware(routing)
 
-export async function middleware(request: NextRequest) {
-  const intlResponse = intlMiddleware(request)
-
-  const supabase = createServerClient(
+function createSupabaseMiddlewareClient(request: NextRequest, response: NextResponse) {
+  return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -26,23 +24,72 @@ export async function middleware(request: NextRequest) {
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           cookiesToSet.forEach(({ name, value, options }) =>
-            intlResponse.cookies.set(name, value, options),
+            response.cookies.set(name, value, options),
           )
         },
       },
     },
   )
+}
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
+export async function middleware(request: NextRequest) {
   const protectedPaths = ['/dashboard', '/cases', '/respond']
   const pathname = request.nextUrl.pathname
   const pathnameWithoutLocale = stripLocaleFromPathname(pathname)
   const routeLocale = getLocaleFromPathname(pathname)
   const isProtected = protectedPaths.some((path) => pathname.includes(path))
+  const isAdminRoute = pathnameWithoutLocale === '/admin' || pathnameWithoutLocale.startsWith('/admin/')
   const isInviteEntry = /\/respond\/[a-f0-9]{64}$/.test(pathname)
+
+  if (isAdminRoute) {
+    const adminResponse = NextResponse.next()
+    const supabase = createSupabaseMiddlewareClient(request, adminResponse)
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    const adminLocale = routeLocale ?? routing.defaultLocale
+
+    if (!user) {
+      const loginUrl = new URL(getLocalizedPath(adminLocale, '/login'), request.url)
+      loginUrl.searchParams.set('redirect', pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+
+    const profileResult = await supabase
+      .from('profiles')
+      .select('preferred_language, is_admin')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    const preferredLocale = coerceSupportedLocale(
+      profileResult.data?.preferred_language ||
+        (typeof user.user_metadata?.preferred_language === 'string'
+          ? user.user_metadata.preferred_language
+          : null),
+    )
+
+    if (!profileResult.data?.is_admin) {
+      return NextResponse.redirect(
+        new URL(getLocalizedPath(preferredLocale, '/dashboard'), request.url),
+      )
+    }
+
+    adminResponse.cookies.set('NEXT_LOCALE', preferredLocale, {
+      path: '/',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 365,
+    })
+
+    return adminResponse
+  }
+
+  const intlResponse = intlMiddleware(request)
+  const supabase = createSupabaseMiddlewareClient(request, intlResponse)
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   if (isProtected && !isInviteEntry && !user) {
     const loginUrl = new URL(
@@ -56,7 +103,7 @@ export async function middleware(request: NextRequest) {
   if (user) {
     const profileResult = await supabase
       .from('profiles')
-      .select('preferred_language')
+      .select('preferred_language, is_admin')
       .eq('id', user.id)
       .maybeSingle()
 
@@ -68,6 +115,7 @@ export async function middleware(request: NextRequest) {
     )
 
     const effectiveLocale = routeLocale ?? routing.defaultLocale
+    const isAdmin = Boolean(profileResult.data?.is_admin)
 
     if (
       effectiveLocale !== preferredLocale &&
@@ -87,8 +135,23 @@ export async function middleware(request: NextRequest) {
     }
 
     if (user && (pathname.includes('/login') || pathname.includes('/register'))) {
-      const redirectUrl = new URL(getLocalizedPath(preferredLocale, '/dashboard'), request.url)
+      const redirectUrl = new URL(
+        getLocalizedPath(preferredLocale, isAdmin ? '/admin' : '/dashboard'),
+        request.url,
+      )
       const response = NextResponse.redirect(redirectUrl)
+      response.cookies.set('NEXT_LOCALE', preferredLocale, {
+        path: '/',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 365,
+      })
+      return response
+    }
+
+    if (isAdminRoute && !isAdmin) {
+      const response = NextResponse.redirect(
+        new URL(getLocalizedPath(preferredLocale, '/dashboard'), request.url),
+      )
       response.cookies.set('NEXT_LOCALE', preferredLocale, {
         path: '/',
         sameSite: 'lax',

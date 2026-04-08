@@ -12,19 +12,23 @@ import { getLocalizedPath } from '@/lib/locale-path'
 
 export function SiteHeader({
   accountLabel,
+  adminDashboardLabel,
   locale,
   brandLabel,
   dashboardLabel,
   isAuthenticated = false,
+  isAdmin = false,
   loginLabel,
   logoutLabel,
   userLabel,
 }: {
   accountLabel?: string
+  adminDashboardLabel?: string
   locale: string
   brandLabel: string
   dashboardLabel?: string
   isAuthenticated?: boolean
+  isAdmin?: boolean
   loginLabel?: string
   logoutLabel?: string
   userLabel?: string | null
@@ -38,6 +42,7 @@ export function SiteHeader({
     pathname === '/forgot-password' ||
     pathname === '/reset-password'
   const dashboardHref = getLocalizedPath(locale, '/dashboard')
+  const adminHref = getLocalizedPath(locale, '/admin')
   const displayLabel = useMemo(() => {
     if (!userLabel) {
       return brandLabel
@@ -142,6 +147,18 @@ export function SiteHeader({
                         {dashboardLabel ?? 'Dashboard'}
                       </span>
                     </Link>
+                    {isAdmin ? (
+                      <Link
+                        className="flex items-center justify-between rounded-[1.1rem] px-4 py-3 text-sm font-medium text-ink transition duration-200 hover:bg-surface-soft"
+                        href={adminHref}
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <span className="flex items-center gap-3">
+                          <LayoutDashboard className="size-4 text-brand-strong" />
+                          {adminDashboardLabel ?? 'Admin dashboard'}
+                        </span>
+                      </Link>
+                    ) : null}
                     <form action="/api/auth/logout" className="w-full" method="post">
                       <button
                         className="flex w-full items-center gap-3 rounded-[1.1rem] px-4 py-3 text-sm font-medium text-ink transition duration-200 hover:bg-surface-soft"

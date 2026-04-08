@@ -15,6 +15,8 @@ export interface Database {
           full_name: string
           email: string
           preferred_language: string
+          is_admin: boolean
+          source_channel: 'web' | 'whatsapp'
           children_count: number | null
           parent_role: 'mum' | 'dad' | null
           role: 'initiator' | 'responder' | null
@@ -28,6 +30,8 @@ export interface Database {
           full_name?: string
           email?: string
           preferred_language?: string
+          is_admin?: boolean
+          source_channel?: 'web' | 'whatsapp'
           children_count?: number | null
           parent_role?: 'mum' | 'dad' | null
           role?: 'initiator' | 'responder' | null
@@ -41,6 +45,8 @@ export interface Database {
           full_name?: string
           email?: string
           preferred_language?: string
+          is_admin?: boolean
+          source_channel?: 'web' | 'whatsapp'
           children_count?: number | null
           parent_role?: 'mum' | 'dad' | null
           role?: 'initiator' | 'responder' | null
@@ -63,6 +69,7 @@ export interface Database {
           responder_satisfied_at: string | null
           auto_generate_due_at: string | null
           auto_generate_warning_sent_at: string | null
+          source_channel: 'web' | 'whatsapp'
           status: 'draft' | 'invited' | 'active' | 'comparison' | 'completed' | 'expired'
           created_at: string
           updated_at: string
@@ -78,6 +85,7 @@ export interface Database {
           responder_satisfied_at?: string | null
           auto_generate_due_at?: string | null
           auto_generate_warning_sent_at?: string | null
+          source_channel?: 'web' | 'whatsapp'
           status?: 'draft' | 'invited' | 'active' | 'comparison' | 'completed' | 'expired'
           created_at?: string
           updated_at?: string
@@ -93,6 +101,7 @@ export interface Database {
           responder_satisfied_at?: string | null
           auto_generate_due_at?: string | null
           auto_generate_warning_sent_at?: string | null
+          source_channel?: 'web' | 'whatsapp'
           status?: 'draft' | 'invited' | 'active' | 'comparison' | 'completed' | 'expired'
           created_at?: string
           updated_at?: string
@@ -466,6 +475,8 @@ export interface Database {
           deleted_text: string | null
           sentiment_score: number | null
           flags: Json | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           created_at: string
         }
         Insert: {
@@ -477,6 +488,8 @@ export interface Database {
           deleted_text?: string | null
           sentiment_score?: number | null
           flags?: Json | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           created_at?: string
         }
         Update: {
@@ -488,6 +501,8 @@ export interface Database {
           deleted_text?: string | null
           sentiment_score?: number | null
           flags?: Json | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           created_at?: string
         }
         Relationships: []

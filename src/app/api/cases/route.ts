@@ -134,6 +134,7 @@ export async function POST(req: Request) {
       initiator_id: user.id,
       case_type: parsed.data.case_type,
       question_set_version: 'v2',
+      source_channel: profile.source_channel ?? 'web',
     })
     .select('*')
     .single()

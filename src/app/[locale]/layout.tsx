@@ -23,6 +23,7 @@ export default async function LocaleLayout({
   const t = await getTranslations({ locale })
   const dir = locale === 'ar' ? 'rtl' : 'ltr'
   let isAuthenticated = false
+  let isAdmin = false
   let userLabel: string | null = null
 
   try {
@@ -35,10 +36,11 @@ export default async function LocaleLayout({
     if (user) {
       const { data: profile } = await supabase
         .from('profiles')
-        .select('full_name, email')
+        .select('full_name, email, is_admin')
         .eq('id', user.id)
         .maybeSingle()
 
+      isAdmin = Boolean(profile?.is_admin)
       userLabel =
         profile?.full_name ||
         profile?.email ||
@@ -58,9 +60,11 @@ export default async function LocaleLayout({
       >
         <SiteHeader
           accountLabel={t('nav.account')}
+          adminDashboardLabel={t('nav.adminDashboard')}
           brandLabel={t('nav.brand')}
           dashboardLabel={t('dashboard.title')}
           isAuthenticated={isAuthenticated}
+          isAdmin={isAdmin}
           locale={locale}
           loginLabel={t('login.title')}
           logoutLabel={t('nav.logout')}

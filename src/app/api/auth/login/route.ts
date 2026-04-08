@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
   const profileResult = await supabase
     .from('profiles')
-    .select('preferred_language')
+    .select('preferred_language, is_admin')
     .eq('id', data.user.id)
     .maybeSingle()
 
@@ -28,6 +28,7 @@ export async function POST(req: Request) {
 
   const response = NextResponse.json({
     user: { id: data.user.id, email: data.user.email },
+    is_admin: Boolean(profileResult.data?.is_admin),
     preferred_language: preferredLanguage,
   })
 

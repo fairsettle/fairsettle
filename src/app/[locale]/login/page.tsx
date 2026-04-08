@@ -48,6 +48,7 @@ export default function LoginPage() {
 
       const payload = (await response.json().catch(() => null)) as
         | {
+            is_admin?: boolean;
             preferred_language?: SupportedLocale;
             user?: { id: string; email?: string | null };
             error?:
@@ -70,7 +71,15 @@ export default function LoginPage() {
         return;
       }
 
-      router.push(localizeHref(payload?.preferred_language ?? locale, redirectTarget));
+      const explicitRedirect = searchParams.get("redirect");
+      const destination =
+        explicitRedirect?.startsWith("/")
+          ? explicitRedirect
+          : payload?.is_admin
+            ? "/admin"
+            : "/dashboard";
+
+      router.push(localizeHref(payload?.preferred_language ?? locale, destination));
       router.refresh();
     } catch {
       setErrorMessage(t("errors.generic"));

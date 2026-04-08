@@ -83,14 +83,14 @@
     @apply rounded-[2rem] border backdrop-blur-sm transition-[transform,box-shadow,border-color,background-color] duration-200 ease-out;
     border-color: rgb(var(--line-soft) / 0.95);
     background: rgb(var(--surface-elevated) / 0.94);
-    box-shadow: 0 24px 80px rgba(15, 23, 42, 0.08);
+    box-shadow: 0 12px 36px rgba(15, 23, 42, 0.045);
   }
 
   .app-panel-soft {
     @apply rounded-[2rem] border transition-[transform,box-shadow,border-color,background-color] duration-200 ease-out;
     border-color: rgb(var(--line-soft) / 0.8);
     background: rgb(var(--surface) / 0.84);
-    box-shadow: 0 16px 48px rgba(148, 163, 184, 0.14);
+    box-shadow: 0 8px 24px rgba(148, 163, 184, 0.08);
   }
 
   .app-panel-brand {

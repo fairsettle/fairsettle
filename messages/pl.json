@@ -4,6 +4,8 @@
     "start": "Rozpocznij swoją sprawę za darmo",
     "invited": "Zostałem zaproszony przez mojego byłego",
     "account": "Konto",
+    "adminDashboard": "Panel administratora",
+    "backToSite": "Powrót do serwisu",
     "logout": "Wyloguj się"
   },
   "languages": {

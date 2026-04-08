@@ -4,6 +4,8 @@
     "start": "Commencez votre dossier gratuitement",
     "invited": "Mon ex m’a invité",
     "account": "Compte",
+    "adminDashboard": "Tableau de bord admin",
+    "backToSite": "Retour au site",
     "logout": "Se déconnecter"
   },
   "languages": {

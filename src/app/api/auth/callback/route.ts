@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       const profileResult = user
         ? await supabase
             .from('profiles')
-            .select('preferred_language')
+            .select('preferred_language, is_admin')
             .eq('id', user.id)
             .maybeSingle()
         : { data: null }
@@ -33,8 +33,13 @@ export async function GET(request: NextRequest) {
             : null),
       )
 
+      const nextDestination =
+        profileResult.data?.is_admin && (next === '/' || next === '/dashboard')
+          ? '/admin'
+          : next
+
       const response = NextResponse.redirect(
-        `${origin}${localizeHref(preferredLanguage, next)}`,
+        `${origin}${localizeHref(preferredLanguage, nextDestination)}`,
       )
 
       response.cookies.set('NEXT_LOCALE', preferredLanguage, {

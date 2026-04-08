@@ -4,6 +4,8 @@
     "start": "Empieza tu caso gratis",
     "invited": "Mi ex me ha invitado",
     "account": "Cuenta",
+    "adminDashboard": "Panel de administración",
+    "backToSite": "Volver al sitio",
     "logout": "Cerrar sesión"
   },
   "languages": {
