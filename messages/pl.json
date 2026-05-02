@@ -5,6 +5,7 @@
     "invited": "Zostałem zaproszony przez mojego byłego",
     "account": "Konto",
     "adminDashboard": "Panel administratora",
+    "professionalDashboard": "Panel specjalisty",
     "backToSite": "Powrót do serwisu",
     "logout": "Wyloguj się"
   },
@@ -521,6 +522,8 @@
     "standardFeatureAudit": "Ścieżka audytu i raport oszczędności",
     "resolutionFeatureConsent": "Sekcja szkicu postanowienia zgody",
     "resolutionFeatureCooperation": "Strona oceny współpracy",
+    "mediatorAssistFeatureMatching": "Ręczne dopasowanie mediatora przez zespół FairSettle",
+    "mediatorAssistFeatureTriage": "Notatki z triage i dalsza obsługa skierowania",
     "successTitle": "Płatność zakończona sukcesem",
     "successPreparing": "Płatność zakończona sukcesem! Twój pakiet sprawy jest przygotowywany...",
     "successReady": "Twój pakiet sprawy jest gotowy do pobrania.",

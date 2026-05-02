@@ -5,6 +5,7 @@
     "invited": "I've been invited by my ex",
     "account": "Account",
     "adminDashboard": "Admin dashboard",
+    "professionalDashboard": "Professional dashboard",
     "backToSite": "Back to site",
     "logout": "Sign out"
   },
@@ -531,6 +532,8 @@
     "standardFeatureAudit": "Audit trail and savings report",
     "resolutionFeatureConsent": "Draft consent order section",
     "resolutionFeatureCooperation": "Cooperation score page",
+    "mediatorAssistFeatureMatching": "Manual mediator matching by the FairSettle team",
+    "mediatorAssistFeatureTriage": "Referral triage notes and specialist follow-through",
     "successTitle": "Payment successful",
     "successPreparing": "Payment successful! Your case pack is being prepared...",
     "successReady": "Your case pack is ready to download.",

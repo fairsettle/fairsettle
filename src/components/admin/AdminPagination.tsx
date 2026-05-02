@@ -41,20 +41,20 @@ export function AdminPagination({
 
       <div className="flex items-center gap-2">
         {page <= 1 ? (
-          <Button size="sm" variant="outline" disabled>
+          <Button variant="outline" disabled>
             Previous
           </Button>
         ) : (
-          <Button asChild size="sm" variant="outline">
+          <Button asChild variant="outline">
             <Link href={buildHref(page - 1)}>Previous</Link>
           </Button>
         )}
         {page >= totalPages ? (
-          <Button size="sm" disabled>
+          <Button disabled>
             Next
           </Button>
         ) : (
-          <Button asChild size="sm">
+          <Button asChild>
             <Link href={buildHref(page + 1)}>Next</Link>
           </Button>
         )}

@@ -174,6 +174,21 @@ export default function ComparisonPage({
               agreedCount={comparison.summary.agreed_count}
               gapCount={comparison.summary.gap_count}
             />
+            {comparison.complexity_flags?.length ? (
+              <Card className="app-panel border-warning/15">
+                <CardContent className="space-y-3 p-6">
+                  <p className="app-kicker">Complexity flags</p>
+                  <div className="space-y-2 text-sm leading-6 text-ink-soft">
+                    {comparison.complexity_flags.map((flag) => (
+                      <p key={flag.key}>
+                        <strong className="text-ink">{flag.recommended_specialist_type}:</strong>{" "}
+                        {flag.reason}
+                      </p>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ) : null}
             <Tabs className="gap-4" defaultValue="to_review">
               <TabsList
                 className="grid h-auto grid-cols-4 gap-2 p-2"

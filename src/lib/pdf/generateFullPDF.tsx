@@ -17,7 +17,7 @@ import { getMessage } from '../messages'
 
 export async function generateFullPDF(
   caseId: string,
-  tier: 'standard' | 'resolution',
+  tier: 'standard' | 'resolution' | 'mediator_assist',
   userId: string,
 ): Promise<Buffer> {
   const context = await loadExportContext(caseId, userId)

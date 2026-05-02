@@ -616,7 +616,7 @@ export function getExportBadge(
 
 export function getSavingsSummary(
   stage: number,
-  tier: 'standard' | 'resolution',
+  tier: 'standard' | 'resolution' | 'mediator_assist',
   messages: Awaited<ReturnType<typeof loadMessages>>,
 ) {
   const savings = calculateSavings(stage, tier)

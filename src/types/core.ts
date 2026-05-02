@@ -30,5 +30,5 @@ export type InvitationDeliveryStatus =
   | "complained"
   | "failed";
 
-export type ExportTier = "standard" | "resolution";
+export type ExportTier = "standard" | "resolution" | "mediator_assist";
 export type ExportType = "full_case" | "single_party";

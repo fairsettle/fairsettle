@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { fetchApi } from "@/lib/api-client";
 import { mapAuthErrorMessage } from "@/lib/client-errors";
-import { getLocalizedPath, localizeHref, type SupportedLocale } from "@/lib/locale-path";
+import { getLocalizedPath, strictLocalizeHref, type SupportedLocale } from "@/lib/locale-path";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
@@ -49,6 +49,7 @@ export default function LoginPage() {
       const payload = (await response.json().catch(() => null)) as
         | {
             is_admin?: boolean;
+            is_specialist?: boolean;
             preferred_language?: SupportedLocale;
             user?: { id: string; email?: string | null };
             error?:
@@ -77,9 +78,11 @@ export default function LoginPage() {
           ? explicitRedirect
           : payload?.is_admin
             ? "/admin"
+            : payload?.is_specialist
+              ? "/professional/dashboard"
             : "/dashboard";
 
-      router.push(localizeHref(payload?.preferred_language ?? locale, destination));
+      router.push(strictLocalizeHref(payload?.preferred_language ?? locale, destination));
       router.refresh();
     } catch {
       setErrorMessage(t("errors.generic"));

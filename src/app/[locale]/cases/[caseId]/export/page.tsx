@@ -17,6 +17,7 @@ import {
   resolveApiErrorMessage,
 } from "@/lib/client-errors";
 import {
+  MEDIATOR_ASSIST_FEATURE_KEYS,
   RESOLUTION_EXPORT_FEATURE_KEYS,
   STANDARD_EXPORT_FEATURE_KEYS,
 } from "@/lib/exports/view";
@@ -80,11 +81,11 @@ export default function ExportPage({
   const [isMarkingComplete, setIsMarkingComplete] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isCheckingOut, setIsCheckingOut] = useState<
-    "standard" | "resolution" | null
+    "standard" | "resolution" | "mediator_assist" | null
   >(null);
   const [isPolling, setIsPolling] = useState(false);
   const [downloadUrl, setDownloadUrl] = useState("");
-  const [downloadTier, setDownloadTier] = useState<"standard" | "resolution">(
+  const [downloadTier, setDownloadTier] = useState<"standard" | "resolution" | "mediator_assist">(
     "standard",
   );
   const [errorMessage, setErrorMessage] = useState("");
@@ -240,7 +241,7 @@ export default function ExportPage({
     };
   }, [downloadUrl, isSuccess, loadDownloadStatus]);
 
-  async function handleCheckout(tier: "standard" | "resolution") {
+  async function handleCheckout(tier: "standard" | "resolution" | "mediator_assist") {
     if (!canPurchaseExport) {
       setErrorMessage(t("export.initiatorOnlyBody"));
       return;
@@ -557,7 +558,7 @@ export default function ExportPage({
             </CardContent>
           </Card>
         ) : !hasReadyExport ? (
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid gap-4 xl:grid-cols-3">
             <Card className="app-panel">
               <CardContent className="space-y-5 p-6">
                 <div className="space-y-2">
@@ -641,6 +642,55 @@ export default function ExportPage({
                   {isCheckingOut === "resolution"
                     ? t("export.redirecting")
                     : t("export.upgrade")}
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="app-panel border-2 border-brand/20">
+              <CardContent className="space-y-5 p-6">
+                <div className="flex flex-wrap items-center gap-3">
+                  <h2 className="font-display text-3xl text-ink">
+                    Mediator Assist
+                  </h2>
+                  <Badge
+                    className="border-brand/15 bg-brand-soft text-brand-strong"
+                    variant="secondary"
+                  >
+                    £299
+                  </Badge>
+                </div>
+                <p className="text-sm leading-6 text-ink-soft">
+                  Download the full AI-supported case pack and place your case into the FairSettle mediator matching queue for manual triage.
+                </p>
+                <div className="grid gap-3">
+                  {MEDIATOR_ASSIST_FEATURE_KEYS.map((featureKey) => (
+                    <div
+                      key={featureKey}
+                      className="flex items-center justify-between gap-3 rounded-[1.25rem] bg-surface-soft px-4 py-3"
+                    >
+                      <span className="text-sm text-ink">
+                        {featureKey.startsWith("export.") ? t(featureKey) : featureKey}
+                      </span>
+                      <Badge
+                        className="border-success/10 bg-success-soft text-success-foreground"
+                        variant="secondary"
+                      >
+                        {t("export.included")}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+                <Button
+                  className="h-12 w-full text-base"
+                  disabled={isCheckingOut !== null}
+                  size="lg"
+                  type="button"
+                  variant="outline"
+                  onClick={() => void handleCheckout("mediator_assist")}
+                >
+                  {isCheckingOut === "mediator_assist"
+                    ? t("export.redirecting")
+                    : "Buy Mediator Assist"}
                 </Button>
               </CardContent>
             </Card>

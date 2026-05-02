@@ -11,7 +11,7 @@ export function SavingsBar({
   snapshot,
 }: {
   stage?: number;
-  tier?: "standard" | "resolution";
+  tier?: "standard" | "resolution" | "mediator_assist";
   snapshot?: SavingsData;
 }) {
   const t = useTranslations();

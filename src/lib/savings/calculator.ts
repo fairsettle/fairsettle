@@ -22,6 +22,7 @@ const SOLICITOR_STAGE_COSTS = [
 const FAIRSETTLE_COSTS = {
   standard: 49,
   resolution: 149,
+  mediator_assist: 299,
 };
 
 const QUESTION_FLOW_SECTION_COSTS: Record<
@@ -83,7 +84,7 @@ const QUESTION_FLOW_SECTION_COSTS: Record<
 
 export function calculateSavings(
   currentStage: number,
-  tier: "standard" | "resolution" = "standard",
+  tier: "standard" | "resolution" | "mediator_assist" = "standard",
 ): SavingsData {
   const safeStage = Math.max(
     0,

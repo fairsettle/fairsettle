@@ -10,11 +10,16 @@ import { createClient } from '@/lib/supabase/server'
 
 const checkoutSchema = z.object({
   case_id: z.string().uuid(),
-  tier: z.enum(['standard', 'resolution']),
+  tier: z.enum(['standard', 'resolution', 'mediator_assist']),
 })
 
 export async function POST(req: Request) {
-  if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_PRICE_STANDARD || !process.env.STRIPE_PRICE_RESOLUTION) {
+  if (
+    !process.env.STRIPE_SECRET_KEY ||
+    !process.env.STRIPE_PRICE_STANDARD ||
+    !process.env.STRIPE_PRICE_RESOLUTION ||
+    !process.env.STRIPE_PRICE_MEDIATOR_ASSIST
+  ) {
     return apiError(req, 'STRIPE_NOT_CONFIGURED', 500)
   }
 
@@ -75,7 +80,9 @@ export async function POST(req: Request) {
   const priceId =
     parsed.data.tier === 'standard'
       ? process.env.STRIPE_PRICE_STANDARD
-      : process.env.STRIPE_PRICE_RESOLUTION
+      : parsed.data.tier === 'resolution'
+        ? process.env.STRIPE_PRICE_RESOLUTION
+        : process.env.STRIPE_PRICE_MEDIATOR_ASSIST
 
   try {
     const session = await stripe.checkout.sessions.create({

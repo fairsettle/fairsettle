@@ -6,6 +6,7 @@ import { DEFAULT_AI_MODEL } from "@/lib/ai/provider";
 import { getDeepToneAnalysis } from "@/lib/ai/tone";
 import { getAuthorizedCase } from "@/lib/cases/auth";
 import { checkTone } from "@/lib/openai/moderation";
+import { computeCaseComplexityFlags } from "@/lib/referrals/service";
 import { createClient } from "@/lib/supabase/server";
 
 const sentimentSchema = z.object({
@@ -113,6 +114,10 @@ export async function POST(req: Request) {
     deep_analysis_model: deepAnalysis ? DEFAULT_AI_MODEL : null,
     deep_analysis_at: deepAnalysis ? new Date().toISOString() : null,
   });
+
+  if (deepAnalysis?.risk_level === "high" || deepAnalysis?.risk_level === "critical") {
+    await computeCaseComplexityFlags(parsed.data.case_id).catch(() => null);
+  }
 
   return NextResponse.json({
     flagged: submittedResult.is_flagged,

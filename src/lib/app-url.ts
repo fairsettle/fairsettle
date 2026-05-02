@@ -1,4 +1,4 @@
-import { getLocalizedPath } from '@/lib/locale-path'
+import { getStrictLocalizedPath } from '@/lib/locale-path'
 
 function normalizeOrigin(origin: string) {
   return origin.replace(/\/+$/, '')
@@ -23,7 +23,7 @@ export function getAppOrigin(preferredOrigin?: string) {
 }
 
 export function buildAppUrl(path: string, locale?: string, preferredOrigin?: string) {
-  const localizedPath = locale ? getLocalizedPath(locale, path) : path
+  const localizedPath = locale ? getStrictLocalizedPath(locale, path) : path
 
   return `${getAppOrigin(preferredOrigin)}${localizedPath.startsWith('/') ? localizedPath : `/${localizedPath}`}`
 }

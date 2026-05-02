@@ -41,12 +41,25 @@ export function getLocalizedPath(locale: string, path: string) {
   return normalizedPath === '/' ? `/${locale}` : `/${locale}${normalizedPath}`
 }
 
+export function getStrictLocalizedPath(locale: string, path: string) {
+  const normalizedPath = stripLocaleFromPathname(path === '' ? '/' : path)
+  return normalizedPath === '/' ? `/${locale}` : `/${locale}${normalizedPath}`
+}
+
 export function localizeHref(locale: string, href: string) {
   const match = href.match(/^([^?#]*)(.*)$/)
   const pathname = match?.[1] || '/'
   const suffix = match?.[2] || ''
 
   return `${getLocalizedPath(locale, stripLocaleFromPathname(pathname))}${suffix}`
+}
+
+export function strictLocalizeHref(locale: string, href: string) {
+  const match = href.match(/^([^?#]*)(.*)$/)
+  const pathname = match?.[1] || '/'
+  const suffix = match?.[2] || ''
+
+  return `${getStrictLocalizedPath(locale, stripLocaleFromPathname(pathname))}${suffix}`
 }
 
 export const supportedLocales = SUPPORTED_LOCALES

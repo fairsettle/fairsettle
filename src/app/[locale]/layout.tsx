@@ -24,6 +24,7 @@ export default async function LocaleLayout({
   const dir = locale === 'ar' ? 'rtl' : 'ltr'
   let isAuthenticated = false
   let isAdmin = false
+  let isSpecialist = false
   let userLabel: string | null = null
 
   try {
@@ -41,6 +42,15 @@ export default async function LocaleLayout({
         .maybeSingle()
 
       isAdmin = Boolean(profile?.is_admin)
+      const { data: specialist } = await supabase
+        .from('specialists')
+        .select('id')
+        .eq('profile_id', user.id)
+        .eq('is_active', true)
+        .eq('is_verified', true)
+        .maybeSingle()
+
+      isSpecialist = Boolean(specialist?.id)
       userLabel =
         profile?.full_name ||
         profile?.email ||
@@ -65,9 +75,11 @@ export default async function LocaleLayout({
           dashboardLabel={t('dashboard.title')}
           isAuthenticated={isAuthenticated}
           isAdmin={isAdmin}
+          isSpecialist={isSpecialist}
           locale={locale}
           loginLabel={t('login.title')}
           logoutLabel={t('nav.logout')}
+          professionalDashboardLabel={t('nav.professionalDashboard')}
           userLabel={userLabel}
         />
         {children}

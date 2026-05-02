@@ -5,6 +5,7 @@
     "invited": "Mon ex m’a invité",
     "account": "Compte",
     "adminDashboard": "Tableau de bord admin",
+    "professionalDashboard": "Tableau de bord professionnel",
     "backToSite": "Retour au site",
     "logout": "Se déconnecter"
   },
@@ -500,6 +501,8 @@
     "standardFeatureAudit": "Historique et rapport d’économies",
     "resolutionFeatureConsent": "Section projet d’ordonnance de consentement",
     "resolutionFeatureCooperation": "Page du score de coopération",
+    "mediatorAssistFeatureMatching": "Mise en relation manuelle avec un médiateur par l’équipe FairSettle",
+    "mediatorAssistFeatureTriage": "Notes de triage et suivi de l’orientation",
     "successPreparing": "Paiement réussi ! Votre dossier est en préparation…",
     "successReady": "Votre dossier est prêt à être téléchargé.",
     "redirecting": "Redirection vers Stripe…",

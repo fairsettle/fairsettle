@@ -18,6 +18,13 @@ export async function POST(req: Request) {
     .select('preferred_language, is_admin')
     .eq('id', data.user.id)
     .maybeSingle()
+  const specialistResult = await supabase
+    .from('specialists')
+    .select('id')
+    .eq('profile_id', data.user.id)
+    .eq('is_active', true)
+    .eq('is_verified', true)
+    .maybeSingle()
 
   const preferredLanguage = coerceSupportedLocale(
     profileResult.data?.preferred_language ||
@@ -29,6 +36,7 @@ export async function POST(req: Request) {
   const response = NextResponse.json({
     user: { id: data.user.id, email: data.user.email },
     is_admin: Boolean(profileResult.data?.is_admin),
+    is_specialist: Boolean(specialistResult.data?.id),
     preferred_language: preferredLanguage,
   })
 

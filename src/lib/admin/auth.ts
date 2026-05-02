@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 
-import { getLocalizedPath } from '@/lib/locale-path'
+import { getStrictLocalizedPath } from '@/lib/locale-path'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 
 export type AdminContext = {
@@ -10,7 +10,7 @@ export type AdminContext = {
   email: string
 }
 
-function readSupabaseUserFromCookies() {
+export function readSupabaseUserFromCookies() {
   const cookieStore = cookies()
   const authCookieParts = cookieStore
     .getAll()
@@ -51,7 +51,7 @@ export async function requireAdmin(locale: string): Promise<AdminContext> {
   const user = readSupabaseUserFromCookies()
 
   if (!user) {
-    redirect(getLocalizedPath(locale, '/login'))
+    redirect(getStrictLocalizedPath(locale, '/login'))
   }
 
   const { data: profile } = await supabaseAdmin
@@ -61,7 +61,7 @@ export async function requireAdmin(locale: string): Promise<AdminContext> {
     .maybeSingle()
 
   if (!profile?.is_admin) {
-    redirect(getLocalizedPath(locale, '/dashboard'))
+    redirect(getStrictLocalizedPath(locale, '/dashboard'))
   }
 
   return {

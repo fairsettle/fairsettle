@@ -40,7 +40,7 @@ export async function createStoredFullExport({
   stripeSessionId,
 }: {
   caseId: string
-  tier: 'standard' | 'resolution'
+  tier: 'standard' | 'resolution' | 'mediator_assist'
   userId: string
   stripeSessionId: string
 }) {

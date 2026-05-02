@@ -1,4 +1,5 @@
 import type { Database, Json } from '@/types/database'
+import type { CaseComplexityFlag } from '@/types/referrals'
 
 import { formatChildLabel, makeItemKey } from '@/lib/family-profile'
 import { getDisputeTypesForCase } from '@/lib/questions'
@@ -50,6 +51,7 @@ export interface SafeComparisonPayload {
   viewer_role: ViewerRole
   summary: ComparisonSummary
   items: SafeComparisonItem[]
+  complexity_flags?: CaseComplexityFlag[]
   narrative_summary?: string | null
   narrative_summary_mode?: 'ai' | 'rule_based'
   ai_disclaimer?: string | null

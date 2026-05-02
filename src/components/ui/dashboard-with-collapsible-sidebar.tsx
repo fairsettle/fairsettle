@@ -6,9 +6,12 @@ import { useMemo, useState, type ReactNode } from "react"
 import {
   ArrowLeft,
   BarChart3,
+  BriefcaseBusiness,
   ChevronDown,
   ChevronsLeft,
+  CircleDollarSign,
   CreditCard,
+  FolderHeart,
   FolderKanban,
   LayoutDashboard,
   Menu,
@@ -25,6 +28,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { getStrictLocalizedPath } from "@/lib/locale-path"
 import { cn } from "@/lib/utils"
 
 type AdminSidebarItem = {
@@ -33,11 +37,13 @@ type AdminSidebarItem = {
   icon: typeof LayoutDashboard
 }
 
-const NAV_ITEMS: AdminSidebarItem[] = [
+const ADMIN_NAV_ITEMS: AdminSidebarItem[] = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/cases", label: "Cases", icon: FolderKanban },
   { href: "/admin/payments", label: "Payments", icon: CreditCard },
+  { href: "/admin/referrals", label: "Referrals", icon: FolderHeart },
+  { href: "/admin/specialists", label: "Specialists", icon: ShieldCheck },
   { href: "/admin/sentiment", label: "Sentiment flags", icon: TriangleAlert },
 ]
 
@@ -46,32 +52,44 @@ function normalizePath(pathname: string) {
   return match ? match[2] || "/" : pathname
 }
 
-function getLocalizedAdminHref(locale: string, href: string) {
-  return locale === "en" ? href : `/${locale}${href}`
+function getLocalizedWorkspaceHref(locale: string, href: string) {
+  return getStrictLocalizedPath(locale, href)
 }
 
 function AdminSidebarBody({
   brand,
   locale,
-  adminName,
-  adminEmail,
+  userName,
+  userEmail,
   initials,
   normalizedPath,
   open,
   mobile = false,
   onNavigate,
   backToSiteLabel,
+  backToSiteHref,
+  navItems,
+  badgeLabel,
+  accessLabel,
+  accessBody,
+  mobileHint,
 }: {
   brand: string
   locale: string
-  adminName: string
-  adminEmail: string
+  userName: string
+  userEmail: string
   initials: string
   normalizedPath: string
   open: boolean
   mobile?: boolean
   onNavigate?: () => void
   backToSiteLabel: string
+  backToSiteHref: string
+  navItems: AdminSidebarItem[]
+  badgeLabel: string
+  accessLabel: string
+  accessBody: string
+  mobileHint?: string
 }) {
   return (
     <>
@@ -83,7 +101,7 @@ function AdminSidebarBody({
           {open ? (
             <div className="min-w-0">
               <p className="font-display text-xl leading-none text-ink">{brand}</p>
-              <p className="mt-1 text-xs uppercase tracking-[0.22em] text-brand">Admin</p>
+              <p className="mt-1 text-xs uppercase tracking-[0.22em] text-brand">{badgeLabel}</p>
             </div>
           ) : null}
         </div>
@@ -93,9 +111,9 @@ function AdminSidebarBody({
 
       <div className="min-h-0 flex-1 overflow-y-auto px-2 pt-5">
         <div className="space-y-2">
-          {NAV_ITEMS.map((item) => {
+          {navItems.map((item) => {
             const Icon = item.icon
-            const href = getLocalizedAdminHref(locale, item.href)
+            const href = getLocalizedWorkspaceHref(locale, item.href)
             const isActive =
               normalizedPath === item.href ||
               (item.href !== "/admin" && normalizedPath.startsWith(`${item.href}/`))
@@ -124,10 +142,8 @@ function AdminSidebarBody({
         <div className="mt-8 rounded-[1.5rem] border border-line/80 bg-surface-soft/75 p-4">
           {open ? (
             <div className="space-y-3">
-              <p className="app-kicker">Access</p>
-              <p className="text-sm leading-6 text-ink-soft">
-                Read-only workspace for monitoring users, cases, revenue, and sentiment activity.
-              </p>
+              <p className="app-kicker">{accessLabel}</p>
+              <p className="text-sm leading-6 text-ink-soft">{accessBody}</p>
             </div>
           ) : (
             <div className="flex justify-center text-brand">
@@ -139,7 +155,7 @@ function AdminSidebarBody({
 
       <div className="mt-6 border-t border-line/80 px-2 pt-4">
         <Link
-          href={getLocalizedAdminHref(locale, '/dashboard')}
+          href={getLocalizedWorkspaceHref(locale, backToSiteHref)}
           onClick={onNavigate}
           className={cn(
             "mb-3 flex items-center gap-3 rounded-[1.1rem] border border-transparent px-3 py-2.5 text-sm text-ink-soft transition-colors hover:border-brand/10 hover:bg-surface-soft hover:text-ink",
@@ -164,15 +180,15 @@ function AdminSidebarBody({
 
           {open ? (
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-ink">{adminName || "Admin user"}</p>
-              <p className="truncate text-xs text-ink-soft">{adminEmail}</p>
+              <p className="truncate text-sm font-medium text-ink">{userName || "Workspace user"}</p>
+              <p className="truncate text-xs text-ink-soft">{userEmail}</p>
             </div>
           ) : null}
         </div>
 
-        {mobile ? (
+        {mobile && mobileHint ? (
           <p className="mt-3 px-3 text-xs leading-5 text-ink-soft">
-            Use the menu to switch between admin sections on smaller screens.
+            {mobileHint}
           </p>
         ) : null}
       </div>
@@ -180,19 +196,33 @@ function AdminSidebarBody({
   )
 }
 
-export function DashboardWithCollapsibleSidebar({
+export function DashboardWorkspaceShell({
   brand,
   locale,
-  adminName,
-  adminEmail,
+  userName,
+  userEmail,
   backToSiteLabel,
+  backToSiteHref = "/dashboard",
+  navItems,
+  badgeLabel,
+  accessLabel,
+  accessBody,
+  mobileTitle,
+  mobileHint,
   children,
 }: {
   brand: string
   locale: string
-  adminName: string
-  adminEmail: string
+  userName: string
+  userEmail: string
   backToSiteLabel: string
+  backToSiteHref?: string
+  navItems: AdminSidebarItem[]
+  badgeLabel: string
+  accessLabel: string
+  accessBody: string
+  mobileTitle: string
+  mobileHint?: string
   children: ReactNode
 }) {
   const [open, setOpen] = useState(true)
@@ -200,14 +230,14 @@ export function DashboardWithCollapsibleSidebar({
   const pathname = usePathname()
   const normalizedPath = normalizePath(pathname)
   const initials = useMemo(() => {
-    const source = adminName || adminEmail || "A"
+    const source = userName || userEmail || "A"
     return source
       .split(" ")
       .filter(Boolean)
       .slice(0, 2)
       .map((part) => part[0]?.toUpperCase() ?? "")
       .join("")
-  }, [adminEmail, adminName])
+  }, [userEmail, userName])
 
   return (
     <div className="flex min-h-[calc(100vh-2rem)] gap-6">
@@ -215,8 +245,8 @@ export function DashboardWithCollapsibleSidebar({
         <div className="fixed inset-x-4 top-4 z-40 xl:hidden">
           <div className="flex items-center justify-between rounded-[1.65rem] border border-line/85 bg-surface-elevated px-4 py-3 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
             <div className="min-w-0">
-              <p className="app-kicker">FairSettle admin</p>
-              <p className="truncate font-display text-2xl leading-none text-ink">Workspace</p>
+              <p className="app-kicker">{brand}</p>
+              <p className="truncate font-display text-2xl leading-none text-ink">{mobileTitle}</p>
             </div>
 
             <DialogTrigger asChild>
@@ -234,21 +264,27 @@ export function DashboardWithCollapsibleSidebar({
         >
           <DialogTitle className="sr-only">Admin navigation</DialogTitle>
           <DialogDescription className="sr-only">
-            Open the admin sidebar and switch between overview, users, cases, payments, and sentiment flags.
+            Open the workspace sidebar and switch between dashboard sections.
           </DialogDescription>
 
           <div className="flex min-h-full flex-col">
             <AdminSidebarBody
               brand={brand}
               locale={locale}
-              adminName={adminName}
-              adminEmail={adminEmail}
+              userName={userName}
+              userEmail={userEmail}
               initials={initials}
               normalizedPath={normalizedPath}
               open
               mobile
               onNavigate={() => setMobileOpen(false)}
               backToSiteLabel={backToSiteLabel}
+              backToSiteHref={backToSiteHref}
+              navItems={navItems}
+              badgeLabel={badgeLabel}
+              accessLabel={accessLabel}
+              accessBody={accessBody}
+              mobileHint={mobileHint}
             />
           </div>
         </DialogContent>
@@ -263,12 +299,18 @@ export function DashboardWithCollapsibleSidebar({
         <AdminSidebarBody
           brand={brand}
           locale={locale}
-          adminName={adminName}
-          adminEmail={adminEmail}
+          userName={userName}
+          userEmail={userEmail}
           initials={initials}
           normalizedPath={normalizedPath}
           open={open}
           backToSiteLabel={backToSiteLabel}
+          backToSiteHref={backToSiteHref}
+          navItems={navItems}
+          badgeLabel={badgeLabel}
+          accessLabel={accessLabel}
+          accessBody={accessBody}
+          mobileHint={mobileHint}
         />
 
         <div className="mt-3 border-t border-line/80 px-2 pt-4">
@@ -292,5 +334,81 @@ export function DashboardWithCollapsibleSidebar({
         </div>
       </div>
     </div>
+  )
+}
+
+export function DashboardWithCollapsibleSidebar({
+  brand,
+  locale,
+  adminName,
+  adminEmail,
+  backToSiteLabel,
+  children,
+}: {
+  brand: string
+  locale: string
+  adminName: string
+  adminEmail: string
+  backToSiteLabel: string
+  children: ReactNode
+}) {
+  return (
+    <DashboardWorkspaceShell
+      brand={brand}
+      locale={locale}
+      userName={adminName}
+      userEmail={adminEmail}
+      backToSiteLabel={backToSiteLabel}
+      navItems={ADMIN_NAV_ITEMS}
+      badgeLabel="Admin"
+      accessLabel="Access"
+      accessBody="Read-only workspace for monitoring users, cases, revenue, and sentiment activity."
+      mobileTitle="Admin workspace"
+      mobileHint="Use the menu to switch between admin sections on smaller screens."
+    >
+      {children}
+    </DashboardWorkspaceShell>
+  )
+}
+
+export function ProfessionalDashboardSidebar({
+  brand,
+  locale,
+  userName,
+  userEmail,
+  backToSiteLabel,
+  children,
+}: {
+  brand: string
+  locale: string
+  userName: string
+  userEmail: string
+  backToSiteLabel: string
+  children: ReactNode
+}) {
+  const professionalNavItems: AdminSidebarItem[] = [
+    { href: "/professional/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/professional/profile", label: "Profile", icon: Users },
+    { href: "/professional/earnings", label: "Earnings", icon: CircleDollarSign },
+    { href: "/professional/cases", label: "Cases", icon: FolderKanban },
+    { href: "/specialists", label: "Marketplace", icon: BriefcaseBusiness },
+  ]
+
+  return (
+    <DashboardWorkspaceShell
+      brand={brand}
+      locale={locale}
+      userName={userName}
+      userEmail={userEmail}
+      backToSiteLabel={backToSiteLabel}
+      navItems={professionalNavItems}
+      badgeLabel="Specialist"
+      accessLabel="Workspace"
+      accessBody="Manage assigned referrals, review cases, submit recommendations, and monitor your earnings."
+      mobileTitle="Professional workspace"
+      mobileHint="Use the menu to switch between specialist dashboard sections on smaller screens."
+    >
+      {children}
+    </DashboardWorkspaceShell>
   )
 }

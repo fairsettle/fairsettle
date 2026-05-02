@@ -8,27 +8,31 @@ import { BrandLockup } from '@/components/layout/BrandLockup'
 import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
 import { Button } from '@/components/ui/button'
 import { usePathname } from '@/i18n/navigation'
-import { getLocalizedPath } from '@/lib/locale-path'
+import { getLocalizedPath, getStrictLocalizedPath } from '@/lib/locale-path'
 
 export function SiteHeader({
   accountLabel,
   adminDashboardLabel,
+  professionalDashboardLabel,
   locale,
   brandLabel,
   dashboardLabel,
   isAuthenticated = false,
   isAdmin = false,
+  isSpecialist = false,
   loginLabel,
   logoutLabel,
   userLabel,
 }: {
   accountLabel?: string
   adminDashboardLabel?: string
+  professionalDashboardLabel?: string
   locale: string
   brandLabel: string
   dashboardLabel?: string
   isAuthenticated?: boolean
   isAdmin?: boolean
+  isSpecialist?: boolean
   loginLabel?: string
   logoutLabel?: string
   userLabel?: string | null
@@ -41,8 +45,14 @@ export function SiteHeader({
     pathname === '/register' ||
     pathname === '/forgot-password' ||
     pathname === '/reset-password'
+  const isAdminWorkspace = pathname === '/admin' || pathname.startsWith('/admin/')
+  const isProfessionalWorkspace =
+    pathname === '/professional' ||
+    (pathname.startsWith('/professional/') && pathname !== '/professional/apply')
+  const shouldHideHeader = isAdminWorkspace || isProfessionalWorkspace
   const dashboardHref = getLocalizedPath(locale, '/dashboard')
-  const adminHref = getLocalizedPath(locale, '/admin')
+  const adminHref = getStrictLocalizedPath(locale, '/admin')
+  const professionalHref = getStrictLocalizedPath(locale, '/professional/dashboard')
   const displayLabel = useMemo(() => {
     if (!userLabel) {
       return brandLabel
@@ -92,6 +102,10 @@ export function SiteHeader({
       document.removeEventListener('keydown', handleEscape)
     }
   }, [])
+
+  if (shouldHideHeader) {
+    return null
+  }
 
   return (
     <header className="sticky top-0 z-50 px-5 pt-4 sm:pt-5">
@@ -156,6 +170,18 @@ export function SiteHeader({
                         <span className="flex items-center gap-3">
                           <LayoutDashboard className="size-4 text-brand-strong" />
                           {adminDashboardLabel ?? 'Admin dashboard'}
+                        </span>
+                      </Link>
+                    ) : null}
+                    {isSpecialist ? (
+                      <Link
+                        className="flex items-center justify-between rounded-[1.1rem] px-4 py-3 text-sm font-medium text-ink transition duration-200 hover:bg-surface-soft"
+                        href={professionalHref}
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <span className="flex items-center gap-3">
+                          <LayoutDashboard className="size-4 text-brand-strong" />
+                          {professionalDashboardLabel ?? 'Professional dashboard'}
                         </span>
                       </Link>
                     ) : null}

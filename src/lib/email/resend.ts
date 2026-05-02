@@ -283,6 +283,56 @@ export async function sendEmail(
   return result.data.id
 }
 
+export async function sendDirectEmail({
+  to,
+  subject,
+  title,
+  body,
+  ctaLabel,
+  ctaUrl,
+}: {
+  to: string
+  subject: string
+  title: string
+  body: string
+  ctaLabel: string
+  ctaUrl: string
+}) {
+  const unsubscribeUrl = buildUnsubscribeUrl()
+  const footer = 'FairSettle keeps specialist and referral updates in one place so your next steps stay clear.'
+  const unsubscribeLabel = 'Unsubscribe'
+
+  const result = await resend.emails.send({
+    from: getSender(),
+    to,
+    subject,
+    html: buildEmailHtml({
+      title,
+      body,
+      ctaLabel,
+      ctaUrl,
+      footer,
+      unsubscribeLabel,
+      unsubscribeUrl,
+    }),
+    text: buildEmailText({
+      title,
+      body,
+      ctaLabel,
+      ctaUrl,
+      footer,
+      unsubscribeLabel,
+      unsubscribeUrl,
+    }),
+  })
+
+  if (result.error) {
+    throw new Error(result.error.message ?? 'Unable to send email')
+  }
+
+  return result.data?.id ?? ''
+}
+
 export async function sendInitiatorSubmittedEmail(
   userEmail: string,
   caseId: string,
@@ -456,7 +506,7 @@ export async function sendResolutionModifiedEmail(
 export async function sendExportReadyEmail(
   userEmail: string,
   caseId: string,
-  tier: 'standard' | 'resolution',
+  tier: 'standard' | 'resolution' | 'mediator_assist',
   locale: string = 'en',
   origin?: string,
 ): Promise<void> {
@@ -500,4 +550,101 @@ export async function sendSinglePartyExportReadyEmail(
     },
     locale,
   )
+}
+
+export async function sendReferralAdminEmail({
+  adminEmail,
+  subject,
+  title,
+  body,
+  adminUrl,
+}: {
+  adminEmail: string
+  subject: string
+  title: string
+  body: string
+  adminUrl: string
+}) {
+  await sendDirectEmail({
+    to: adminEmail,
+    subject,
+    title,
+    body,
+    ctaLabel: 'Open admin review',
+    ctaUrl: adminUrl,
+  })
+}
+
+export async function sendReferralAcknowledgementEmail({
+  userEmail,
+  title,
+  body,
+  caseUrl,
+}: {
+  userEmail: string
+  title: string
+  body: string
+  caseUrl: string
+}) {
+  await sendDirectEmail({
+    to: userEmail,
+    subject: title,
+    title,
+    body,
+    ctaLabel: 'Open your case',
+    ctaUrl: caseUrl,
+  })
+}
+
+export async function sendSpecialistApprovalEmail({
+  userEmail,
+  dashboardUrl,
+}: {
+  userEmail: string
+  dashboardUrl: string
+}) {
+  await sendDirectEmail({
+    to: userEmail,
+    subject: 'Your FairSettle professional profile is approved',
+    title: 'You can now access the professional workspace',
+    body: 'Your specialist application has been approved. Sign in to manage referrals, review cases, and submit recommendations.',
+    ctaLabel: 'Open professional dashboard',
+    ctaUrl: dashboardUrl,
+  })
+}
+
+export async function sendSpecialistApplicationReceivedEmail({
+  userEmail,
+  applyStatusUrl,
+}: {
+  userEmail: string
+  applyStatusUrl: string
+}) {
+  await sendDirectEmail({
+    to: userEmail,
+    subject: 'Your FairSettle specialist application has been received',
+    title: 'We have received your specialist application',
+    body: 'The FairSettle team has received your application and will review your accreditation, profile details, and marketplace fit before unlocking the professional workspace.',
+    ctaLabel: 'View FairSettle',
+    ctaUrl: applyStatusUrl,
+  })
+}
+
+export async function sendSpecialistRejectionEmail({
+  userEmail,
+  reviewNotes,
+  applyUrl,
+}: {
+  userEmail: string
+  reviewNotes: string
+  applyUrl: string
+}) {
+  await sendDirectEmail({
+    to: userEmail,
+    subject: 'An update on your FairSettle specialist application',
+    title: 'Your specialist application was not approved',
+    body: `The FairSettle team reviewed your application but could not approve it in its current form.${reviewNotes ? ` Review notes: ${reviewNotes}` : ''}`,
+    ctaLabel: 'Review application page',
+    ctaUrl: applyUrl,
+  })
 }

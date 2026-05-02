@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
-import { coerceSupportedLocale, localizeHref } from '@/lib/locale-path'
+import { coerceSupportedLocale, strictLocalizeHref } from '@/lib/locale-path'
 import { createClient } from '@/lib/supabase/server'
 
 export async function GET(request: NextRequest) {
@@ -25,6 +25,15 @@ export async function GET(request: NextRequest) {
             .eq('id', user.id)
             .maybeSingle()
         : { data: null }
+      const specialistResult = user
+        ? await supabase
+            .from('specialists')
+            .select('id')
+            .eq('profile_id', user.id)
+            .eq('is_active', true)
+            .eq('is_verified', true)
+            .maybeSingle()
+        : { data: null }
 
       const preferredLanguage = coerceSupportedLocale(
         profileResult.data?.preferred_language ||
@@ -36,10 +45,12 @@ export async function GET(request: NextRequest) {
       const nextDestination =
         profileResult.data?.is_admin && (next === '/' || next === '/dashboard')
           ? '/admin'
+          : specialistResult.data?.id && (next === '/' || next === '/dashboard')
+            ? '/professional/dashboard'
           : next
 
       const response = NextResponse.redirect(
-        `${origin}${localizeHref(preferredLanguage, nextDestination)}`,
+        `${origin}${strictLocalizeHref(preferredLanguage, nextDestination)}`,
       )
 
       response.cookies.set('NEXT_LOCALE', preferredLanguage, {
@@ -52,5 +63,5 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`)
+  return NextResponse.redirect(`${origin}/en/login?error=auth_callback_failed`)
 }

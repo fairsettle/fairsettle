@@ -7,6 +7,7 @@ import { getAuthorizedCase } from '@/lib/cases/auth'
 import { buildSafeComparisonPayload } from '@/lib/comparison'
 import { coerceSupportedLocale } from '@/lib/locale-path'
 import { loadMessages } from '@/lib/messages'
+import { computeCaseComplexityFlags } from '@/lib/referrals/service'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { logEvent } from '@/lib/timeline'
 
@@ -78,17 +79,19 @@ export async function GET(
       }
     }
 
-    const [narrativeSummary, messages] = await Promise.all([
+    const [narrativeSummary, messages, complexityFlags] = await Promise.all([
       getNarrativeSummaryForCase({
         caseId: params.caseId,
         viewerUserId: user.id,
         locale,
       }),
       loadMessages(locale),
+      computeCaseComplexityFlags(params.caseId),
     ])
 
     return NextResponse.json({
       ...payload,
+      complexity_flags: complexityFlags,
       narrative_summary: narrativeSummary.text,
       narrative_summary_mode: narrativeSummary.mode,
       ai_disclaimer:

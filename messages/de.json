@@ -5,6 +5,7 @@
     "invited": "Ich wurde von meinem Ex eingeladen",
     "account": "Konto",
     "adminDashboard": "Admin-Dashboard",
+    "professionalDashboard": "Fach-Dashboard",
     "backToSite": "Zurück zur Website",
     "logout": "Abmelden"
   },
@@ -500,6 +501,8 @@
     "standardFeatureAudit": "Prüfpfad und Ersparnisbericht",
     "resolutionFeatureConsent": "Abschnitt zum Entwurf einer Einverständnisanordnung",
     "resolutionFeatureCooperation": "Seite mit Kooperationswert",
+    "mediatorAssistFeatureMatching": "Manuelle Vermittler-Zuordnung durch das FairSettle-Team",
+    "mediatorAssistFeatureTriage": "Triage-Notizen und weitere Vermittlungsbetreuung",
     "successPreparing": "Zahlung erfolgreich! Ihr Fallpaket wird vorbereitet…",
     "successReady": "Ihr Fallpaket ist bereit zum Download.",
     "redirecting": "Weiterleitung zu Stripe…",

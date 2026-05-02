@@ -9,6 +9,12 @@ import { AiDisclosure } from "@/components/ai/AiDisclosure";
 import { AsyncStateCard } from "@/components/feedback/AsyncStateCard";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { SuggestionCard } from "@/components/resolution/SuggestionCard";
+import { ProfessionalRecommendationSection } from "@/components/referrals/ProfessionalRecommendationSection";
+import { ProfessionalHelpRequestCard } from "@/components/referrals/ProfessionalHelpRequestCard";
+import {
+  ReferralStatusAndRatingSection,
+  type ReferralStatusCardReferral,
+} from "@/components/referrals/ReferralStatusAndRatingSection";
 import { SavingsBar } from "@/components/savings/SavingsBar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -35,6 +41,8 @@ export default function ResolutionPage({
     "initiator",
   );
   const [payload, setPayload] = useState<ResolutionPayload | null>(null);
+  const [latestReferral, setLatestReferral] =
+    useState<ReferralStatusCardReferral | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [showRuleBasedSuggestion, setShowRuleBasedSuggestion] = useState(false);
@@ -44,13 +52,17 @@ export default function ResolutionPage({
 
     async function loadData() {
       try {
-        const [resolutionResponse, comparisonResponse] = await Promise.all([
+        const [resolutionResponse, comparisonResponse, referralResponse] =
+          await Promise.all([
           fetchApi(`/api/cases/${caseId}/resolution?locale=${locale}`, locale, {
             cache: "no-store",
           }),
           fetchApi(`/api/cases/${caseId}/comparison?locale=${locale}`, locale, {
             cache: "no-store",
           }),
+          fetchApi(`/api/referrals?caseId=${caseId}`, locale, {
+            cache: "no-store",
+          }).catch(() => null),
         ]);
 
         if (!resolutionResponse.ok) {
@@ -78,10 +90,21 @@ export default function ResolutionPage({
         const comparisonPayload = (await comparisonResponse.json()) as {
           viewer_role?: "initiator" | "responder";
         };
+        let referralPayload:
+          | { referrals?: ReferralStatusCardReferral[] }
+          | null
+          | undefined;
+
+        if (referralResponse?.ok) {
+          referralPayload = (await referralResponse.json()) as {
+            referrals?: ReferralStatusCardReferral[];
+          };
+        }
 
         if (!ignore) {
           setPayload(resolutionPayload);
           setSuggestions(resolutionPayload.suggestions ?? []);
+          setLatestReferral(referralPayload?.referrals?.[0] ?? null);
           setViewerRole(
             resolutionPayload.viewer_role ??
               comparisonPayload.viewer_role ??
@@ -247,6 +270,12 @@ export default function ResolutionPage({
         )}
 
         <div className="space-y-4">
+          <ReferralStatusAndRatingSection
+            locale={locale}
+            referral={latestReferral}
+          />
+          <ProfessionalRecommendationSection caseId={caseId} locale={locale} />
+          <ProfessionalHelpRequestCard caseId={caseId} locale={locale} />
           <SavingsBar stage={3} />
           <Button asChild className="h-12 w-full text-base" size="lg">
             <Link href={getLocalizedPath(locale, `/cases/${caseId}/export`)}>

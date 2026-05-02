@@ -70,6 +70,7 @@ export interface Database {
           auto_generate_due_at: string | null
           auto_generate_warning_sent_at: string | null
           source_channel: 'web' | 'whatsapp'
+          complexity_flags: Json
           status: 'draft' | 'invited' | 'active' | 'comparison' | 'completed' | 'expired'
           created_at: string
           updated_at: string
@@ -86,6 +87,7 @@ export interface Database {
           auto_generate_due_at?: string | null
           auto_generate_warning_sent_at?: string | null
           source_channel?: 'web' | 'whatsapp'
+          complexity_flags?: Json
           status?: 'draft' | 'invited' | 'active' | 'comparison' | 'completed' | 'expired'
           created_at?: string
           updated_at?: string
@@ -102,6 +104,7 @@ export interface Database {
           auto_generate_due_at?: string | null
           auto_generate_warning_sent_at?: string | null
           source_channel?: 'web' | 'whatsapp'
+          complexity_flags?: Json
           status?: 'draft' | 'invited' | 'active' | 'comparison' | 'completed' | 'expired'
           created_at?: string
           updated_at?: string
@@ -432,7 +435,7 @@ export interface Database {
           case_id: string
           user_id: string
           export_type: 'full_case' | 'single_party'
-          tier: 'standard' | 'resolution'
+          tier: 'standard' | 'resolution' | 'mediator_assist'
           file_path: string
           stripe_session_id: string | null
           is_single_party: boolean
@@ -444,7 +447,7 @@ export interface Database {
           case_id: string
           user_id: string
           export_type: 'full_case' | 'single_party'
-          tier: 'standard' | 'resolution'
+          tier: 'standard' | 'resolution' | 'mediator_assist'
           file_path: string
           stripe_session_id?: string | null
           is_single_party?: boolean
@@ -456,7 +459,7 @@ export interface Database {
           case_id?: string
           user_id?: string
           export_type?: 'full_case' | 'single_party'
-          tier?: 'standard' | 'resolution'
+          tier?: 'standard' | 'resolution' | 'mediator_assist'
           file_path?: string
           stripe_session_id?: string | null
           is_single_party?: boolean
@@ -531,6 +534,507 @@ export interface Database {
           language?: string
           adapted_text?: string
           created_at?: string
+        }
+        Relationships: []
+      }
+      specialist_applications: {
+        Row: {
+          id: string
+          full_name: string
+          email: string
+          specialist_type: Database['public']['Enums']['specialist_type']
+          accreditation_body: string
+          accreditation_number: string
+          qualifications: string
+          years_experience: number
+          hourly_rate: number
+          languages: string[]
+          location_text: string
+          postcode: string
+          postcode_normalized: string
+          remote_available: boolean
+          specialisms: string[]
+          bio: string
+          photo_path: string | null
+          status: 'pending' | 'approved' | 'rejected'
+          review_notes: string | null
+          reviewed_by: string | null
+          reviewed_at: string | null
+          claimed_profile_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          full_name: string
+          email: string
+          specialist_type: Database['public']['Enums']['specialist_type']
+          accreditation_body: string
+          accreditation_number: string
+          qualifications: string
+          years_experience: number
+          hourly_rate: number
+          languages?: string[]
+          location_text: string
+          postcode: string
+          postcode_normalized: string
+          remote_available?: boolean
+          specialisms?: string[]
+          bio: string
+          photo_path?: string | null
+          status?: 'pending' | 'approved' | 'rejected'
+          review_notes?: string | null
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          claimed_profile_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          full_name?: string
+          email?: string
+          specialist_type?: Database['public']['Enums']['specialist_type']
+          accreditation_body?: string
+          accreditation_number?: string
+          qualifications?: string
+          years_experience?: number
+          hourly_rate?: number
+          languages?: string[]
+          location_text?: string
+          postcode?: string
+          postcode_normalized?: string
+          remote_available?: boolean
+          specialisms?: string[]
+          bio?: string
+          photo_path?: string | null
+          status?: 'pending' | 'approved' | 'rejected'
+          review_notes?: string | null
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          claimed_profile_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      specialists: {
+        Row: {
+          id: string
+          profile_id: string | null
+          application_id: string | null
+          full_name: string
+          email: string
+          specialist_type: Database['public']['Enums']['specialist_type']
+          accreditation_body: string
+          accreditation_number: string
+          qualifications: string
+          years_experience: number
+          hourly_rate: number
+          languages: string[]
+          location_text: string
+          postcode: string
+          postcode_normalized: string
+          latitude: number | null
+          longitude: number | null
+          remote_available: boolean
+          specialisms: string[]
+          bio: string
+          photo_path: string | null
+          is_verified: boolean
+          is_active: boolean
+          verification_source: string | null
+          verification_notes: string | null
+          approved_by: string | null
+          approved_at: string | null
+          stripe_connect_id: string | null
+          stripe_connect_status: 'not_started' | 'pending' | 'completed' | 'restricted'
+          rating_average: number
+          rating_count: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          profile_id?: string | null
+          application_id?: string | null
+          full_name: string
+          email: string
+          specialist_type: Database['public']['Enums']['specialist_type']
+          accreditation_body: string
+          accreditation_number: string
+          qualifications: string
+          years_experience: number
+          hourly_rate: number
+          languages?: string[]
+          location_text: string
+          postcode: string
+          postcode_normalized: string
+          latitude?: number | null
+          longitude?: number | null
+          remote_available?: boolean
+          specialisms?: string[]
+          bio: string
+          photo_path?: string | null
+          is_verified?: boolean
+          is_active?: boolean
+          verification_source?: string | null
+          verification_notes?: string | null
+          approved_by?: string | null
+          approved_at?: string | null
+          stripe_connect_id?: string | null
+          stripe_connect_status?: 'not_started' | 'pending' | 'completed' | 'restricted'
+          rating_average?: number
+          rating_count?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          profile_id?: string | null
+          application_id?: string | null
+          full_name?: string
+          email?: string
+          specialist_type?: Database['public']['Enums']['specialist_type']
+          accreditation_body?: string
+          accreditation_number?: string
+          qualifications?: string
+          years_experience?: number
+          hourly_rate?: number
+          languages?: string[]
+          location_text?: string
+          postcode?: string
+          postcode_normalized?: string
+          latitude?: number | null
+          longitude?: number | null
+          remote_available?: boolean
+          specialisms?: string[]
+          bio?: string
+          photo_path?: string | null
+          is_verified?: boolean
+          is_active?: boolean
+          verification_source?: string | null
+          verification_notes?: string | null
+          approved_by?: string | null
+          approved_at?: string | null
+          stripe_connect_id?: string | null
+          stripe_connect_status?: 'not_started' | 'pending' | 'completed' | 'restricted'
+          rating_average?: number
+          rating_count?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      referral_requests: {
+        Row: {
+          id: string
+          case_id: string
+          requester_user_id: string
+          specialist_type: Database['public']['Enums']['specialist_type']
+          source: 'resolution_cta' | 'mediator_assist' | 'marketplace' | 'admin'
+          preferred_time_window: string | null
+          location_preference: 'remote' | 'local' | 'either'
+          location_text: string | null
+          postcode: string | null
+          postcode_normalized: string | null
+          message: string | null
+          source_export_id: string | null
+          triage_status: 'new' | 'reviewing' | 'matched' | 'closed' | 'cancelled'
+          internal_notes: string | null
+          assigned_specialist_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          case_id: string
+          requester_user_id: string
+          specialist_type: Database['public']['Enums']['specialist_type']
+          source: 'resolution_cta' | 'mediator_assist' | 'marketplace' | 'admin'
+          preferred_time_window?: string | null
+          location_preference?: 'remote' | 'local' | 'either'
+          location_text?: string | null
+          postcode?: string | null
+          postcode_normalized?: string | null
+          message?: string | null
+          source_export_id?: string | null
+          triage_status?: 'new' | 'reviewing' | 'matched' | 'closed' | 'cancelled'
+          internal_notes?: string | null
+          assigned_specialist_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          case_id?: string
+          requester_user_id?: string
+          specialist_type?: Database['public']['Enums']['specialist_type']
+          source?: 'resolution_cta' | 'mediator_assist' | 'marketplace' | 'admin'
+          preferred_time_window?: string | null
+          location_preference?: 'remote' | 'local' | 'either'
+          location_text?: string | null
+          postcode?: string | null
+          postcode_normalized?: string | null
+          message?: string | null
+          source_export_id?: string | null
+          triage_status?: 'new' | 'reviewing' | 'matched' | 'closed' | 'cancelled'
+          internal_notes?: string | null
+          assigned_specialist_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          id: string
+          case_id: string
+          referral_request_id: string | null
+          specialist_id: string
+          requested_by_user_id: string | null
+          specialist_type: Database['public']['Enums']['specialist_type']
+          source: 'resolution_cta' | 'mediator_assist' | 'marketplace' | 'admin'
+          status: 'pending' | 'accepted' | 'session_scheduled' | 'recommendation_submitted' | 'completed' | 'cancelled'
+          payment_model: 'request_only' | 'mediator_assist' | 'connect_checkout' | 'solicitor_off_platform'
+          scheduled_for: string | null
+          meeting_mode: 'video' | 'phone' | 'in_person' | null
+          meeting_link: string | null
+          meeting_instructions: string | null
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
+          stripe_transfer_id: string | null
+          payment_amount: number | null
+          platform_fee_amount: number | null
+          specialist_payout_amount: number | null
+          accepted_at: string | null
+          recommendation_submitted_at: string | null
+          completed_at: string | null
+          cancelled_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          case_id: string
+          referral_request_id?: string | null
+          specialist_id: string
+          requested_by_user_id?: string | null
+          specialist_type: Database['public']['Enums']['specialist_type']
+          source: 'resolution_cta' | 'mediator_assist' | 'marketplace' | 'admin'
+          status?: 'pending' | 'accepted' | 'session_scheduled' | 'recommendation_submitted' | 'completed' | 'cancelled'
+          payment_model?: 'request_only' | 'mediator_assist' | 'connect_checkout' | 'solicitor_off_platform'
+          scheduled_for?: string | null
+          meeting_mode?: 'video' | 'phone' | 'in_person' | null
+          meeting_link?: string | null
+          meeting_instructions?: string | null
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_transfer_id?: string | null
+          payment_amount?: number | null
+          platform_fee_amount?: number | null
+          specialist_payout_amount?: number | null
+          accepted_at?: string | null
+          recommendation_submitted_at?: string | null
+          completed_at?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          case_id?: string
+          referral_request_id?: string | null
+          specialist_id?: string
+          requested_by_user_id?: string | null
+          specialist_type?: Database['public']['Enums']['specialist_type']
+          source?: 'resolution_cta' | 'mediator_assist' | 'marketplace' | 'admin'
+          status?: 'pending' | 'accepted' | 'session_scheduled' | 'recommendation_submitted' | 'completed' | 'cancelled'
+          payment_model?: 'request_only' | 'mediator_assist' | 'connect_checkout' | 'solicitor_off_platform'
+          scheduled_for?: string | null
+          meeting_mode?: 'video' | 'phone' | 'in_person' | null
+          meeting_link?: string | null
+          meeting_instructions?: string | null
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_transfer_id?: string | null
+          payment_amount?: number | null
+          platform_fee_amount?: number | null
+          specialist_payout_amount?: number | null
+          accepted_at?: string | null
+          recommendation_submitted_at?: string | null
+          completed_at?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      recommendations: {
+        Row: {
+          id: string
+          referral_id: string
+          case_id: string
+          specialist_id: string
+          overall_assessment: string | null
+          next_steps_recommendation: string | null
+          safeguarding_flag: boolean
+          safeguarding_notes: string | null
+          items: Json
+          submitted_at: string | null
+          last_follow_up_at: string | null
+          follow_up_sent_count: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          referral_id: string
+          case_id: string
+          specialist_id: string
+          overall_assessment?: string | null
+          next_steps_recommendation?: string | null
+          safeguarding_flag?: boolean
+          safeguarding_notes?: string | null
+          items?: Json
+          submitted_at?: string | null
+          last_follow_up_at?: string | null
+          follow_up_sent_count?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          referral_id?: string
+          case_id?: string
+          specialist_id?: string
+          overall_assessment?: string | null
+          next_steps_recommendation?: string | null
+          safeguarding_flag?: boolean
+          safeguarding_notes?: string | null
+          items?: Json
+          submitted_at?: string | null
+          last_follow_up_at?: string | null
+          follow_up_sent_count?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      recommendation_responses: {
+        Row: {
+          id: string
+          recommendation_id: string
+          referral_id: string
+          case_id: string
+          item_key: string
+          question_id: string
+          child_id: string | null
+          user_id: string
+          action: 'pending' | 'accept' | 'modify' | 'reject'
+          response_value: Json | null
+          comment: string | null
+          responded_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          recommendation_id: string
+          referral_id: string
+          case_id: string
+          item_key: string
+          question_id: string
+          child_id?: string | null
+          user_id: string
+          action?: 'pending' | 'accept' | 'modify' | 'reject'
+          response_value?: Json | null
+          comment?: string | null
+          responded_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          recommendation_id?: string
+          referral_id?: string
+          case_id?: string
+          item_key?: string
+          question_id?: string
+          child_id?: string | null
+          user_id?: string
+          action?: 'pending' | 'accept' | 'modify' | 'reject'
+          response_value?: Json | null
+          comment?: string | null
+          responded_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      specialist_ratings: {
+        Row: {
+          id: string
+          referral_id: string
+          specialist_id: string
+          case_id: string
+          user_id: string
+          rating: number
+          review_text: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          referral_id: string
+          specialist_id: string
+          case_id: string
+          user_id: string
+          rating: number
+          review_text?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          referral_id?: string
+          specialist_id?: string
+          case_id?: string
+          user_id?: string
+          rating?: number
+          review_text?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      specialist_availability_slots: {
+        Row: {
+          id: string
+          specialist_id: string
+          starts_at: string
+          ends_at: string
+          is_booked: boolean
+          referral_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          specialist_id: string
+          starts_at: string
+          ends_at: string
+          is_booked?: boolean
+          referral_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          specialist_id?: string
+          starts_at?: string
+          ends_at?: string
+          is_booked?: boolean
+          referral_id?: string | null
+          created_at?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -687,7 +1191,14 @@ export interface Database {
     }
     Views: Record<string, never>
     Functions: Record<string, never>
-    Enums: Record<string, never>
+    Enums: {
+      specialist_type:
+        | 'mediator'
+        | 'solicitor'
+        | 'financial_adviser'
+        | 'pension_expert'
+        | 'child_psychologist'
+    }
     CompositeTypes: Record<string, never>
   }
 }

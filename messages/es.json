@@ -5,6 +5,7 @@
     "invited": "Mi ex me ha invitado",
     "account": "Cuenta",
     "adminDashboard": "Panel de administración",
+    "professionalDashboard": "Panel profesional",
     "backToSite": "Volver al sitio",
     "logout": "Cerrar sesión"
   },
@@ -527,6 +528,8 @@
     "standardFeatureAudit": "Historial y reporte de ahorro",
     "resolutionFeatureConsent": "Sección de borrador de orden de consentimiento",
     "resolutionFeatureCooperation": "Página de puntuación de cooperación",
+    "mediatorAssistFeatureMatching": "Asignación manual de mediador por el equipo de FairSettle",
+    "mediatorAssistFeatureTriage": "Notas de triaje y seguimiento de la derivación",
     "successTitle": "Pago realizado con éxito",
     "successPreparing": "¡Pago completado! Tu dossier se está preparando...",
     "successReady": "Tu dossier está listo para descargar.",

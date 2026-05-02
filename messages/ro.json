@@ -5,6 +5,7 @@
     "invited": "Am fost invitat de fostul meu",
     "account": "Cont",
     "adminDashboard": "Panou de administrare",
+    "professionalDashboard": "Panou specialist",
     "backToSite": "Înapoi la site",
     "logout": "Deconectare"
   },
@@ -521,6 +522,8 @@
     "standardFeatureAudit": "Traseu de audit și raport de economii",
     "resolutionFeatureConsent": "Secțiune proiect ordin de consimțământ",
     "resolutionFeatureCooperation": "Pagină scor de cooperare",
+    "mediatorAssistFeatureMatching": "Potrivire manuală cu mediator de către echipa FairSettle",
+    "mediatorAssistFeatureTriage": "Note de triere și urmărire a recomandării",
     "successTitle": "Plată reușită",
     "successPreparing": "Plată reușită! Pachetul dosarului tău este în curs de pregătire...",
     "successReady": "Pachetul dosarului tău este gata pentru descărcare.",

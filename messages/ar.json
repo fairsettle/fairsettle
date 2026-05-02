@@ -5,6 +5,7 @@
     "invited": "لقد تمت دعوتي من قبل شريكي السابق",
     "account": "الحساب",
     "adminDashboard": "لوحة تحكم الإدارة",
+    "professionalDashboard": "لوحة تحكم المختص",
     "backToSite": "العودة إلى الموقع",
     "logout": "تسجيل الخروج"
   },
@@ -521,6 +522,8 @@
     "standardFeatureAudit": "سجل التدقيق وتقرير التوفير",
     "resolutionFeatureConsent": "قسم مسودة أمر الموافقة",
     "resolutionFeatureCooperation": "صفحة تقييم التعاون",
+    "mediatorAssistFeatureMatching": "مطابقة يدوية مع وسيط من فريق FairSettle",
+    "mediatorAssistFeatureTriage": "ملاحظات الفرز ومتابعة الإحالة",
     "successTitle": "تم الدفع بنجاح",
     "successPreparing": "تم الدفع بنجاح! جارٍ إعداد حزمة قضيتك...",
     "successReady": "حزمة قضيتك جاهزة للتحميل.",
